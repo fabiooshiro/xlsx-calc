@@ -10,9 +10,48 @@
   };
 
   var functions = {
-    SUM: SumArgs
+    SUM: SumArgs,
+    VLOOKUP: Vlookup
   };
-  
+
+  function Vlookup(formula) {
+    var self = this;
+    self.args = [];
+    this.calc = function() {
+      var matrix = self.args[1];
+      var key = self.args[0];
+      var return_index = self.args[2] - 1;
+      for (var i = 0; i < matrix.length; i++) {
+        if (matrix[i][0] == key) {
+          return matrix[i][return_index];
+        }
+      }
+      throw Error('#N/A');
+    };
+  }
+
+  function SumArgs(formula) {
+    var self = this;
+    self.args = [];
+    this.calc = function() {
+      var r = 0;
+      for (var i = self.args.length; i--;) {
+        if (Array.isArray(self.args[i])) {
+          var matrix = self.args[i];
+          for (var j = matrix.length; j--;) {
+            for (var k = matrix[j].length; k--;) {
+              r += matrix[j][k];
+            }
+          }
+        }
+        else {
+          r += self.args[i];
+        }
+      }
+      return r;
+    };
+  }
+
   function PushDecorator(impl, formula) {
     var self = this;
     self.calc = impl.calc;
@@ -23,13 +62,29 @@
           impl.args.push(+buffer);
         }
         else if (buffer.match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
-          var range = new Range(buffer, formula).values();
-          for (var i = 0; i < range.length; i++) {
-            self.args.push(range[i]);
-          }
+          self.args.push(new Range(buffer, formula).values());
         }
-        else if(buffer.match(/^[A-Z]+[0-9]+$/)) {
+        else if (buffer.match(/^[A-Z]+[0-9]+$/)) {
           impl.args.push(new RefValue(buffer, formula).calc());
+        }
+        else if (buffer.match(/^([A-Z]+[0-9]+)([,:]([A-Z]+[0-9]+)|,[0-9]+)*$/)) {
+          //console.log(buffer);
+          var arr = buffer.split(',');
+          for (var i = 0; i < arr.length; i++) {
+            var one_param = arr[i];
+            if (!isNaN(one_param)) {
+              impl.args.push(+one_param);
+            }
+            else if (one_param.match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
+              self.args.push(new Range(one_param, formula).values());
+            }
+            else if (one_param.match(/^[A-Z]+[0-9]+$/)) {
+              impl.args.push(new RefValue(one_param, formula).calc());
+            }
+            else {
+              impl.args.push(buffer);
+            }
+          }
         }
         else {
           impl.args.push(buffer);
@@ -44,18 +99,6 @@
     };
   }
 
-  function SumArgs(formula) {
-    var self = this;
-    self.args = [];
-    this.calc = function() {
-      var r = 0;
-      for (var i = self.args.length; i--;) {
-        r += self.args[i];
-      }
-      return r;
-    };
-  }
-
   function RefValue(str_expression, formula) {
     this.calc = function() {
       var ref_cell = formula.sheet[str_expression];
@@ -63,33 +106,70 @@
         throw Error("Cell " + str_expression + " not found.");
       }
       var formula_ref = formula.formula_ref[str_expression];
-      if (formula_ref && formula_ref.exp_obj) {
-        return formula_ref.exp_obj.calc();
+      if (formula_ref) {
+        if(formula_ref.status === 'new') {
+          expression(formula_ref);
+          return formula.sheet[str_expression].v;
+        }
+        else if(formula_ref.status === 'working') {
+          throw new Error('Circular ref');
+        }
       }
       else {
-        if (formula.sheet[str_expression].f) {
-          expression(formula.formula_ref[str_expression]);
-        }
         return formula.sheet[str_expression].v;
       }
     };
+  }
+
+  function col_str_2_int(colstr) {
+    var r = 0;
+    for (var i = colstr.length; i--;) {
+      r += Math.pow(26, colstr.length - i - 1) * (colstr.charCodeAt(i) - 64);
+    }
+    return r - 1;
+  }
+
+  function int_2_col_str(n) {
+    var r = '';
+    while (n > 25) {
+      n = n - 26;
+      r += 'A';
+    }
+    return r + String.fromCharCode(n + 65);
   }
 
   function Range(str_expression, formula) {
     this.is_range = true;
     this.values = function() {
       var arr = str_expression.split(':');
-      var min_n = parseInt(arr[0].replace(/^[A-Z]+/, ''));
-      var max_n = parseInt(arr[1].replace(/^[A-Z]+/, ''));
-      var min_L = arr[0].replace(/[0-9]$/, '');
-      var max_L = arr[1].replace(/[0-9]$/, '');
-      var r = [];
-      var L = min_L;
-      for (var i = min_n; i <= max_n; i++) {
-        var cell_name = L + i;
-        r.push(formula.sheet[cell_name].v);
+      var min_row = parseInt(arr[0].replace(/^[A-Z]+/, ''), 10);
+      var max_row = parseInt(arr[1].replace(/^[A-Z]+/, ''), 10);
+      var min_col = col_str_2_int(arr[0].replace(/[0-9]$/, ''));
+      var max_col = col_str_2_int(arr[1].replace(/[0-9]$/, ''));
+      var matrix = [];
+      for (var i = min_row; i <= max_row; i++) {
+        var row = [];
+        matrix.push(row);
+        for (var j = min_col; j <= max_col; j++) {
+          var cell_name = int_2_col_str(j) + i;
+          if (formula.formula_ref[cell_name]) {
+            if (formula.formula_ref[cell_name].status === 'new') {
+              expression(formula.formula_ref[cell_name]);
+            }
+            else if (formula.formula_ref[cell_name].status === 'working') {
+              throw new Error('Circular ref');
+            }
+            row.push(formula.sheet[cell_name].v);
+          }
+          else if (formula.sheet[cell_name]) {
+            row.push(formula.sheet[cell_name].v);
+          }
+          else {
+            row.push(null);
+          }
+        }
       }
-      return r;
+      return matrix;
     };
   }
 
@@ -121,7 +201,7 @@
         }
       }
     }
-    
+
     self.calc = function() {
       exec_minus();
       exec('^', function(a, b) {
@@ -140,17 +220,21 @@
         console.log(a, '+', b);
         return a + b;
       });
+      exec('&', function(a, b) {
+        console.log(a, '&', b);
+        return '' + a + b;
+      });
       if (self.args.length == 1) {
         return self.args[0].calc();
       }
     };
-    
+
     self.push = function(buffer) {
       if (buffer) {
         if (!isNaN(buffer)) {
           self.args.push(new RawValue(+buffer));
         }
-        else if(buffer.match(/^[A-Z]+[0-9]+$/)) {
+        else if (buffer.match(/^[A-Z]+[0-9]+$/)) {
           self.args.push(new RefValue(buffer, formula));
         }
         else {
@@ -165,10 +249,12 @@
     '+': 'plus',
     '-': 'minus',
     '/': 'divide',
-    '^': 'power'
+    '^': 'power',
+    '&': 'concat'
   };
 
   function expression(formula) {
+    formula.status = 'working';
     var root_exp;
     var str_formula = formula.cell.f;
     var exp_obj = root_exp = new Exp(formula);
@@ -217,10 +303,22 @@
       }
     }
     root_exp.push(buffer);
-    // for (var i = 0; i < root_exp.args.length; i++) {
-    //   console.log('->', root_exp.args[i]);
-    // }
-    formula.cell.v = root_exp.calc();
+    try {
+      formula.cell.v = root_exp.calc();
+    }
+    catch (e) {
+      if (e.message == '#N/A') {
+        formula.cell.v = 42;
+        formula.cell.t = 'e';
+        formula.cell.w = e.message;
+      }
+      else {
+        throw e;
+      }
+    }
+    finally {
+      formula.status = 'done';
+    }
   }
 
   function find_all_cells_with_formulas(wb) {
@@ -235,7 +333,8 @@
             wb: wb,
             sheet: sheet,
             cell: sheet[cell_name],
-            name: cell_name
+            name: cell_name,
+            status: 'new'
           };
           cells.push(formula);
         }
@@ -245,7 +344,7 @@
   }
 
   uexp(this, 'XLSX_CALC', mymodule);
-  
+
   function uexp(root, MODULENAME, mymodule) {
     /**
      * Generic code to export the module
@@ -281,6 +380,5 @@
       });
     }
   }
-  
 
 }).call(this);

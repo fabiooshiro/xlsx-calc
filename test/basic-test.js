@@ -34,7 +34,6 @@ describe('XLSX_CALC', function() {
         });
         it('should calc 1+2', function() {
             workbook.Sheets.Sheet1.A1.f = '1+2';
-            console.log(XLSX_CALC);
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 3);
         });
@@ -191,7 +190,7 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 6);
         });
     });
-    xdescribe('range', function() {
+    describe('range', function() {
         it('should eval the expression in range of sum', function() {
             workbook.Sheets.Sheet1.A1.f = 'SUM(C3:C4)';
             workbook.Sheets.Sheet1.C4.f = 'A2';
@@ -200,7 +199,7 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.C4.v, 7);
         });
     });
-    xit('throws a circular exception', function() {
+    it('throws a circular exception', function() {
         workbook.Sheets.Sheet1.C4.f = 'A1';
         workbook.Sheets.Sheet1.A1.f = 'C4';
         assert.throws(
