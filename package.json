@@ -1,0 +1,11 @@
+{
+  "name": "xlsx-calc",
+  "version": "0.0.0",
+  "description": "A simple calculator.",
+  "main": "xlsx-calc.js",
+  "repository": "",
+  "author": "Sr Oshiro <fabio.oshiro@gmail.com>",
+  "dependencies": {
+    "xlsx": "^0.8.0"
+  }
+}
