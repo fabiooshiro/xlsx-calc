@@ -11,12 +11,48 @@
 
   var functions = {
     SUM: SumArgs,
-    VLOOKUP: Vlookup
+    VLOOKUP: Vlookup,
+    MAX: Max,
+    SQRT: Sqrt
   };
 
-  function Vlookup(formula) {
+  function Sqrt() {
+    var self = this;
+    self.name = 'SQRT';
+    self.args = [];
+    self.calc = function() {
+      return Math.sqrt(self.args[0]);
+    };
+  }
+
+  function Max() {
+    var self = this;
+    self.name = 'MAX';
+    self.args = [];
+    this.calc = function() {
+      var max = null;
+      for (var i = self.args.length; i--;) {
+        if (Array.isArray(self.args[i])) {
+          var arr = self.args[i];
+          for (var j = arr.length; j--;) {
+            max = max == null || max < arr[j] ? arr[j] : max;
+          }
+        }
+        else if (!isNaN(self.args[i])) {
+          max = max == null || max < self.args[i] ? self.args[i] : max;
+        }
+        else {
+          console.log('WTF??', self.args[i]);
+        }
+      }
+      return max;
+    };
+  }
+
+  function Vlookup() {
     var self = this;
     self.args = [];
+    self.name = 'VLOOKUP';
     this.calc = function() {
       var matrix = self.args[1];
       var key = self.args[0];
@@ -30,8 +66,9 @@
     };
   }
 
-  function SumArgs(formula) {
+  function SumArgs() {
     var self = this;
+    self.name = 'SUM';
     self.args = [];
     this.calc = function() {
       var r = 0;
@@ -56,35 +93,23 @@
     var self = this;
     self.calc = impl.calc;
     self.args = impl.args;
+    self.name = impl.name;
     self.push = function(buffer) {
       if (buffer) {
+        //console.log('pushing', buffer, 'into', impl.name);
         if (!isNaN(buffer)) {
           impl.args.push(+buffer);
+        }
+        else if (buffer['calc']) {
+          var v = buffer.calc();
+          //console.log('calc', buffer.name, 'in push', v);
+          self.args.push(v);
         }
         else if (buffer.match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
           self.args.push(new Range(buffer, formula).values());
         }
         else if (buffer.match(/^[A-Z]+[0-9]+$/)) {
           impl.args.push(new RefValue(buffer, formula).calc());
-        }
-        else if (buffer.match(/^([A-Z]+[0-9]+)([,:]([A-Z]+[0-9]+)|,[0-9]+)*$/)) {
-          //console.log(buffer);
-          var arr = buffer.split(',');
-          for (var i = 0; i < arr.length; i++) {
-            var one_param = arr[i];
-            if (!isNaN(one_param)) {
-              impl.args.push(+one_param);
-            }
-            else if (one_param.match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
-              self.args.push(new Range(one_param, formula).values());
-            }
-            else if (one_param.match(/^[A-Z]+[0-9]+$/)) {
-              impl.args.push(new RefValue(one_param, formula).calc());
-            }
-            else {
-              impl.args.push(buffer);
-            }
-          }
         }
         else {
           impl.args.push(buffer);
@@ -107,11 +132,11 @@
       }
       var formula_ref = formula.formula_ref[str_expression];
       if (formula_ref) {
-        if(formula_ref.status === 'new') {
+        if (formula_ref.status === 'new') {
           expression(formula_ref);
           return formula.sheet[str_expression].v;
         }
-        else if(formula_ref.status === 'working') {
+        else if (formula_ref.status === 'working') {
           throw new Error('Circular ref');
         }
       }
@@ -176,6 +201,7 @@
   function Exp(formula) {
     var self = this;
     self.args = [];
+    self.name = 'Expression';
 
     function exec(op, fn) {
       for (var i = 0; i < self.args.length; i++) {
@@ -188,7 +214,7 @@
     }
 
     function exec_minus() {
-      for (var i = self.args.length - 1; i--;) {
+      for (var i = self.args.length; i--;) {
         if (self.args[i] === '-') {
           var r = -self.args[i + 1].calc();
           if (typeof self.args[i - 1] !== 'string' && i > 0) {
@@ -203,25 +229,27 @@
     }
 
     self.calc = function() {
+      //console.log('calc exp', self.args);
       exec_minus();
+      //console.log('ending of exp...');
       exec('^', function(a, b) {
-        console.log(a, '^', b);
+        //console.log(a, '^', b);
         return Math.pow(a, b);
       });
       exec('*', function(a, b) {
-        console.log(a, '*', b);
+        //console.log(a, '*', b);
         return a * b;
       });
       exec('/', function(a, b) {
-        console.log(a, '/', b);
+        //console.log(a, '/', b);
         return a / b;
       });
       exec('+', function(a, b) {
-        console.log(a, '+', b);
+        //console.log(a, '+', b);
         return a + b;
       });
       exec('&', function(a, b) {
-        console.log(a, '&', b);
+        //console.log(a, '&', b);
         return '' + a + b;
       });
       if (self.args.length == 1) {
@@ -234,7 +262,7 @@
         if (!isNaN(buffer)) {
           self.args.push(new RawValue(+buffer));
         }
-        else if (buffer.match(/^[A-Z]+[0-9]+$/)) {
+        else if (typeof buffer === 'string' && buffer.match(/^[A-Z]+[0-9]+$/)) {
           self.args.push(new RefValue(buffer, formula));
         }
         else {
@@ -271,7 +299,7 @@
             exp: o,
             special: true
           });
-          exp_obj.args.push(o);
+          exp_obj = o;
         }
         else if (common_operations[buffer]) {
           exp_obj.args.push(buffer);
@@ -281,22 +309,27 @@
           fn_stack.push({
             exp: o
           });
-          exp_obj.args.push(o);
           exp_obj = o;
         }
         buffer = '';
       }
       else if (common_operations[str_formula[i]]) {
         exp_obj.push(buffer);
-        exp_obj.args.push(str_formula[i]);
+        exp_obj.push(str_formula[i]);
+        buffer = '';
+      }
+      else if (str_formula[i] === ',' && fn_stack[fn_stack.length - 1].special) {
+        fn_stack[fn_stack.length - 1].exp.push(buffer);
         buffer = '';
       }
       else if (str_formula[i] == ')') {
-        var stack = fn_stack.pop();
+        var v, stack = fn_stack.pop();
         exp_obj = stack.exp;
         exp_obj.push(buffer);
+        v = exp_obj;
         buffer = '';
         exp_obj = fn_stack[fn_stack.length - 1].exp;
+        exp_obj.push(v);
       }
       else {
         buffer += str_formula[i];

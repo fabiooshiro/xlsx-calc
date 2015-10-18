@@ -116,6 +116,13 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 1024);
         });
     });
+    describe('SQRT', function() {
+        it('should calc SQRT(25)', function() {
+            workbook.Sheets.Sheet1.A1.f = 'SQRT(25)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 5);
+        });
+    });
     describe('expression', function() {
         it('should calc 8/2+1', function() {
             workbook.Sheets.Sheet1.A1.f = '8/2+1';
@@ -188,6 +195,40 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.A1.f = 'SUM(C3:C5)';
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 6);
+        });
+        it('sums numbers', function() {
+            workbook.Sheets.Sheet1.A1.f = 'SUM(1,2,3)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 6);
+        });
+    });
+    describe('MAX', function() {
+        it('finds the max in range', function() {
+            workbook.Sheets.Sheet1.A1.f = 'MAX(C3:C5)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 3);
+        });
+        it('finds the max in range including some cell', function() {
+            workbook.Sheets.Sheet1.A1.f = 'MAX(C3:C5,A2)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 7);
+        });
+        it('finds the max in range including some cell', function() {
+            workbook.Sheets.Sheet1.A1.f = 'MAX(A2,C3:C5)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 7);
+        });
+        it('finds the max in args', function() {
+            workbook.Sheets.Sheet1.A1.f = 'MAX(1,2,10,3,4)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 10);
+        });
+    });
+    describe('MAX and SUM', function() {
+        it('evaluates MAX(1,2,SUM(10,5),7,3,4)', function() {
+            workbook.Sheets.Sheet1.A1.f = 'MAX(1,2,SUM(10,5),7,3,4)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 15);
         });
     });
     describe('range', function() {
