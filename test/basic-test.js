@@ -11,6 +11,9 @@ describe('XLSX_CALC', function() {
                     A2: {
                         v: 7
                     },
+                    C2: {
+                        v: 1
+                    },
                     C3: {
                         v: 1
                     },
@@ -247,6 +250,28 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 10);
         });
+        it('finds the max in negative args', function() {
+            workbook.Sheets.Sheet1.A1.f = 'MAX(-1,-2,-10,-3,-4)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, -1);
+        });
+        it('finds the max in range including some negative cell', function() {
+            workbook.Sheets.Sheet1.A1.f = 'MAX(C3:C5,-A2)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 3);
+        });
+    });
+    describe('MIN', function() {
+        it('finds the min in range', function() {
+            workbook.Sheets.Sheet1.A1.f = 'MIN(C3:C5)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 1);
+        });
+        it('finds the min in range including some negative cell', function() {
+            workbook.Sheets.Sheet1.A1.f = 'MIN(C3:C5,-A2)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, -7);
+        });
     });
     describe('MAX and SUM', function() {
         it('evaluates MAX(1,2,SUM(10,5),7,3,4)', function() {
@@ -263,6 +288,23 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 8);
             assert.equal(workbook.Sheets.Sheet1.C4.v, 7);
         });
+    });
+    it('calcs ref chain', function() {
+        workbook.Sheets.Sheet1.C4.f = 'A1';
+        workbook.Sheets.Sheet1.A1.f = 'A2';
+        workbook.Sheets.Sheet1.A2.v = 1979;
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.C4.v, 1979);
+    });
+    it('calcs ref chain 2', function() {
+        workbook.Sheets.Sheet1.C4.f = 'C3';
+        workbook.Sheets.Sheet1.C3.f = 'C2';
+        workbook.Sheets.Sheet1.C2.f = 'A2';
+        workbook.Sheets.Sheet1.A2.f = 'A1';
+        workbook.Sheets.Sheet1.A1.v = 1979;
+        workbook.Sheets.Sheet1.C5.f = 'C3';
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.C4.v, 1979);
     });
     it('throws a circular exception', function() {
         workbook.Sheets.Sheet1.C4.f = 'A1';

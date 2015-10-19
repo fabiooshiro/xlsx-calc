@@ -15,7 +15,8 @@
     'SQRT': Math.sqrt,
     'VLOOKUP': vlookup,
     'MAX': max,
-    'SUM': sum
+    'SUM': sum,
+    'MIN': min
   };
   
   mymodule.set_function = function(name, fn) {
@@ -59,6 +60,26 @@
       }
     }
     return max;
+  }
+  
+  function min() {
+    var result = null;
+    for (var i = arguments.length; i--;) {
+      var arg = arguments[i];
+      if (Array.isArray(arg)) {
+        var arr = arg;
+        for (var j = arr.length; j--;) {
+          result = result == null || result > arr[j] ? arr[j] : result;
+        }
+      }
+      else if (!isNaN(arg)) {
+        result = result == null || result > arg ? arg : result;
+      }
+      else {
+        console.log('WTF??', arg);
+      }
+    }
+    return result;
   }
 
   function vlookup(key, matrix, return_index) {
@@ -127,6 +148,9 @@
         }
         else if (formula_ref.status === 'working') {
           throw new Error('Circular ref');
+        }
+        else if (formula_ref.status === 'done') {
+          return formula.sheet[str_expression].v;
         }
       }
       else {
@@ -217,7 +241,6 @@
     }
 
     self.calc = function() {
-      //console.log('calc exp', self.args);
       exec_minus();
       //console.log('ending of exp...');
       exec('^', function(a, b) {
