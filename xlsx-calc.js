@@ -5,115 +5,104 @@
   var mymodule = function(workbook) {
     var formulas = find_all_cells_with_formulas(workbook);
     for (var i = formulas.length - 1; i >= 0; i--) {
-      expression(formulas[i]);
+      exec_formula(formulas[i]);
     }
   };
 
-  var functions = {
-    SUM: SumArgs,
-    VLOOKUP: Vlookup,
-    MAX: Max,
-    SQRT: Sqrt
+  var xlsx_functions = {
+    'FLOOR': Math.floor,
+    'ABS': Math.abs,
+    'SQRT': Math.sqrt,
+    'VLOOKUP': vlookup,
+    'MAX': max,
+    'SUM': sum
+  };
+  
+  mymodule.set_function = function(name, fn) {
+    xlsx_functions[name] = fn;
   };
 
-  function Sqrt() {
+  function sum() {
+    var r = 0;
+    for (var i = arguments.length; i--;) {
+      var arg = arguments[i];
+      if (Array.isArray(arg)) {
+        var matrix = arg;
+        for (var j = matrix.length; j--;) {
+          for (var k = matrix[j].length; k--;) {
+            r += matrix[j][k];
+          }
+        }
+      }
+      else {
+        r += arg;
+      }
+    }
+    return r;
+  }
+
+  function max() {
+    var max = null;
+    for (var i = arguments.length; i--;) {
+      var arg = arguments[i];
+      if (Array.isArray(arg)) {
+        var arr = arg;
+        for (var j = arr.length; j--;) {
+          max = max == null || max < arr[j] ? arr[j] : max;
+        }
+      }
+      else if (!isNaN(arg)) {
+        max = max == null || max < arg ? arg : max;
+      }
+      else {
+        console.log('WTF??', arg);
+      }
+    }
+    return max;
+  }
+
+  function vlookup(key, matrix, return_index) {
+    for (var i = 0; i < matrix.length; i++) {
+      if (matrix[i][0] == key) {
+        return matrix[i][return_index - 1];
+      }
+    }
+    throw Error('#N/A');
+  }
+
+  function UserFnExecutor(user_function, formula) {
     var self = this;
-    self.name = 'SQRT';
+    self.name = 'UserFn';
     self.args = [];
+    var next_is_negative = false;
     self.calc = function() {
-      return Math.sqrt(self.args[0]);
+      return user_function.apply(self, self.args);
     };
-  }
-
-  function Max() {
-    var self = this;
-    self.name = 'MAX';
-    self.args = [];
-    this.calc = function() {
-      var max = null;
-      for (var i = self.args.length; i--;) {
-        if (Array.isArray(self.args[i])) {
-          var arr = self.args[i];
-          for (var j = arr.length; j--;) {
-            max = max == null || max < arr[j] ? arr[j] : max;
-          }
-        }
-        else if (!isNaN(self.args[i])) {
-          max = max == null || max < self.args[i] ? self.args[i] : max;
-        }
-        else {
-          console.log('WTF??', self.args[i]);
-        }
-      }
-      return max;
-    };
-  }
-
-  function Vlookup() {
-    var self = this;
-    self.args = [];
-    self.name = 'VLOOKUP';
-    this.calc = function() {
-      var matrix = self.args[1];
-      var key = self.args[0];
-      var return_index = self.args[2] - 1;
-      for (var i = 0; i < matrix.length; i++) {
-        if (matrix[i][0] == key) {
-          return matrix[i][return_index];
-        }
-      }
-      throw Error('#N/A');
-    };
-  }
-
-  function SumArgs() {
-    var self = this;
-    self.name = 'SUM';
-    self.args = [];
-    this.calc = function() {
-      var r = 0;
-      for (var i = self.args.length; i--;) {
-        if (Array.isArray(self.args[i])) {
-          var matrix = self.args[i];
-          for (var j = matrix.length; j--;) {
-            for (var k = matrix[j].length; k--;) {
-              r += matrix[j][k];
-            }
-          }
-        }
-        else {
-          r += self.args[i];
-        }
-      }
-      return r;
-    };
-  }
-
-  function PushDecorator(impl, formula) {
-    var self = this;
-    self.calc = impl.calc;
-    self.args = impl.args;
-    self.name = impl.name;
     self.push = function(buffer) {
       if (buffer) {
-        //console.log('pushing', buffer, 'into', impl.name);
+        //console.log('pushing', buffer, 'into', self.name);
+        var v;
         if (!isNaN(buffer)) {
-          impl.args.push(+buffer);
+          v = +buffer;
         }
         else if (buffer['calc']) {
-          var v = buffer.calc();
+          v = buffer.calc();
           //console.log('calc', buffer.name, 'in push', v);
-          self.args.push(v);
         }
         else if (buffer.match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
-          self.args.push(new Range(buffer, formula).values());
+          v = new Range(buffer, formula).values();
         }
         else if (buffer.match(/^[A-Z]+[0-9]+$/)) {
-          impl.args.push(new RefValue(buffer, formula).calc());
+          v = new RefValue(buffer, formula).calc();
         }
-        else {
-          impl.args.push(buffer);
+        else if (buffer === '-') {
+          next_is_negative = true;
+          return;
         }
+        if (next_is_negative) {
+          v = -v;
+        }
+        self.args.push(v);
       }
     };
   }
@@ -133,7 +122,7 @@
       var formula_ref = formula.formula_ref[str_expression];
       if (formula_ref) {
         if (formula_ref.status === 'new') {
-          expression(formula_ref);
+          exec_formula(formula_ref);
           return formula.sheet[str_expression].v;
         }
         else if (formula_ref.status === 'working') {
@@ -164,7 +153,6 @@
   }
 
   function Range(str_expression, formula) {
-    this.is_range = true;
     this.values = function() {
       var arr = str_expression.split(':');
       var min_row = parseInt(arr[0].replace(/^[A-Z]+/, ''), 10);
@@ -179,7 +167,7 @@
           var cell_name = int_2_col_str(j) + i;
           if (formula.formula_ref[cell_name]) {
             if (formula.formula_ref[cell_name].status === 'new') {
-              expression(formula.formula_ref[cell_name]);
+              exec_formula(formula.formula_ref[cell_name]);
             }
             else if (formula.formula_ref[cell_name].status === 'working') {
               throw new Error('Circular ref');
@@ -281,7 +269,7 @@
     '&': 'concat'
   };
 
-  function expression(formula) {
+  function exec_formula(formula) {
     formula.status = 'working';
     var root_exp;
     var str_formula = formula.cell.f;
@@ -292,17 +280,17 @@
     }];
     for (var i = 0; i < str_formula.length; i++) {
       if (str_formula[i] == '(') {
-        var special = functions[buffer];
+        var o, special = xlsx_functions[buffer];
         if (special) {
-          var o = new PushDecorator(new special(), formula);
+          o = new UserFnExecutor(special, formula);
           fn_stack.push({
             exp: o,
             special: true
           });
           exp_obj = o;
         }
-        else if (common_operations[buffer]) {
-          exp_obj.args.push(buffer);
+        else if (buffer) {
+          throw new Error('Function ' + buffer + ' not found');
         }
         else {
           o = new Exp(formula);

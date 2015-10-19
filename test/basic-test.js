@@ -123,6 +123,30 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 5);
         });
     });
+    describe('ABS', function() {
+        it('should calc ABS(-3.5)', function() {
+            workbook.Sheets.Sheet1.A1.f = 'ABS(-3.5)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 3.5);
+        });
+    });
+    describe('FLOOR', function() {
+        it('should calc FLOOR(12.5)', function() {
+            workbook.Sheets.Sheet1.A1.f = 'FLOOR(12.5)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 12);
+        });
+    });
+    describe('.set_function', function() {
+        it('sets new function', function() {
+            XLSX_CALC.set_function('ADD_1', function(arg) {
+                return arg + 1;
+            });
+            workbook.Sheets.Sheet1.A1.f = 'ADD_1(123)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 124);
+        });
+    });
     describe('expression', function() {
         it('should calc 8/2+1', function() {
             workbook.Sheets.Sheet1.A1.f = '8/2+1';
@@ -248,6 +272,15 @@ describe('XLSX_CALC', function() {
                 XLSX_CALC(workbook);
             },
             /Circular ref/
+        );
+    });
+    it('throws a function XPTO not found', function() {
+        workbook.Sheets.Sheet1.A1.f = 'XPTO()';
+        assert.throws(
+            function() {
+                XLSX_CALC(workbook);
+            },
+            /Function XPTO not found/
         );
     });
 });
