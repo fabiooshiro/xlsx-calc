@@ -2,13 +2,6 @@
 
 (function() {
 
-  var mymodule = function(workbook) {
-    var formulas = find_all_cells_with_formulas(workbook);
-    for (var i = formulas.length - 1; i >= 0; i--) {
-      exec_formula(formulas[i]);
-    }
-  };
-
   var xlsx_functions = {
     'FLOOR': Math.floor,
     'ABS': Math.abs,
@@ -19,10 +12,6 @@
     'MIN': min
   };
   
-  mymodule.set_function = function(name, fn) {
-    xlsx_functions[name] = fn;
-  };
-
   function sum() {
     var r = 0;
     for (var i = arguments.length; i--;) {
@@ -90,6 +79,17 @@
     }
     throw Error('#N/A');
   }
+
+  var mymodule = function(workbook) {
+    var formulas = find_all_cells_with_formulas(workbook);
+    for (var i = formulas.length - 1; i >= 0; i--) {
+      exec_formula(formulas[i]);
+    }
+  };
+  
+  mymodule.set_function = function(name, fn) {
+    xlsx_functions[name] = fn;
+  };
 
   function UserFnExecutor(user_function, formula) {
     var self = this;
@@ -273,8 +273,8 @@
         if (!isNaN(buffer)) {
           self.args.push(new RawValue(+buffer));
         }
-        else if (typeof buffer === 'string' && buffer.match(/^[A-Z]+[0-9]+$/)) {
-          self.args.push(new RefValue(buffer, formula));
+        else if (typeof buffer === 'string' && buffer.trim().match(/^[A-Z]+[0-9]+$/)) {
+          self.args.push(new RefValue(buffer.trim(), formula));
         }
         else {
           self.args.push(buffer);
@@ -297,12 +297,21 @@
     var root_exp;
     var str_formula = formula.cell.f;
     var exp_obj = root_exp = new Exp(formula);
-    var buffer = '';
+    var buffer = '', is_string = false;
     var fn_stack = [{
       exp: exp_obj
     }];
     for (var i = 0; i < str_formula.length; i++) {
-      if (str_formula[i] == '(') {
+      if (str_formula[i] == '"') {
+        if (is_string) {
+          exp_obj.push(new RawValue(buffer));
+          buffer = '';
+          is_string = false;
+        } else {
+          is_string = true;
+        }
+      }
+      else if (str_formula[i] == '(') {
         var o, special = xlsx_functions[buffer];
         if (special) {
           o = new UserFnExecutor(special, formula);
