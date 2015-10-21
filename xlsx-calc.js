@@ -9,8 +9,28 @@
     'VLOOKUP': vlookup,
     'MAX': max,
     'SUM': sum,
-    'MIN': min
+    'MIN': min,
+    'CONCATENATE': concatenate
   };
+  
+  function concatenate() {
+    var r = '';
+    for (var i = 0; i < arguments.length; i++) {
+      var arg = arguments[i];
+      if (Array.isArray(arg)) {
+        var matrix = arg;
+        for (var j = 0; j < matrix.length; j++) {
+          for (var k = 0; k < matrix[j].length; k++) {
+            r += matrix[j][k];
+          }
+        }
+      }
+      else {
+        r += arg;
+      }
+    }
+    return r;
+  }
   
   function sum() {
     var r = 0;

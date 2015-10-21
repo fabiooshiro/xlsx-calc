@@ -280,12 +280,25 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 15);
         });
     });
-    describe('concat &', function() {
-        it('evaluates ="concat "&A8', function() {
+    describe('&', function() {
+        it('evaluates "concat "&A8', function() {
             workbook.Sheets.Sheet1.A1.f = '"concat "&A2';
             workbook.Sheets.Sheet1.A2.v = 7;
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 'concat 7');
+        });
+    });
+    describe('CONCATENATE', function() {
+        it('concatenates 1,2,3', function() {
+            workbook.Sheets.Sheet1.A1.f = 'CONCATENATE(1,2,3)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, '123');
+        });
+        it('concatenates A2,"xxx"', function() {
+            workbook.Sheets.Sheet1.A1.f = 'CONCATENATE(A2,"xxx")';
+            workbook.Sheets.Sheet1.A2.v = 79;
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, '79xxx');
         });
     });
     describe('range', function() {
