@@ -321,9 +321,22 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 8);
             assert.equal(workbook.Sheets.Sheet1.C4.v, 7);
         });
+        it('should calc range with $', function() {
+            workbook.Sheets.Sheet1.A1.f = 'SUM($C$3:$C$4)';
+            workbook.Sheets.Sheet1.C4.f = 'A2';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 8);
+            assert.equal(workbook.Sheets.Sheet1.C4.v, 7);
+        });
     });
     it('calcs ref with space', function() {
         workbook.Sheets.Sheet1.A1.f = 'A2 ';
+        workbook.Sheets.Sheet1.A2.v = 1979;
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.A1.v, 1979);
+    });
+    it('calcs ref with $', function() {
+        workbook.Sheets.Sheet1.A1.f = '$A$2 ';
         workbook.Sheets.Sheet1.A2.v = 1979;
         XLSX_CALC(workbook);
         assert.equal(workbook.Sheets.Sheet1.A1.v, 1979);

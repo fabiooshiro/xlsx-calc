@@ -120,11 +120,11 @@
           v = buffer.calc();
           //console.log('calc', buffer.name, 'in push', v);
         }
-        else if (buffer.trim().match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
-          v = new Range(buffer.trim(), formula).values();
+        else if (buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
+          v = new Range(buffer.trim().replace(/\$/g, ''), formula).values();
         }
-        else if (buffer.trim().match(/^[A-Z]+[0-9]+$/)) {
-          v = new RefValue(buffer.trim(), formula).calc();
+        else if (buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+$/)) {
+          v = new RefValue(buffer.trim().replace(/\$/g, ''), formula).calc();
         }
         else if (buffer === '-') {
           next_is_negative = true;
@@ -232,9 +232,14 @@
     function exec(op, fn) {
       for (var i = 0; i < self.args.length; i++) {
         if (self.args[i] === op) {
-          var r = fn(self.args[i - 1].calc(), self.args[i + 1].calc());
-          self.args.splice(i - 1, 3, new RawValue(r));
-          i--;
+          try {
+            var r = fn(self.args[i - 1].calc(), self.args[i + 1].calc());
+            self.args.splice(i - 1, 3, new RawValue(r));
+            i--;
+          }
+          catch(e) {
+            throw Error(formula.name + ': evaluating ' + formula.cell.f);
+          }
         }
       }
     }
@@ -259,19 +264,19 @@
       //console.log('ending of exp...');
       exec('^', function(a, b) {
         //console.log(a, '^', b);
-        return Math.pow(a, b);
+        return Math.pow(+a, +b);
       });
       exec('*', function(a, b) {
         //console.log(a, '*', b);
-        return a * b;
+        return (+a) * (+b);
       });
       exec('/', function(a, b) {
         //console.log(a, '/', b);
-        return a / b;
+        return (+a) / (+b);
       });
       exec('+', function(a, b) {
         //console.log(a, '+', b);
-        return a + b;
+        return (+a) + (+b);
       });
       exec('&', function(a, b) {
         //console.log(a, '&', b);
@@ -287,8 +292,8 @@
         if (!isNaN(buffer)) {
           self.args.push(new RawValue(+buffer));
         }
-        else if (typeof buffer === 'string' && buffer.trim().match(/^[A-Z]+[0-9]+$/)) {
-          self.args.push(new RefValue(buffer.trim(), formula));
+        else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+$/)) {
+          self.args.push(new RefValue(buffer.trim().replace(/\$/g, ''), formula));
         }
         else {
           self.args.push(buffer);
@@ -340,7 +345,7 @@
           exp_obj = o;
         }
         else if (buffer) {
-          throw new Error('Function ' + buffer + ' not found');
+          throw new Error(formula.name + ': Function ' + buffer + ' not found');
         }
         else {
           o = new Exp(formula);

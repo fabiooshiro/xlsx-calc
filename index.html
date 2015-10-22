@@ -8,13 +8,10 @@
             padding: 10px;
             margin: 10px;
         }
-        td {
-            border: 1px solid #CCC;
-        }
     </style>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.full.min.js"></script>
-    <script type="text/javascript" src="xlsx-calc.min.js"></script>
+    <script type="text/javascript" src="xlsx-calc.js"></script>
 </head>
 
 <body ng-app="xlsxApp">
@@ -81,7 +78,7 @@
         
                             /* DO SOMETHING WITH workbook HERE */
                             XLSX_CALC($scope.workbook);
-                            $scope.sheet = convert2matrix($scope.workbook.Sheets.Sheet1);
+                            $scope.sheet = convert2matrix($scope.workbook.Sheets.Sheet2);
                             $scope.ref = $scope.sheet['!ref'];
                             $scope.$apply();
                         };
