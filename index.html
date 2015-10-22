@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style type="text/css">
+        #drop_xlsx {
+            border: 2px dashed #CCC;
+            padding: 10px;
+            margin: 10px;
+        }
+        td {
+            border: 1px solid #CCC;
+        }
+    </style>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.full.min.js"></script>
+    <script type="text/javascript" src="xlsx-calc.min.js"></script>
+</head>
+
+<body ng-app="xlsxApp">
+    <div id="drop_xlsx">
+        Arraste o arquivo aqui
+    </div>
+    <div ng-controller="xlsxCtrl">
+        <table>
+            <tr ng-repeat="row in sheet track by $index">
+                <td ng-repeat="cell in row track by $index">
+                    <input type="text" ng-model="cell.v" ng-change="recalc()"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script type="text/javascript">
+        /* global angular, XLSX_CALC */
+        angular
+            .module('xlsxApp', [])
+            .controller('xlsxCtrl', function($scope) {
+                
+                $scope.recalc = function() {
+                    XLSX_CALC($scope.workbook);
+                }
+                
+                function max_row(str_range) {
+                    return parseInt(str_range.split(':')[1].replace(/^[A-Z]+/, ''), 10);
+                }
+                
+                function max_col(str_range) {
+                    return XLSX_CALC.col_str_2_int(str_range.split(':')[1]);
+                }
+                
+                function convert2matrix(sheet) {
+                    var matrix = [];
+                    var mr = max_row(sheet['!ref']);
+                    var mc = max_col(sheet['!ref']);
+                    for (var i = 0; i <= mr; i++) {
+                        var row = [];
+                        for (var j = 0; j <= mc; j++) {
+                            var cell_name = XLSX_CALC.int_2_col_str(j) + (i+1);
+                            row.push(sheet[cell_name] || (sheet[cell_name] = {v:''}));
+                        }
+                        matrix.push(row);
+                    }
+                    return matrix;
+                }
+                
+                function handleDrop(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    var files = e.dataTransfer.files;
+                    var i, f;
+                    for (i = 0, f = files[i]; i != files.length; ++i) {
+                        var reader = new FileReader();
+                        var name = f.name;
+                        reader.onload = function(e) {
+                            var data = e.target.result;
+        
+                            /* if binary string, read with type 'binary' */
+                            $scope.workbook = XLSX.read(data, {
+                                type: 'binary'
+                            });
+        
+                            /* DO SOMETHING WITH workbook HERE */
+                            XLSX_CALC($scope.workbook);
+                            $scope.sheet = convert2matrix($scope.workbook.Sheets.Sheet1);
+                            $scope.ref = $scope.sheet['!ref'];
+                            $scope.$apply();
+                        };
+                        reader.readAsBinaryString(f);
+                    }
+                }
+                var drop = document.getElementById('drop_xlsx');
+                function handleDragover(e) {
+                	e.stopPropagation();
+                	e.preventDefault();
+                	e.dataTransfer.dropEffect = 'copy';
+                }
+                if(drop.addEventListener) {
+                	drop.addEventListener('dragenter', handleDragover, false);
+                	drop.addEventListener('dragover', handleDragover, false);
+                	drop.addEventListener('drop', handleDrop, false);
+                }
+            });
+    </script>
+</body>
+
+</html>

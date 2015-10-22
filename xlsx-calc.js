@@ -30,12 +30,12 @@
         var matrix = arg;
         for (var j = matrix.length; j--;) {
           for (var k = matrix[j].length; k--;) {
-            r += matrix[j][k];
+            r += +matrix[j][k];
           }
         }
       }
       else {
-        r += arg;
+        r += +arg;
       }
     }
     return r;
@@ -169,8 +169,9 @@
     };
   }
 
-  function col_str_2_int(colstr) {
+  function col_str_2_int(col_str) {
     var r = 0;
+    var colstr = col_str.replace(/[0-9]+$/, '');
     for (var i = colstr.length; i--;) {
       r += Math.pow(26, colstr.length - i - 1) * (colstr.charCodeAt(i) - 64);
     }
@@ -185,14 +186,17 @@
     }
     return r + String.fromCharCode(n + 65);
   }
+  
+  mymodule.col_str_2_int = col_str_2_int;
+  mymodule.int_2_col_str = int_2_col_str;
 
   function Range(str_expression, formula) {
     this.values = function() {
       var arr = str_expression.split(':');
       var min_row = parseInt(arr[0].replace(/^[A-Z]+/, ''), 10);
       var max_row = parseInt(arr[1].replace(/^[A-Z]+/, ''), 10);
-      var min_col = col_str_2_int(arr[0].replace(/[0-9]$/, ''));
-      var max_col = col_str_2_int(arr[1].replace(/[0-9]$/, ''));
+      var min_col = col_str_2_int(arr[0]);
+      var max_col = col_str_2_int(arr[1]);
       var matrix = [];
       for (var i = min_row; i <= max_row; i++) {
         var row = [];
