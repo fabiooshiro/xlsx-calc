@@ -4,6 +4,7 @@
 
   var xlsx_functions = {
     'FLOOR': Math.floor,
+    '_xlfn.FLOOR.MATH': Math.floor,
     'ABS': Math.abs,
     'SQRT': Math.sqrt,
     'VLOOKUP': vlookup,
@@ -16,18 +17,7 @@
   function concatenate() {
     var r = '';
     for (var i = 0; i < arguments.length; i++) {
-      var arg = arguments[i];
-      if (Array.isArray(arg)) {
-        var matrix = arg;
-        for (var j = 0; j < matrix.length; j++) {
-          for (var k = 0; k < matrix[j].length; k++) {
-            r += matrix[j][k];
-          }
-        }
-      }
-      else {
-        r += arg;
-      }
+      r += arguments[i];
     }
     return r;
   }
@@ -133,8 +123,8 @@
         else if (buffer.match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
           v = new Range(buffer, formula).values();
         }
-        else if (buffer.match(/^[A-Z]+[0-9]+$/)) {
-          v = new RefValue(buffer, formula).calc();
+        else if (buffer.trim().match(/^[A-Z]+[0-9]+$/)) {
+          v = new RefValue(buffer.trim(), formula).calc();
         }
         else if (buffer === '-') {
           next_is_negative = true;
@@ -317,7 +307,7 @@
     var root_exp;
     var str_formula = formula.cell.f;
     var exp_obj = root_exp = new Exp(formula);
-    var buffer = '', is_string = false;
+    var buffer = '', is_string = false, was_string = false;
     var fn_stack = [{
       exp: exp_obj
     }];
@@ -325,11 +315,15 @@
       if (str_formula[i] == '"') {
         if (is_string) {
           exp_obj.push(new RawValue(buffer));
-          buffer = '';
           is_string = false;
+          was_string = true;
         } else {
           is_string = true;
         }
+        buffer = '';
+      }
+      else if (is_string) {
+        buffer += str_formula[i];
       }
       else if (str_formula[i] == '(') {
         var o, special = xlsx_functions[buffer];
@@ -354,7 +348,10 @@
         buffer = '';
       }
       else if (common_operations[str_formula[i]]) {
-        exp_obj.push(buffer);
+        if(!was_string) {
+          exp_obj.push(buffer);
+        }
+        was_string = false;
         exp_obj.push(str_formula[i]);
         buffer = '';
       }

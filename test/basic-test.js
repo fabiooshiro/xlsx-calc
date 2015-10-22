@@ -281,11 +281,23 @@ describe('XLSX_CALC', function() {
         });
     });
     describe('&', function() {
-        it('evaluates "concat "&A8', function() {
-            workbook.Sheets.Sheet1.A1.f = '"concat "&A2';
+        it('evaluates "concat "&A2', function() {
+            workbook.Sheets.Sheet1.A1.f = '"concat " & A2';
             workbook.Sheets.Sheet1.A2.v = 7;
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 'concat 7');
+        });
+        it('evaluates "concat "&A2', function() {
+            workbook.Sheets.Sheet1.A1.f = '"concat +1"&A2';
+            workbook.Sheets.Sheet1.A2.v = 7;
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'concat +17');
+        });
+        it('evaluates A2 & "concat"', function() {
+            workbook.Sheets.Sheet1.A1.f = 'A2 & "concat +1"';
+            workbook.Sheets.Sheet1.A2.v = 7;
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, '7concat +1');
         });
     });
     describe('CONCATENATE', function() {
@@ -295,7 +307,7 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, '123');
         });
         it('concatenates A2,"xxx"', function() {
-            workbook.Sheets.Sheet1.A1.f = 'CONCATENATE(A2,"xxx")';
+            workbook.Sheets.Sheet1.A1.f = 'CONCATENATE(A2 , "xxx")';
             workbook.Sheets.Sheet1.A2.v = 79;
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, '79xxx');
