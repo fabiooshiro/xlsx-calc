@@ -2,7 +2,7 @@
 
 (function() {
 
-  var xlsx_functions = {
+  var xlsx_Fx = {
     'FLOOR': Math.floor,
     '_xlfn.FLOOR.MATH': Math.floor,
     'ABS': Math.abs,
@@ -97,8 +97,8 @@
     }
   };
   
-  mymodule.set_function = function(name, fn) {
-    xlsx_functions[name] = fn;
+  mymodule.set_fx = function(name, fn) {
+    xlsx_Fx[name] = fn;
   };
 
   function UserFnExecutor(user_function, formula) {
@@ -120,8 +120,8 @@
           v = buffer.calc();
           //console.log('calc', buffer.name, 'in push', v);
         }
-        else if (buffer.match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
-          v = new Range(buffer, formula).values();
+        else if (buffer.trim().match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
+          v = new Range(buffer.trim(), formula).values();
         }
         else if (buffer.trim().match(/^[A-Z]+[0-9]+$/)) {
           v = new RefValue(buffer.trim(), formula).calc();
@@ -326,7 +326,7 @@
         buffer += str_formula[i];
       }
       else if (str_formula[i] == '(') {
-        var o, special = xlsx_functions[buffer];
+        var o, special = xlsx_Fx[buffer];
         if (special) {
           o = new UserFnExecutor(special, formula);
           fn_stack.push({

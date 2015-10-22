@@ -140,9 +140,9 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 12);
         });
     });
-    describe('.set_function', function() {
+    describe('.set_fx', function() {
         it('sets new function', function() {
-            XLSX_CALC.set_function('ADD_1', function(arg) {
+            XLSX_CALC.set_fx('ADD_1', function(arg) {
                 return arg + 1;
             });
             workbook.Sheets.Sheet1.A1.f = 'ADD_1(123)';
@@ -231,12 +231,12 @@ describe('XLSX_CALC', function() {
     });
     describe('MAX', function() {
         it('finds the max in range', function() {
-            workbook.Sheets.Sheet1.A1.f = 'MAX(C3:C5)';
+            workbook.Sheets.Sheet1.A1.f = 'MAX( C3:C5 )';
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 3);
         });
         it('finds the max in range including some cell', function() {
-            workbook.Sheets.Sheet1.A1.f = 'MAX(C3:C5,A2)';
+            workbook.Sheets.Sheet1.A1.f = 'MAX(C3:C5 ,A2)';
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 7);
         });
@@ -287,8 +287,8 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 'concat 7');
         });
-        it('evaluates "concat "&A2', function() {
-            workbook.Sheets.Sheet1.A1.f = '"concat +1"&A2';
+        it('evaluates "concat +1" & A2', function() {
+            workbook.Sheets.Sheet1.A1.f = '"concat +1" & A2';
             workbook.Sheets.Sheet1.A2.v = 7;
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 'concat +17');
