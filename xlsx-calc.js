@@ -11,8 +11,18 @@
     'MAX': max,
     'SUM': sum,
     'MIN': min,
-    'CONCATENATE': concatenate
+    'CONCATENATE': concatenate,
+    'IF': _if
   };
+  
+  function _if(condition, _then, _else) {
+    console.log(eval(condition));
+    if(eval(condition)) {
+      return _then;
+    } else {
+      return _else;
+    }
+  }
   
   function concatenate() {
     var r = '';
@@ -105,35 +115,13 @@
     var self = this;
     self.name = 'UserFn';
     self.args = [];
-    var next_is_negative = false;
     self.calc = function() {
       return user_function.apply(self, self.args);
     };
     self.push = function(buffer) {
       if (buffer) {
         //console.log('pushing', buffer, 'into', self.name);
-        var v;
-        if (!isNaN(buffer)) {
-          v = +buffer;
-        }
-        else if (buffer['calc']) {
-          v = buffer.calc();
-          //console.log('calc', buffer.name, 'in push', v);
-        }
-        else if (buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
-          v = new Range(buffer.trim().replace(/\$/g, ''), formula).values();
-        }
-        else if (buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+$/)) {
-          v = new RefValue(buffer.trim().replace(/\$/g, ''), formula).calc();
-        }
-        else if (buffer === '-') {
-          next_is_negative = true;
-          return;
-        }
-        if (next_is_negative) {
-          v = -v;
-        }
-        self.args.push(v);
+        self.args.push(buffer.calc());
       }
     };
   }
@@ -191,7 +179,7 @@
   mymodule.int_2_col_str = int_2_col_str;
 
   function Range(str_expression, formula) {
-    this.values = function() {
+    this.calc = this.values = function() {
       var arr = str_expression.split(':');
       var min_row = parseInt(arr[0].replace(/^[A-Z]+/, ''), 10);
       var max_row = parseInt(arr[1].replace(/^[A-Z]+/, ''), 10);
@@ -282,22 +270,51 @@
         //console.log(a, '&', b);
         return '' + a + b;
       });
+      exec('<', function(a, b) {
+        return a < b; 
+      });
+      exec('>', function(a, b) {
+        return a > b; 
+      });
+      exec('>=', function(a, b) {
+        return a >= b; 
+      });
+      exec('<=', function(a, b) {
+        return a <= b; 
+      });
+      exec('<>', function(a, b) {
+        return a != b; 
+      });
+      exec('=', function(a, b) {
+        return a == b; 
+      });
       if (self.args.length == 1) {
         return self.args[0].calc();
       }
     };
 
+    var last_arg;
     self.push = function(buffer) {
       if (buffer) {
+        var v;
         if (!isNaN(buffer)) {
-          self.args.push(new RawValue(+buffer));
+          v = new RawValue(+buffer);
+        }
+        else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
+          v = new Range(buffer.trim().replace(/\$/g, ''), formula);
         }
         else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+$/)) {
-          self.args.push(new RefValue(buffer.trim().replace(/\$/g, ''), formula));
+          v = new RefValue(buffer.trim().replace(/\$/g, ''), formula);
         }
         else {
-          self.args.push(buffer);
+          v = buffer;
         }
+        if(((v === '=') && (last_arg == '>' || last_arg == '<')) || (last_arg == '<' && v === '>')) {
+          self.args[self.args.length-1] += v;
+        } else {
+          self.args.push(v);
+        }
+        last_arg = v;
       }
     };
   }
@@ -308,7 +325,10 @@
     '-': 'minus',
     '/': 'divide',
     '^': 'power',
-    '&': 'concat'
+    '&': 'concat',
+    '<': 'lt',
+    '>': 'gt',
+    '=': 'eq'
   };
 
   function exec_formula(formula) {
@@ -337,23 +357,17 @@
       else if (str_formula[i] == '(') {
         var o, special = xlsx_Fx[buffer];
         if (special) {
-          o = new UserFnExecutor(special, formula);
-          fn_stack.push({
-            exp: o,
-            special: true
-          });
-          exp_obj = o;
+          special = new UserFnExecutor(special, formula);
         }
         else if (buffer) {
           throw new Error(formula.name + ': Function ' + buffer + ' not found');
         }
-        else {
-          o = new Exp(formula);
-          fn_stack.push({
-            exp: o
-          });
-          exp_obj = o;
-        }
+        o = new Exp(formula);
+        fn_stack.push({
+          exp: o,
+          special: special
+        });
+        exp_obj = o;
         buffer = '';
       }
       else if (common_operations[str_formula[i]]) {
@@ -366,6 +380,8 @@
       }
       else if (str_formula[i] === ',' && fn_stack[fn_stack.length - 1].special) {
         fn_stack[fn_stack.length - 1].exp.push(buffer);
+        fn_stack[fn_stack.length - 1].special.push(fn_stack[fn_stack.length - 1].exp);
+        fn_stack[fn_stack.length - 1].exp = exp_obj = new Exp(formula);
         buffer = '';
       }
       else if (str_formula[i] == ')') {
@@ -375,7 +391,12 @@
         v = exp_obj;
         buffer = '';
         exp_obj = fn_stack[fn_stack.length - 1].exp;
-        exp_obj.push(v);
+        if(stack.special) {
+          stack.special.push(v);
+          exp_obj.push(stack.special);
+        } else {
+          exp_obj.push(v);
+        }
       }
       else {
         buffer += str_formula[i];

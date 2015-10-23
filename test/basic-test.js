@@ -329,6 +329,67 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.C4.v, 7);
         });
     });
+    describe('boolean', function() {
+        it('evaluates 1<2 as true', function() {
+            workbook.Sheets.Sheet1.A1.f = '1<2';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, true);
+        });
+        it('evaluates 1>2 as false', function() {
+            workbook.Sheets.Sheet1.A1.f = '1>2';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, false);
+        });
+        it('evaluates 2=2 as true', function() {
+            workbook.Sheets.Sheet1.A1.f = '2=2';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, true);
+        });
+        it('evaluates 2>=2 as true', function() {
+            workbook.Sheets.Sheet1.A1.f = '2>=2';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, true);
+        });
+        it('evaluates 1>=2 as true', function() {
+            workbook.Sheets.Sheet1.A1.f = '1>=2';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, false);
+        });
+        it('evaluates 2<=2 as true', function() {
+            workbook.Sheets.Sheet1.A1.f = '2<=2';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, true);
+        });
+        it('evaluates 3<=2 as false', function() {
+            workbook.Sheets.Sheet1.A1.f = '3<=2';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, false);
+        });
+        it('evaluates C3<=C5 as false', function() {
+            workbook.Sheets.Sheet1.C3.v = 3;
+            workbook.Sheets.Sheet1.C5.v = 2;
+            workbook.Sheets.Sheet1.A1.f = 'C3<=C5';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, false);
+        });
+        it('evaluates 1<>1 as false', function() {
+            workbook.Sheets.Sheet1.A1.f = '1<>1';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, false);
+        });
+    });
+    describe('IF', function() {
+        it('should exec true', function() {
+            workbook.Sheets.Sheet1.A1.f = 'IF(1<2,123,0)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 123);
+        });
+        it('should exec false', function() {
+            workbook.Sheets.Sheet1.A1.f = 'IF(1>2,0,123)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 123);
+        });
+    });
     it('calcs ref with space', function() {
         workbook.Sheets.Sheet1.A1.f = 'A2 ';
         workbook.Sheets.Sheet1.A2.v = 1979;
