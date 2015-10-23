@@ -119,10 +119,7 @@
       return user_function.apply(self, self.args);
     };
     self.push = function(buffer) {
-      if (buffer) {
-        //console.log('pushing', buffer, 'into', self.name);
-        self.args.push(buffer.calc());
-      }
+      self.args.push(buffer.calc());
     };
   }
 
