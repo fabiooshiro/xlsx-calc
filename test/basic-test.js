@@ -377,6 +377,11 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, false);
         });
+        it('evaluates 2<>1 as true', function() {
+            workbook.Sheets.Sheet1.A1.f = '2<>1';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, true);
+        });
     });
     describe('IF', function() {
         it('should exec true', function() {

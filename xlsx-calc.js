@@ -249,25 +249,19 @@
 
     self.calc = function() {
       exec_minus();
-      //console.log('ending of exp...');
       exec('^', function(a, b) {
-        //console.log(a, '^', b);
         return Math.pow(+a, +b);
       });
       exec('*', function(a, b) {
-        //console.log(a, '*', b);
         return (+a) * (+b);
       });
       exec('/', function(a, b) {
-        //console.log(a, '/', b);
         return (+a) / (+b);
       });
       exec('+', function(a, b) {
-        //console.log(a, '+', b);
         return (+a) + (+b);
       });
       exec('&', function(a, b) {
-        //console.log(a, '&', b);
         return '' + a + b;
       });
       exec('<', function(a, b) {
