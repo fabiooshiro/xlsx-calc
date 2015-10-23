@@ -16,8 +16,7 @@
   };
   
   function _if(condition, _then, _else) {
-    console.log(eval(condition));
-    if(eval(condition)) {
+    if(condition) {
       return _then;
     } else {
       return _else;
