@@ -28,14 +28,14 @@
         </table>
     </div>
     <script type="text/javascript">
-        /* global angular, XLSX_CALC */
+        /* global angular, XLSX_CALC, XLSX */
         angular
             .module('xlsxApp', [])
             .controller('xlsxCtrl', function($scope) {
                 
                 $scope.recalc = function() {
                     XLSX_CALC($scope.workbook);
-                }
+                };
                 
                 function max_row(str_range) {
                     return parseInt(str_range.split(':')[1].replace(/^[A-Z]+/, ''), 10);
@@ -67,7 +67,7 @@
                     var i, f;
                     for (i = 0, f = files[i]; i != files.length; ++i) {
                         var reader = new FileReader();
-                        var name = f.name;
+                        //var name = f.name;
                         reader.onload = function(e) {
                             var data = e.target.result;
         

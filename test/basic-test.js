@@ -279,6 +279,11 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 15);
         });
+        it('evaluates MAX(1,2, SUM(10,5),7,3,4)', function() {
+            workbook.Sheets.Sheet1.A1.f = 'MAX(1,2, SUM(10,5),7,3,4)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 15);
+        });
     });
     describe('&', function() {
         it('evaluates "concat "&A2', function() {

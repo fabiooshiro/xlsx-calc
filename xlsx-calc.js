@@ -110,7 +110,7 @@
     xlsx_Fx[name] = fn;
   };
 
-  function UserFnExecutor(user_function, formula) {
+  function UserFnExecutor(user_function) {
     var self = this;
     self.name = 'UserFn';
     self.args = [];
@@ -345,7 +345,7 @@
         buffer += str_formula[i];
       }
       else if (str_formula[i] == '(') {
-        var o, special = xlsx_Fx[buffer];
+        var o, special = xlsx_Fx[buffer.trim()];
         if (special) {
           special = new UserFnExecutor(special, formula);
         }
