@@ -175,7 +175,7 @@
   mymodule.int_2_col_str = int_2_col_str;
 
   function Range(str_expression, formula) {
-    this.calc = this.values = function() {
+    this.calc = function() {
       var arr = str_expression.split(':');
       var min_row = parseInt(arr[0].replace(/^[A-Z]+/, ''), 10);
       var max_row = parseInt(arr[1].replace(/^[A-Z]+/, ''), 10);

@@ -78,7 +78,7 @@
         
                             /* DO SOMETHING WITH workbook HERE */
                             XLSX_CALC($scope.workbook);
-                            $scope.sheet = convert2matrix($scope.workbook.Sheets.Sheet2);
+                            $scope.sheet = convert2matrix($scope.workbook.Sheets.Sheet1);
                             $scope.ref = $scope.sheet['!ref'];
                             $scope.$apply();
                         };
