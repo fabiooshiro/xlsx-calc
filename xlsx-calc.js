@@ -12,17 +12,35 @@
     'SUM': sum,
     'MIN': min,
     'CONCATENATE': concatenate,
-    'IF': _if
+    'IF': _if,
+    'PMT': pmt
   };
-  
+
+  function pmt(rate_per_period, number_of_payments, present_value, future_value, type) {
+    type = type || 0;
+    future_value = future_value || 0;
+    if (rate_per_period != 0.0) {
+      // Interest rate exists
+      var q = Math.pow(1 + rate_per_period, number_of_payments);
+      return -(rate_per_period * (future_value + (q * present_value))) / ((-1 + q) * (1 + rate_per_period * (type)));
+
+    }
+    else if (number_of_payments != 0.0) {
+      // No interest rate, but number of payments exists
+      return -(future_value + present_value) / number_of_payments;
+    }
+    return 0;
+  }
+
   function _if(condition, _then, _else) {
-    if(condition) {
+    if (condition) {
       return _then;
-    } else {
+    }
+    else {
       return _else;
     }
   }
-  
+
   function concatenate() {
     var r = '';
     for (var i = 0; i < arguments.length; i++) {
@@ -30,7 +48,7 @@
     }
     return r;
   }
-  
+
   function sum() {
     var r = 0;
     for (var i = arguments.length; i--;) {
@@ -69,7 +87,7 @@
     }
     return max;
   }
-  
+
   function min() {
     var result = null;
     for (var i = arguments.length; i--;) {
@@ -105,7 +123,7 @@
       exec_formula(formulas[i]);
     }
   };
-  
+
   mymodule.set_fx = function(name, fn) {
     xlsx_Fx[name] = fn;
   };
@@ -170,7 +188,7 @@
     }
     return r + String.fromCharCode(n + 65);
   }
-  
+
   mymodule.col_str_2_int = col_str_2_int;
   mymodule.int_2_col_str = int_2_col_str;
 
@@ -208,8 +226,11 @@
     };
   }
 
+  var exp_id = 0;
+
   function Exp(formula) {
     var self = this;
+    self.id = ++exp_id;
     self.args = [];
     self.name = 'Expression';
 
@@ -221,8 +242,9 @@
             self.args.splice(i - 1, 3, new RawValue(r));
             i--;
           }
-          catch(e) {
-            throw Error(formula.name + ': evaluating ' + formula.cell.f);
+          catch (e) {
+            throw Error(formula.name + ': evaluating ' + formula.cell.f + '\n' + e.message);
+            //throw e;
           }
         }
       }
@@ -249,9 +271,11 @@
         return Math.pow(+a, +b);
       });
       exec('*', function(a, b) {
+        console.log(a, '*', b);
         return (+a) * (+b);
       });
       exec('/', function(a, b) {
+        console.log(a, '/', b);
         return (+a) / (+b);
       });
       exec('+', function(a, b) {
@@ -261,22 +285,22 @@
         return '' + a + b;
       });
       exec('<', function(a, b) {
-        return a < b; 
+        return a < b;
       });
       exec('>', function(a, b) {
-        return a > b; 
+        return a > b;
       });
       exec('>=', function(a, b) {
-        return a >= b; 
+        return a >= b;
       });
       exec('<=', function(a, b) {
-        return a <= b; 
+        return a <= b;
       });
       exec('<>', function(a, b) {
-        return a != b; 
+        return a != b;
       });
       exec('=', function(a, b) {
-        return a == b; 
+        return a == b;
       });
       if (self.args.length == 1) {
         return self.args[0].calc();
@@ -296,15 +320,20 @@
         else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+$/)) {
           v = new RefValue(buffer.trim().replace(/\$/g, ''), formula);
         }
+        else if (typeof buffer === 'string' && !isNaN(buffer.trim().replace(/%$/, ''))) {
+          v = new RawValue(+(buffer.trim().replace(/%$/, '')) / 100.0);
+        }
         else {
           v = buffer;
         }
-        if(((v === '=') && (last_arg == '>' || last_arg == '<')) || (last_arg == '<' && v === '>')) {
-          self.args[self.args.length-1] += v;
-        } else {
+        if (((v === '=') && (last_arg == '>' || last_arg == '<')) || (last_arg == '<' && v === '>')) {
+          self.args[self.args.length - 1] += v;
+        }
+        else {
           self.args.push(v);
         }
         last_arg = v;
+        console.log(self.id, '-->', v);
       }
     };
   }
@@ -326,7 +355,9 @@
     var root_exp;
     var str_formula = formula.cell.f;
     var exp_obj = root_exp = new Exp(formula);
-    var buffer = '', is_string = false, was_string = false;
+    var buffer = '',
+      is_string = false,
+      was_string = false;
     var fn_stack = [{
       exp: exp_obj
     }];
@@ -336,7 +367,8 @@
           exp_obj.push(new RawValue(buffer));
           is_string = false;
           was_string = true;
-        } else {
+        }
+        else {
           is_string = true;
         }
         buffer = '';
@@ -361,7 +393,7 @@
         buffer = '';
       }
       else if (common_operations[str_formula[i]]) {
-        if(!was_string) {
+        if (!was_string) {
           exp_obj.push(buffer);
         }
         was_string = false;
@@ -369,6 +401,7 @@
         buffer = '';
       }
       else if (str_formula[i] === ',' && fn_stack[fn_stack.length - 1].special) {
+        was_string = false;
         fn_stack[fn_stack.length - 1].exp.push(buffer);
         fn_stack[fn_stack.length - 1].special.push(fn_stack[fn_stack.length - 1].exp);
         fn_stack[fn_stack.length - 1].exp = exp_obj = new Exp(formula);
@@ -381,10 +414,11 @@
         v = exp_obj;
         buffer = '';
         exp_obj = fn_stack[fn_stack.length - 1].exp;
-        if(stack.special) {
+        if (stack.special) {
           stack.special.push(v);
           exp_obj.push(stack.special);
-        } else {
+        }
+        else {
           exp_obj.push(v);
         }
       }
