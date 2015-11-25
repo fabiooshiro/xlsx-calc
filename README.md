@@ -5,5 +5,5 @@
 (_/\_)\____/(____/(_/\_)   \___)\_/\_/\____/ \___)</pre>
 <div style="clear: both"></div>
 
-Read the <a href="/test/basic-tests.js">basic-tests.js</a>.
+Read the <a href="https://github.com/fabiooshiro/xlsx-calc/blob/master/test/basic-test.js">basic-tests.js</a>.
 
