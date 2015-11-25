@@ -13,8 +13,59 @@
     'MIN': min,
     'CONCATENATE': concatenate,
     'IF': _if,
-    'PMT': pmt
+    'PMT': pmt,
+    'COUNTA': counta,
+    'IRR': irr
   };
+
+  function irr(range, guess) {
+    var min = -1.0;
+    var max = 1.0;
+    var n = 0;
+    do {
+      var guest = (min + max) / 2;
+      var NPV = 0;
+      for (var i = 0; i < range.length; i++) {
+        var arg = range[i];
+        NPV += arg[0] / Math.pow((1 + guest), i);
+      }
+      if (NPV > 0) {
+        if(min === max) {
+          max += Math.abs(guest);
+        }
+        min = guest;
+      }
+      else {
+        max = guest;
+      }
+      n++;
+    } while (Math.abs(NPV) > 0.000001 && n < 100000);
+    //console.log(n);
+    return guest;
+  }
+
+  function counta() {
+    var r = 0;
+    for (var i = arguments.length; i--;) {
+      var arg = arguments[i];
+      if (Array.isArray(arg)) {
+        var matrix = arg;
+        for (var j = matrix.length; j--;) {
+          for (var k = matrix[j].length; k--;) {
+            if (matrix[j][k] !== null && matrix[j][k] !== undefined) {
+              r++;
+            }
+          }
+        }
+      }
+      else {
+        if (arg !== null && arg !== undefined) {
+          r++;
+        }
+      }
+    }
+    return r;
+  }
 
   function pmt(rate_per_period, number_of_payments, present_value, future_value, type) {
     type = type || 0;
@@ -271,11 +322,9 @@
         return Math.pow(+a, +b);
       });
       exec('*', function(a, b) {
-        console.log(a, '*', b);
         return (+a) * (+b);
       });
       exec('/', function(a, b) {
-        console.log(a, '/', b);
         return (+a) / (+b);
       });
       exec('+', function(a, b) {
@@ -333,7 +382,7 @@
           self.args.push(v);
         }
         last_arg = v;
-        console.log(self.id, '-->', v);
+        //console.log(self.id, '-->', v);
       }
     };
   }

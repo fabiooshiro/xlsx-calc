@@ -461,6 +461,34 @@ describe('XLSX_CALC', function() {
         });
         
     });
+    describe('COUNTA', function() {
+        it('counts non empty cells', function() {
+            workbook.Sheets.Sheet1.A1.f = 'COUNTA(B1:B3)';
+            workbook.Sheets.Sheet1.B1 = {v:1};
+            workbook.Sheets.Sheet1.B2 = {};
+            workbook.Sheets.Sheet1.B3 = {v:1};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 2);
+        });
+    });
+    describe('IRR', function() {
+        it('calcs IRR', function() {
+            workbook.Sheets.Sheet1.A1.f = 'IRR(B1:B3)';
+            workbook.Sheets.Sheet1.B1 = {v: -10.0};
+            workbook.Sheets.Sheet1.B2 = {v:  -1.0};
+            workbook.Sheets.Sheet1.B3 = {v:   2.9};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 0.051249219104647636);
+        });
+        it.only('calcs IRR 2', function() {
+            workbook.Sheets.Sheet1.A1.f = 'IRR(B1:B3)';
+            workbook.Sheets.Sheet1.B1 = {v: -100.0};
+            workbook.Sheets.Sheet1.B2 = {v:   10.0};
+            workbook.Sheets.Sheet1.B3 = {v:  100000.0};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 1.286626923829317);
+        });
+    });
     describe('bug fix', function() {
         it('should consider the end of string', function() {
             workbook.Sheets.Sheet1.A1.f = 'IF($C$3<=0,"Tempo de Investimento Invalido",IF($C$3<=24,"x","y"))';

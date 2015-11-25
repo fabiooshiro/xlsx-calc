@@ -1,23 +1,9 @@
+<pre>
+ _  _  __    ____  _  _     ___   __   __     ___ 
+( \/ )(  )  / ___)( \/ )   / __) / _\ (  )   / __)
+ )  ( / (_/\\___ \ )  (   ( (__ /    \/ (_/\( (__ 
+(_/\_)\____/(____/(_/\_)   \___)\_/\_/\____/ \___)</pre>
+<div style="clear: both"></div>
 
-     ,-----.,--.                  ,--. ,---.   ,--.,------.  ,------.
-    '  .--./|  | ,---. ,--.,--. ,-|  || o   \  |  ||  .-.  \ |  .---'
-    |  |    |  || .-. ||  ||  |' .-. |`..'  |  |  ||  |  \  :|  `--, 
-    '  '--'\|  |' '-' ''  ''  '\ `-' | .'  /   |  ||  '--'  /|  `---.
-     `-----'`--' `---'  `----'  `---'  `--'    `--'`-------' `------'
-    ----------------------------------------------------------------- 
+Read the <a href="/test/basic-tests.js">basic-tests.js</a>.
 
-https://ide.c9.io/fabiooshiro/xlsx-calc
-
-Welcome to your Node.js project on Cloud9 IDE!
-
-This chat example showcases how to use `socket.io` with a static `express` server.
-
-## Running the server
-
-1) Open `server.js` and start the app by clicking on the "Run" button in the top menu.
-
-2) Alternatively you can launch the app from the Terminal:
-
-    $ node server.js
-
-Once the server is running, open the project in the shape of 'https://projectname-username.c9.io/'. As you enter your name, watch the Users list (on the left) update. Once you press Enter or Send, the message is shared with all connected clients.
