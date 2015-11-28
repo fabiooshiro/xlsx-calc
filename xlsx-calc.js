@@ -2,6 +2,9 @@
 
 (function() {
 
+  // +---------------------+
+  // | FORMULAS REGISTERED |
+  // +---------------------+
   var xlsx_Fx = {
     'FLOOR': Math.floor,
     '_xlfn.FLOOR.MATH': Math.floor,
@@ -15,11 +18,20 @@
     'IF': _if,
     'PMT': pmt,
     'COUNTA': counta,
-    'IRR': irr
+    'IRR': irr,
+    //'HELLO': hello
   };
 
+  // +---------------------+
+  // | THE IMPLEMENTATIONS |
+  // +---------------------+
+  
+  // function hello(name) {
+  //   return "Hello, " + name + "!";
+  // }
+  
   function irr(range, guess) {
-    var min = -1.0;
+    var min = -2.0;
     var max = 1.0;
     var n = 0;
     do {

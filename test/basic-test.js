@@ -478,15 +478,15 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.B2 = {v:  -1.0};
             workbook.Sheets.Sheet1.B3 = {v:   2.9};
             XLSX_CALC(workbook);
-            assert.equal(workbook.Sheets.Sheet1.A1.v, 0.051249219104647636);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, -0.5091672986745834);
         });
-        it.only('calcs IRR 2', function() {
+        it('calcs IRR 2', function() {
             workbook.Sheets.Sheet1.A1.f = 'IRR(B1:B3)';
             workbook.Sheets.Sheet1.B1 = {v: -100.0};
             workbook.Sheets.Sheet1.B2 = {v:   10.0};
             workbook.Sheets.Sheet1.B3 = {v:  100000.0};
             XLSX_CALC(workbook);
-            assert.equal(workbook.Sheets.Sheet1.A1.v, 1.286626923829317);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 30.672816276550293);
         });
     });
     describe('bug fix', function() {
@@ -502,5 +502,12 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 1);
         });
-    })
+    });
+    // describe('HELLO', function() {
+    //     it('says: Hello, World!', function() {
+    //         workbook.Sheets.Sheet1.A1.f = 'HELLO("World")';
+    //         XLSX_CALC(workbook);
+    //         assert.equal(workbook.Sheets.Sheet1.A1.v, "Hello, World!");
+    //     });
+    // });
 });
