@@ -27,7 +27,7 @@ describe('HELLO', function() {
 //(...)
 ```
 
-Register your formula/function in the xlsx_Fx variable found inside <a href="https://github.com/fabiooshiro/xlsx-calc/blob/master/xlsx-calc.js">basic-tests.js</a> 
+Register your formula/function in the xlsx_Fx variable found inside <a href="https://github.com/fabiooshiro/xlsx-calc/blob/master/xlsx-calc.js">xlsx-calc.js</a> 
 below the commentary "FORMULAS REGISTERED"
 
 ```js
