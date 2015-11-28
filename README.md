@@ -5,6 +5,20 @@
 (_/\_)\____/(____/(_/\_)   \___)\_/\_/\____/ \___)</pre>
 <div style="clear: both"></div>
 
+# How to use
+
+Read the workbook with the great <a href="https://github.com/SheetJS/js-xlsx">js-xlsx</a> lib.
+```js
+var XLSX = require('xlsx');
+var XLSX_CALC = require('xlsx-calc');
+var workbook = XLSX.readFile('test.xlsx');
+
+// change some cell value
+workbook.Sheets['Sheet1'].A1.v = 42;
+
+// recalc the workbook
+XLSX_CALC(workbook);
+```
 # How to contribute
 
 Read the <a href="https://github.com/fabiooshiro/xlsx-calc/blob/master/test/basic-test.js">basic-tests.js</a>.
@@ -19,9 +33,9 @@ write some test like:
 //(...)
 describe('HELLO', function() {
     it('says: Hello, World!', function() {
-        workbook.Sheets.Sheet1.A1.f = 'HELLO("World")';
+        workbook.Sheets['Sheet1'].A1.f = 'HELLO("World")';
         XLSX_CALC(workbook);
-        assert.equal(workbook.Sheets.Sheet1.A1.v, "Hello, World!");
+        assert.equal(workbook.Sheets['Sheet1'].A1.v, "Hello, World!");
     });
 });
 //(...)
