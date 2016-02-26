@@ -20,7 +20,8 @@
     'COUNTA': counta,
     'IRR': irr,
     'NORM.INV': normsInv,
-    '_xlfn.NORM.INV': normsInv
+    '_xlfn.NORM.INV': normsInv,
+    'STDEV': stDeviation
     //'HELLO': hello
   };
 
@@ -31,6 +32,25 @@
   // function hello(name) {
   //   return "Hello, " + name + "!";
   // }
+
+  function stDeviation() {
+    var array = [];
+    for (var i = 0; i < arguments.length; i++) {
+      array.push(arguments[i]);
+    }
+    function _mean(array) {
+      return array.reduce(function(a, b) {
+        return a + b;
+      }) / array.length;
+    }
+    var mean = _mean(array),
+      dev = array.map(function(itm) {
+        return (itm - mean) * (itm - mean);
+      });
+    return Math.sqrt(dev.reduce(function(a, b) {
+      return a + b;
+    }) / (array.length - 1));
+  }
 
   /// Original C++ implementation found at http://www.wilmott.com/messageview.cfm?catid=10&threadid=38771
   /// C# implementation found at http://weblogs.asp.net/esanchez/archive/2010/07/29/a-quick-and-dirty-implementation-of-excel-norminv-function-in-c.aspx
@@ -53,7 +73,6 @@
    *      Algorithm AS 241: The Percentage Points of the Normal Distribution.
    *      Applied Statistics, 37, 477-484.
    */
-
   function normsInv(p, mu, sigma) {
     if (p < 0 || p > 1) {
       throw "The probality p must be bigger than 0 and smaller than 1";

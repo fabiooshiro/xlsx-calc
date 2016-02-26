@@ -478,6 +478,13 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, -0.030284938471650775);
         });
     });
+    describe('STDEV', function() {
+        it('should calc STDEV', function() {
+            workbook.Sheets.Sheet1.A1.f = 'STDEV(6.2,5,4.5,6,6,6.9,6.4,7.5)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 0.96204766736670300000);
+        });
+    });
     describe('IRR', function() {
         it('calcs IRR', function() {
             workbook.Sheets.Sheet1.A1.f = 'IRR(B1:B3)';
