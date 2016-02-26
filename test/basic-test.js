@@ -471,6 +471,13 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 2);
         });
     });
+    describe('NORM.INV', function() {
+        it('should call normsInv', function() {
+            workbook.Sheets.Sheet1.A1.f = 'NORM.INV(0.05, -0.0015, 0.0175)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, -0.030284938471650775);
+        });
+    });
     describe('IRR', function() {
         it('calcs IRR', function() {
             workbook.Sheets.Sheet1.A1.f = 'IRR(B1:B3)';
@@ -503,6 +510,7 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 1);
         });
     });
+    
     // describe('HELLO', function() {
     //     it('says: Hello, World!', function() {
     //         workbook.Sheets.Sheet1.A1.f = 'HELLO("World")';
