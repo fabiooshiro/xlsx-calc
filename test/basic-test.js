@@ -485,6 +485,13 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 0.96204766736670300000);
         });
     });
+    describe('AVERAGE', function() {
+        it('should calc AVERAGE', function() {
+            workbook.Sheets.Sheet1.A1.f = 'AVERAGE(1,2,3,4,5)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 3);
+        });
+    });
     describe('IRR', function() {
         it('calcs IRR', function() {
             workbook.Sheets.Sheet1.A1.f = 'IRR(B1:B3)';

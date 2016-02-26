@@ -21,7 +21,8 @@
     'IRR': irr,
     'NORM.INV': normsInv,
     '_xlfn.NORM.INV': normsInv,
-    'STDEV': stDeviation
+    'STDEV': stDeviation,
+    'AVERAGE': avg,
     //'HELLO': hello
   };
 
@@ -32,6 +33,14 @@
   // function hello(name) {
   //   return "Hello, " + name + "!";
   // }
+  
+  function avg() {
+    var t = 0.0;
+    for (var i = 0; i < arguments.length; i++) {
+      t += arguments[i];
+    }
+    return t / arguments.length;
+  }
 
   function stDeviation() {
     var array = [];
