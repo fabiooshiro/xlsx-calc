@@ -333,6 +333,17 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 8);
             assert.equal(workbook.Sheets.Sheet1.C4.v, 7);
         });
+        it('should calc range like C:C using !ref', function() {
+            workbook.Sheets.Sheet1['!ref'] = 'A1:C4';
+            workbook.Sheets.Sheet1.A1.f = 'SUM(C:C)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 4);
+        });
+        it('should calc range like C:C without !ref', function() {
+            workbook.Sheets.Sheet1.A1.f = 'SUM(C:C)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 7);
+        });
     });
     describe('boolean', function() {
         it('evaluates 1<2 as true', function() {

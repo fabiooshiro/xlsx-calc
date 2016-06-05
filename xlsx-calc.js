@@ -23,7 +23,7 @@
     '_xlfn.NORM.INV': normsInv,
     'STDEV': stDeviation,
     'AVERAGE': avg,
-    //'HELLO': hello
+    // 'HELLO': hello
   };
 
   // +---------------------+
@@ -397,8 +397,14 @@
   function Range(str_expression, formula) {
     this.calc = function() {
       var arr = str_expression.split(':');
-      var min_row = parseInt(arr[0].replace(/^[A-Z]+/, ''), 10);
-      var max_row = parseInt(arr[1].replace(/^[A-Z]+/, ''), 10);
+      var min_row = parseInt(arr[0].replace(/^[A-Z]+/, ''), 10) || 0;
+      var str_max_row = arr[1].replace(/^[A-Z]+/, '');
+      var max_row;
+      if (str_max_row === '' && formula.sheet['!ref']) {
+        str_max_row = formula.sheet['!ref'].split(':')[1].replace(/^[A-Z]+/, '');
+      }
+      // the max is 1048576, but TLE
+      max_row = parseInt(str_max_row == '' ? '500000' : str_max_row, 10);
       var min_col = col_str_2_int(arr[0]);
       var max_col = col_str_2_int(arr[1]);
       var matrix = [];
@@ -515,6 +521,9 @@
           v = new RawValue(+buffer);
         }
         else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
+          v = new Range(buffer.trim().replace(/\$/g, ''), formula);
+        }
+        else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+:[A-Z]+$/)) {
           v = new Range(buffer.trim().replace(/\$/g, ''), formula);
         }
         else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+$/)) {
