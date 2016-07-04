@@ -535,6 +535,13 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 1);
         });
     });
+    describe('EXP', function() {
+        it('calculates EXP', function() {
+            workbook.Sheets.Sheet1.A1.f = 'EXP(2)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 7.3890560989306495);
+        });
+    });
     
     // describe('HELLO', function() {
     //     it('says: Hello, World!', function() {

@@ -23,6 +23,7 @@
     '_xlfn.NORM.INV': normsInv,
     'STDEV': stDeviation,
     'AVERAGE': avg,
+    'EXP': EXP
     // 'HELLO': hello
   };
 
@@ -33,6 +34,10 @@
   // function hello(name) {
   //   return "Hello, " + name + "!";
   // }
+  
+  function EXP(n) {
+    return Math.pow(Math.E, n);
+  }
   
   function avg() {
     var t = 0.0;
