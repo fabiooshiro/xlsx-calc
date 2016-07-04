@@ -569,6 +569,9 @@
     formula.status = 'working';
     var root_exp;
     var str_formula = formula.cell.f;
+    if (str_formula[0] == '=') {
+      str_formula = str_formula.substr(1);
+    }
     var exp_obj = root_exp = new Exp(formula);
     var buffer = '',
       is_string = false,

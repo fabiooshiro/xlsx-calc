@@ -111,6 +111,11 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 1.75);
         });
+        it('should divide', function() {
+            workbook.Sheets.Sheet1.A1.f = '=20/10';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 2);
+        });
     });
     describe('power', function() {
         it('should calc 2^10', function() {
