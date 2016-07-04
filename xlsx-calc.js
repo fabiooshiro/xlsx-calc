@@ -23,7 +23,8 @@
     '_xlfn.NORM.INV': normsInv,
     'STDEV': stDeviation,
     'AVERAGE': avg,
-    'EXP': EXP
+    'EXP': EXP,
+    'LN': Math.log
     // 'HELLO': hello
   };
 

@@ -542,6 +542,13 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 7.3890560989306495);
         });
     });
+    describe('LN', function() {
+        it('calculates LN of a number', function() {
+            workbook.Sheets.Sheet1.A1.f = 'LN(EXP(2))';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 2);
+        });
+    });
     
     // describe('HELLO', function() {
     //     it('says: Hello, World!', function() {
