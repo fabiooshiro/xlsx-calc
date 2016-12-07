@@ -356,25 +356,38 @@
 
   function RefValue(str_expression, formula) {
     this.calc = function() {
-      var ref_cell = formula.sheet[str_expression];
-      if (!ref_cell) {
-        throw Error("Cell " + str_expression + " not found.");
+      var cell_name, sheet, sheet_name;
+      if (str_expression.indexOf('!') != -1) {
+        var aux = str_expression.split('!');
+        sheet = formula.wb.Sheets[aux[0]];
+        sheet_name = aux[0];
+        cell_name = aux[1];
+      } 
+      else {
+        sheet = formula.sheet;
+        sheet_name = formula.sheet_name;
+        cell_name = str_expression;
       }
-      var formula_ref = formula.formula_ref[str_expression];
+      var cell_full_name = sheet_name + '!' + cell_name;
+      var ref_cell = sheet[cell_name];
+      if (!ref_cell) {
+        throw Error("Cell " + cell_full_name + " not found.");
+      }
+      var formula_ref = formula.formula_ref[cell_full_name];
       if (formula_ref) {
         if (formula_ref.status === 'new') {
           exec_formula(formula_ref);
-          return formula.sheet[str_expression].v;
+          return sheet[cell_name].v;
         }
         else if (formula_ref.status === 'working') {
           throw new Error('Circular ref');
         }
         else if (formula_ref.status === 'done') {
-          return formula.sheet[str_expression].v;
+          return sheet[cell_name].v;
         }
       }
       else {
-        return formula.sheet[str_expression].v;
+        return sheet[cell_name].v;
       }
     };
   }
@@ -402,12 +415,22 @@
 
   function Range(str_expression, formula) {
     this.calc = function() {
-      var arr = str_expression.split(':');
+      var range_expression, sheet_name, sheet;
+      if (str_expression.indexOf('!') != -1) {
+        var aux = str_expression.split('!');
+        sheet_name = aux[0];
+        range_expression = aux[1];
+      } else {
+        sheet_name = formula.sheet_name;
+        range_expression = str_expression;
+      }
+      sheet = formula.wb.Sheets[sheet_name];
+      var arr = range_expression.split(':');
       var min_row = parseInt(arr[0].replace(/^[A-Z]+/, ''), 10) || 0;
       var str_max_row = arr[1].replace(/^[A-Z]+/, '');
       var max_row;
-      if (str_max_row === '' && formula.sheet['!ref']) {
-        str_max_row = formula.sheet['!ref'].split(':')[1].replace(/^[A-Z]+/, '');
+      if (str_max_row === '' && sheet['!ref']) {
+        str_max_row = sheet['!ref'].split(':')[1].replace(/^[A-Z]+/, '');
       }
       // the max is 1048576, but TLE
       max_row = parseInt(str_max_row == '' ? '500000' : str_max_row, 10);
@@ -419,17 +442,18 @@
         matrix.push(row);
         for (var j = min_col; j <= max_col; j++) {
           var cell_name = int_2_col_str(j) + i;
-          if (formula.formula_ref[cell_name]) {
-            if (formula.formula_ref[cell_name].status === 'new') {
-              exec_formula(formula.formula_ref[cell_name]);
+          var cell_full_name = sheet_name + '!' + cell_name;
+          if (formula.formula_ref[cell_full_name]) {
+            if (formula.formula_ref[cell_full_name].status === 'new') {
+              exec_formula(formula.formula_ref[cell_full_name]);
             }
-            else if (formula.formula_ref[cell_name].status === 'working') {
+            else if (formula.formula_ref[cell_full_name].status === 'working') {
               throw new Error('Circular ref');
             }
-            row.push(formula.sheet[cell_name].v);
+            row.push(sheet[cell_name].v);
           }
-          else if (formula.sheet[cell_name]) {
-            row.push(formula.sheet[cell_name].v);
+          else if (sheet[cell_name]) {
+            row.push(sheet[cell_name].v);
           }
           else {
             row.push(null);
@@ -529,10 +553,19 @@
         else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
           v = new Range(buffer.trim().replace(/\$/g, ''), formula);
         }
+        else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[^!]+![A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
+          v = new Range(buffer.trim().replace(/\$/g, ''), formula);
+        }
         else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+:[A-Z]+$/)) {
           v = new Range(buffer.trim().replace(/\$/g, ''), formula);
         }
+        else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[^!]+![A-Z]+:[A-Z]+$/)) {
+          v = new Range(buffer.trim().replace(/\$/g, ''), formula);
+        }
         else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+$/)) {
+          v = new RefValue(buffer.trim().replace(/\$/g, ''), formula);
+        }
+        else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[^!]+![A-Z]+[0-9]+$/)) {
           v = new RefValue(buffer.trim().replace(/\$/g, ''), formula);
         }
         else if (typeof buffer === 'string' && !isNaN(buffer.trim().replace(/%$/, ''))) {
@@ -670,10 +703,11 @@
       var sheet = wb.Sheets[sheet_name];
       for (var cell_name in sheet) {
         if (sheet[cell_name].f) {
-          var formula = formula_ref[cell_name] = {
+          var formula = formula_ref[sheet_name + '!' + cell_name] = {
             formula_ref: formula_ref,
             wb: wb,
             sheet: sheet,
+            sheet_name: sheet_name,
             cell: sheet[cell_name],
             name: cell_name,
             status: 'new'

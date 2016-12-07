@@ -345,6 +345,7 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 4);
         });
         it('should calc range like C:C without !ref', function() {
+            this.timeout(5000);
             workbook.Sheets.Sheet1.A1.f = 'SUM(C:C)';
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 7);
@@ -539,6 +540,14 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 1);
         });
+        it('should works', function() {
+            workbook.Sheets.Sheet1.A1.f = '-1-2';
+            workbook.Sheets.Sheet1.B1 = {f: '4^5'};
+            workbook.Sheets.Sheet1.C1 = {v: 33};
+            workbook.Sheets.Sheet1.A2 = {f: 'SUM(A1:C1)'};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, 1054);
+        });
     });
     describe('EXP', function() {
         it('calculates EXP', function() {
@@ -552,6 +561,26 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.A1.f = 'LN(EXP(2))';
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 2);
+        });
+    });
+    describe('Sheet ref references', function() {
+        it('calculates the sum of Sheet2!A1+Sheet2!A2', function() {
+            workbook.Sheets.Sheet1.A1.f = 'Sheet2!A1+Sheet2!A2';
+            workbook.Sheets.Sheet2 = { A1: {v:1}, A2: {v:2}};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 3);
+        });
+        it('calculates the sum of Sheet2!A1:A2', function() {
+            workbook.Sheets.Sheet1.A1.f = 'SUM(Sheet2!A1:A2)';
+            workbook.Sheets.Sheet2 = { A1: {v:1}, A2: {v:2}};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 3);
+        });
+        it('calculates the sum of Sheet2!A:B', function() {
+            workbook.Sheets.Sheet1.A1.f = 'SUM(Sheet2!A:B)';
+            workbook.Sheets.Sheet2 = { A1: {v:1}, B1: {v:2}, A2: {v: 3}};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 6);
         });
     });
     
