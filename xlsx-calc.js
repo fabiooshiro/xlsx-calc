@@ -539,7 +539,11 @@
         return a == b;
       });
       if (self.args.length == 1) {
-        return self.args[0].calc();
+        if (typeof(self.args[0].calc) != 'function') {
+          return self.args[0];
+        } else {
+          return self.args[0].calc();
+        }
       }
     };
 
