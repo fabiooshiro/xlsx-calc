@@ -24,7 +24,11 @@
     'STDEV': stDeviation,
     'AVERAGE': avg,
     'EXP': EXP,
-    'LN': Math.log
+    'LN': Math.log,
+    '_xlfn.VAR.P': var_p,
+    'VAR.P': var_p,
+    '_xlfn.COVARIANCE.P': covariance_p,
+    'COVARIANCE.P': covariance_p
     // 'HELLO': hello
   };
 
@@ -36,23 +40,85 @@
   //   return "Hello, " + name + "!";
   // }
   
+  function covariance_p(a, b) {
+    a = getArrayOfNumbers(a);
+    b = getArrayOfNumbers(b);
+    if (a.length != b.length) {
+      return 'N/D';
+    }
+    var inv_n = 1.0 / a.length;
+    var avg_a = sum.apply(this, a) / a.length;
+    var avg_b = sum.apply(this, b) / b.length;
+    var s = 0.0;
+    for(var i = 0; i < a.length; i ++) {
+      s += (a[i] - avg_a) * (b[i] - avg_b);
+    }
+    return s * inv_n;
+  }
+  
+  function getArrayOfNumbers(range) {
+    var arr = [];
+    for (var i = 0; i < range.length; i++) {
+      var arg = range[i];
+      if (Array.isArray(arg)) {
+        var matrix = arg;
+        for (var j = matrix.length; j--;) {
+          if (typeof(matrix[j]) == 'number') {
+            arr.push(matrix[j]);
+          } else if (Array.isArray(matrix[j])){
+            for (var k = matrix[j].length; k--;) {
+              if (typeof(matrix[j][k]) == 'number') {
+                arr.push(matrix[j][k]);
+              }
+            }
+          } 
+          // else {
+          //   wtf is that?
+          // }
+        }
+      } else {
+        if (typeof(arg) == 'number') {
+          arr.push(arg);
+        }
+      }
+    }
+    return arr;
+  }
+  
+  function var_p() {
+    var average = avg.apply(this, arguments);
+    var s = 0.0;
+    var c = 0;
+    for (var i = 0; i < arguments.length; i++) {
+      var arg = arguments[i];
+      if (Array.isArray(arg)) {
+        var matrix = arg;
+        for (var j = matrix.length; j--;) {
+          for (var k = matrix[j].length; k--;) {
+            if (matrix[j][k] !== null && matrix[j][k] !== undefined) {
+              s += Math.pow(matrix[j][k] - average, 2);
+              c++;
+            }
+          }
+        }
+      } else {
+        s += Math.pow(arg - average, 2);
+        c++;
+      }
+    }
+    return s / c;
+  }
+
   function EXP(n) {
     return Math.pow(Math.E, n);
   }
   
   function avg() {
-    var t = 0.0;
-    for (var i = 0; i < arguments.length; i++) {
-      t += arguments[i];
-    }
-    return t / arguments.length;
+    return sum.apply(this, arguments) / counta.apply(this, arguments);
   }
 
   function stDeviation() {
-    var array = [];
-    for (var i = 0; i < arguments.length; i++) {
-      array.push(arguments[i]);
-    }
+    var array = getArrayOfNumbers(arguments);
     function _mean(array) {
       return array.reduce(function(a, b) {
         return a + b;
@@ -402,12 +468,16 @@
   }
 
   function int_2_col_str(n) {
-    var r = '';
-    while (n > 25) {
-      n = n - 26;
-      r += 'A';
-    }
-    return r + String.fromCharCode(n + 65);
+    var dividend = n + 1;
+    var columnName = '';
+    var modulo;
+    var guard = 10;
+    while (dividend > 0 && guard --) {
+        modulo = (dividend - 1) % 26;
+        columnName = String.fromCharCode(modulo + 65) + columnName;
+        dividend = (dividend - modulo - 1) / 26;
+    } 
+    return columnName;
   }
 
   mymodule.col_str_2_int = col_str_2_int;

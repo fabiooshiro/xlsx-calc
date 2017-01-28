@@ -77,8 +77,13 @@
                             });
         
                             /* DO SOMETHING WITH workbook HERE */
-                            XLSX_CALC($scope.workbook);
                             var sheet_name = $scope.workbook.SheetNames[0];
+                            var start = new Date().getTime();
+                            XLSX_CALC($scope.workbook);
+                            console.log($scope.workbook.Sheets['Planilha2']);
+                            console.log('calculada em', (new Date().getTime() - start) + 'ms');
+                            
+                            
                             $scope.sheet = convert2matrix($scope.workbook.Sheets[sheet_name]);
                             $scope.ref = $scope.sheet['!ref'];
                             $scope.$apply();

@@ -508,6 +508,17 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 3);
         });
+        it('should calc AVERAGE of range', function() {
+            workbook.Sheets.Sheet1.A1 = {v: 0.1};
+            workbook.Sheets.Sheet1.A2 = {v: 0.5};
+            workbook.Sheets.Sheet1.A3 = {v: 0.2};
+            workbook.Sheets.Sheet1.A4 = {v: 0.3};
+            workbook.Sheets.Sheet1.A5 = {v: 0.2};
+            workbook.Sheets.Sheet1.A6 = {v: 0.2};
+            workbook.Sheets.Sheet1.A7 = {f: 'AVERAGE(A1:A6)'};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A7.v, 0.25);
+        });
     });
     describe('IRR', function() {
         it('calcs IRR', function() {
@@ -525,6 +536,40 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.B3 = {v:  100000.0};
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 30.672816276550293);
+        });
+    });
+    describe('VAR.P', function() {
+        it('calcs VAR.P', function() {
+            workbook.Sheets.Sheet1.A1 = {v: 0.1};
+            workbook.Sheets.Sheet1.A2 = {v: 0.5};
+            workbook.Sheets.Sheet1.A3 = {v: 0.2};
+            workbook.Sheets.Sheet1.A4 = {v: 0.3};
+            workbook.Sheets.Sheet1.A5 = {v: 0.2};
+            workbook.Sheets.Sheet1.A6 = {v: 0.2};
+            workbook.Sheets.Sheet1.A7 = {f: 'VAR.P(A1:A6)'};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A7.v.toFixed(8), 0.01583333);
+        });
+    });
+    describe('COVARIANCE.P', function() {
+        it('computes COVARIANCE.P', function() {
+            workbook.Sheets.Sheet1.A1 = {v: 0.01};
+            workbook.Sheets.Sheet1.A2 = {v: 0.05};
+            workbook.Sheets.Sheet1.A3 = {v: 0.02};
+            workbook.Sheets.Sheet1.A4 = {v: 0.03};
+            workbook.Sheets.Sheet1.A5 = {v: 0.02};
+            workbook.Sheets.Sheet1.A6 = {v: 0.02};
+            
+            workbook.Sheets.Sheet1.B1 = {v: 0.1};
+            workbook.Sheets.Sheet1.B2 = {v: 0.5};
+            workbook.Sheets.Sheet1.B3 = {v: 0.2};
+            workbook.Sheets.Sheet1.B4 = {v: 0.3};
+            workbook.Sheets.Sheet1.B5 = {v: 0.2};
+            workbook.Sheets.Sheet1.B6 = {v: 0.2};
+            
+            workbook.Sheets.Sheet1.A7 = {f: 'COVARIANCE.P(A1:A6,B1:B6)'};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A7.v.toFixed(8), 0.00158333);
         });
     });
     describe('bug fix', function() {
@@ -547,6 +592,20 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.A2 = {f: 'SUM(A1:C1)'};
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A2.v, 1054);
+        });
+    });
+    describe('#int_2_col_str', function() {
+        it('should returns A', function() {
+            assert.equal(XLSX_CALC.int_2_col_str(0), 'A');
+        });
+        it('should returns B', function() {
+            assert.equal(XLSX_CALC.int_2_col_str(1), 'B');
+        });
+        it('should returns AZ', function() {
+            assert.equal(XLSX_CALC.int_2_col_str(51), 'AZ');
+        });
+        it('should returns BA', function() {
+            assert.equal(XLSX_CALC.int_2_col_str(52), 'BA');
         });
     });
     describe('EXP', function() {
@@ -577,6 +636,7 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 3);
         });
         it('calculates the sum of Sheet2!A:B', function() {
+            this.timeout(5000);
             workbook.Sheets.Sheet1.A1.f = 'SUM(Sheet2!A:B)';
             workbook.Sheets.Sheet2 = { A1: {v:1}, B1: {v:2}, A2: {v: 3}};
             XLSX_CALC(workbook);
