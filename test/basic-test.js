@@ -550,6 +550,10 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A7.v.toFixed(8), 0.01583333);
         });
+        it('calls the VAR.P', function() {
+            var x = XLSX_CALC.exec_fx('VAR.P', [0.1, 0.5, 0.2, 0.3, 0.2, 0.2]);
+            assert.equal(x.toFixed(8), 0.01583333);
+        });
     });
     describe('COVARIANCE.P', function() {
         it('computes COVARIANCE.P', function() {

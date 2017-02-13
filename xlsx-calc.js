@@ -401,6 +401,10 @@
   mymodule.set_fx = function(name, fn) {
     xlsx_Fx[name] = fn;
   };
+  
+  mymodule.exec_fx = function(name, args) {
+    return xlsx_Fx[name].apply(this, args);
+  };
 
   function UserFnExecutor(user_function) {
     var self = this;
