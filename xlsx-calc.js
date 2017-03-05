@@ -742,7 +742,8 @@
           special = new UserFnExecutor(special, formula);
         }
         else if (buffer) {
-          throw new Error(formula.name + ': Function ' + buffer + ' not found');
+          //Error: "Worksheet 1"!D145: Function INDEX not found
+          throw new Error('"' + formula.sheet_name + '"!'+ formula.name + ': Function ' + buffer + ' not found');
         }
         o = new Exp(formula);
         fn_stack.push({

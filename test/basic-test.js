@@ -462,7 +462,7 @@ describe('XLSX_CALC', function() {
             function() {
                 XLSX_CALC(workbook);
             },
-            /Function XPTO not found/
+            /"Sheet1"!A1.*Function XPTO not found/
         );
     });
     describe('PTM', function() {
