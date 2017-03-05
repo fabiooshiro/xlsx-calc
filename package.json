@@ -5,6 +5,9 @@
   "main": "xlsx-calc.js",
   "repository": "",
   "author": "Sr Oshiro <fabio.oshiro@gmail.com>",
+  "scripts": {
+    "test": "mocha"
+  },
   "dependencies": {
     "formulajs": "^1.0.8",
     "xlsx": "^0.8.0"
