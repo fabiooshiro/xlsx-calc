@@ -576,28 +576,6 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A7.v.toFixed(8), 0.00158333);
         });
     });
-    describe('bug fix', function() {
-        it('should consider the end of string', function() {
-            workbook.Sheets.Sheet1.A1.f = 'IF($C$3<=0,"Tempo de Investimento Invalido",IF($C$3<=24,"x","y"))';
-            workbook.Sheets.Sheet1.C3 = { v: 24 };
-            XLSX_CALC(workbook);
-            assert.equal(workbook.Sheets.Sheet1.A1.v, 'x');
-        });
-        it('should eval 10%', function() {
-            workbook.Sheets.Sheet1.A1.f = '(B3*10%)/12';
-            workbook.Sheets.Sheet1.B3 = { v: 120 };
-            XLSX_CALC(workbook);
-            assert.equal(workbook.Sheets.Sheet1.A1.v, 1);
-        });
-        it('should works', function() {
-            workbook.Sheets.Sheet1.A1.f = '-1-2';
-            workbook.Sheets.Sheet1.B1 = {f: '4^5'};
-            workbook.Sheets.Sheet1.C1 = {v: 33};
-            workbook.Sheets.Sheet1.A2 = {f: 'SUM(A1:C1)'};
-            XLSX_CALC(workbook);
-            assert.equal(workbook.Sheets.Sheet1.A2.v, 1054);
-        });
-    });
     describe('#int_2_col_str', function() {
         it('should returns A', function() {
             assert.equal(XLSX_CALC.int_2_col_str(0), 'A');
@@ -645,6 +623,26 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet2 = { A1: {v:1}, B1: {v:2}, A2: {v: 3}};
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 6);
+        });
+    });
+    describe('Cell type: A2.t = "s" or A2.t = "n"', function() {
+        it('should set t = "s" for string values', function() {
+            workbook.Sheets.Sheet1.A1 = { v: " some string " };
+            workbook.Sheets.Sheet1.A2 = { f: "TRIM(A1)" };
+            
+            /* calculate */
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 's');
+            assert.equal(workbook.Sheets.Sheet1.A2.v, 'some string');
+        });
+        it('should set t = "n" for numeric values', function() {
+            workbook.Sheets.Sheet1.A1 = { v: " some string " };
+            workbook.Sheets.Sheet1.A2 = { f: "LEN(TRIM(A1))" };
+            
+            /* calculate */
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 'n');
+            assert.equal(workbook.Sheets.Sheet1.A2.v, 11);
         });
     });
     

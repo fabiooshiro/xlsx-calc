@@ -28,7 +28,9 @@
     '_xlfn.VAR.P': var_p,
     'VAR.P': var_p,
     '_xlfn.COVARIANCE.P': covariance_p,
-    'COVARIANCE.P': covariance_p
+    'COVARIANCE.P': covariance_p,
+    'TRIM': trim,
+    'LEN': len
     // 'HELLO': hello
   };
 
@@ -39,6 +41,13 @@
   // function hello(name) {
   //   return "Hello, " + name + "!";
   // }
+  function len(a) {
+    return ('' + a).length;
+  }
+  
+  function trim(a) {
+    return ('' + a).trim();
+  }
   
   function covariance_p(a, b) {
     a = getArrayOfNumbers(a);
@@ -758,6 +767,11 @@
     root_exp.push(buffer);
     try {
       formula.cell.v = root_exp.calc();
+      if (typeof(formula.cell.v) === 'string') {
+        formula.cell.t = 's';
+      } else if (typeof(formula.cell.v) === 'number') {
+        formula.cell.t = 'n';
+      }
     }
     catch (e) {
       if (e.message == '#N/A') {
