@@ -414,6 +414,27 @@
   mymodule.exec_fx = function(name, args) {
     return xlsx_Fx[name].apply(this, args);
   };
+  
+  function import_functions(formulajs, opts) {
+    opts = opts || {};
+    var prefix = opts.prefix || '';
+    for(var key in formulajs) {
+      var obj = formulajs[key];
+      if (typeof(obj) === 'function') {
+        xlsx_Fx[prefix + key] = obj;
+      } else if (typeof(obj) === 'object') {
+        import_functions(obj, my_assign(opts, {prefix: key + '.'}));
+      }
+    }
+  }
+  
+  function my_assign(dest, source) {
+    var obj = JSON.parse(JSON.stringify(dest));
+    for (var k in source) {
+      obj[k] = source[k];
+    }
+    return obj;
+  }
 
   function UserFnExecutor(user_function) {
     var self = this;
@@ -495,6 +516,7 @@
 
   mymodule.col_str_2_int = col_str_2_int;
   mymodule.int_2_col_str = int_2_col_str;
+  mymodule.import_functions = import_functions;
 
   function Range(str_expression, formula) {
     this.calc = function() {
