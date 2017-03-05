@@ -25,6 +25,30 @@ workbook.Sheets['Sheet1'].A1.v = 42;
 var XLSX_CALC = require('xlsx-calc');
 XLSX_CALC(workbook);
 ```
+
+## formulajs integration
+
+`npm install --save formulajs`
+
+```js
+var XLSX_CALC = require('xlsx-calc');
+
+// load your calc functions lib
+var formulajs = require('formulajs');
+
+// import your calc functions lib
+XLSX_CALC.import_functions(formulajs);
+
+var workbook = {Sheets: {Sheet1: {}}};
+
+// use it
+workbook.Sheets.Sheet1.A5 = {f: 'BETA.DIST(2, 8, 10, true, 1, 3)'};
+XLSX_CALC(workbook);
+
+// see the result -> 0.6854705810117458
+console.log(workbook.Sheets.Sheet1.A5.v);
+```
+
 # How to contribute
 
 Read the <a href="https://github.com/fabiooshiro/xlsx-calc/blob/master/test/basic-test.js">basic-tests.js</a>.
