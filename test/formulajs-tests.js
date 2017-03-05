@@ -22,7 +22,6 @@ describe('formulajs integration', function() {
             var workbook = {Sheets: {Sheet1: {}}};
             workbook.Sheets.Sheet1.A5 = {f: 'BETA.DIST(2, 8, 10, true, 1, 3)'};
             XLSX_CALC(workbook);
-            console.log(workbook.Sheets.Sheet1.A5.v);
             assert.equal(workbook.Sheets.Sheet1.A5.v.toFixed(10), (0.6854705810117458).toFixed(10));
         });
     });
