@@ -47,4 +47,7 @@ describe('Bugs', function() {
         XLSX_CALC(workbook);
         assert.equal(workbook.Sheets.Sheet1.A2.v, 1054);
     });
+    it('returns the correct string for column', function() {
+        assert.equal(XLSX_CALC.int_2_col_str(130), 'EA');
+    });
 });
