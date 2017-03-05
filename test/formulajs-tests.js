@@ -3,7 +3,7 @@ var XLSX_CALC = require('../');
 var assert = require('assert');
 
 describe('formulajs integration', function() {
-    describe('import_functions', function() {
+    describe('XLSX_CALC.import_functions()', function() {
         it('imports the functions from formulajs', function() {
             XLSX_CALC.import_functions(formulajs);
             var workbook = {};
