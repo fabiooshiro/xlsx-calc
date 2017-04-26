@@ -737,11 +737,11 @@
         buffer += str_formula[i];
       }
       else if (str_formula[i] == '(') {
-        var o, special = xlsx_Fx[buffer.trim()];
+        var o, trim_buffer = buffer.trim(), special = xlsx_Fx[trim_buffer];
         if (special) {
           special = new UserFnExecutor(special, formula);
         }
-        else if (buffer) {
+        else if (trim_buffer) {
           //Error: "Worksheet 1"!D145: Function INDEX not found
           throw new Error('"' + formula.sheet_name + '"!'+ formula.name + ': Function ' + buffer + ' not found');
         }

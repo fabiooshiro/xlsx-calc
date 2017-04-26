@@ -47,6 +47,14 @@ describe('Bugs', function() {
         XLSX_CALC(workbook);
         assert.equal(workbook.Sheets.Sheet1.A2.v, 1054);
     });
+    it('should ignore spaces before (', function() {
+        workbook.Sheets.Sheet1.A1.f = '- 1 - (1+1)';
+        workbook.Sheets.Sheet1.B1 = {f: '4^5'};
+        workbook.Sheets.Sheet1.C1 = {v: 33};
+        workbook.Sheets.Sheet1.A2 = {f: 'SUM(A1:C1)'};
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.A2.v, 1054);
+    });
     it('returns the correct string for column', function() {
         assert.equal(XLSX_CALC.int_2_col_str(130), 'EA');
     });
