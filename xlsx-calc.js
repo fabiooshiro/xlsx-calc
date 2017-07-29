@@ -460,6 +460,13 @@
       if (str_expression.indexOf('!') != -1) {
         var aux = str_expression.split('!');
         sheet = formula.wb.Sheets[aux[0]];
+        if (!sheet) {
+          var quoted = aux[0].match(/^'(.*)'$/);
+          if (quoted) {
+            aux[0] = quoted[1];
+          }
+          sheet = formula.wb.Sheets[aux[0]];
+        }
         sheet_name = aux[0];
         cell_name = aux[1];
       } 

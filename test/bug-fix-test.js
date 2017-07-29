@@ -1,4 +1,5 @@
 var XLSX_CALC = require('../');
+var XLSX = require('xlsx');
 var assert = require('assert');
 
 describe('Bugs', function() {
@@ -57,5 +58,11 @@ describe('Bugs', function() {
     });
     it('returns the correct string for column', function() {
         assert.equal(XLSX_CALC.int_2_col_str(130), 'EA');
+    });
+    it('resolves the bug of quoted sheet names', function() {
+        workbook = XLSX.readFile('test/abc.xlsx');
+        workbook.Sheets['B C'].A1.v = 2000;
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets['A'].A1.v, 2000);
     });
 });
