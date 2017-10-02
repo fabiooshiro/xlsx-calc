@@ -33,6 +33,8 @@
     'LEN': len
     // 'HELLO': hello
   };
+  
+  var xlsx_raw_Fx = {};
 
   // +---------------------+
   // | THE IMPLEMENTATIONS |
@@ -415,6 +417,12 @@
     return xlsx_Fx[name].apply(this, args);
   };
   
+  function import_raw_functions(functions, opts) {
+    for(var key in functions) {
+      xlsx_raw_Fx[key]= functions[key];
+    }
+  }
+  
   function import_functions(formulajs, opts) {
     opts = opts || {};
     var prefix = opts.prefix || '';
@@ -447,6 +455,18 @@
       self.args.push(buffer.calc());
     };
   }
+  
+  function UserRawFnExecutor(user_function) {
+    var self = this;
+    self.name = 'UserRawFn';
+    self.args = [];
+    self.calc = function() {
+      return user_function.apply(self, self.args);
+    };
+    self.push = function(buffer) {
+      self.args.push(buffer);
+    };
+  }
 
   function RawValue(value) {
     this.calc = function() {
@@ -455,6 +475,8 @@
   }
 
   function RefValue(str_expression, formula) {
+    this.name = 'RefValue';
+    this.str_expression = str_expression;
     this.calc = function() {
       var cell_name, sheet, sheet_name;
       if (str_expression.indexOf('!') != -1) {
@@ -524,6 +546,7 @@
   mymodule.col_str_2_int = col_str_2_int;
   mymodule.int_2_col_str = int_2_col_str;
   mymodule.import_functions = import_functions;
+  mymodule.import_raw_functions = import_raw_functions;
 
   function Range(str_expression, formula) {
     this.calc = function() {
@@ -745,7 +768,11 @@
       }
       else if (str_formula[i] == '(') {
         var o, trim_buffer = buffer.trim(), special = xlsx_Fx[trim_buffer];
-        if (special) {
+        var special_raw = xlsx_raw_Fx[trim_buffer];
+        if (special_raw) {
+          special = new UserRawFnExecutor(special_raw, formula);
+        }
+        else if (special) {
           special = new UserFnExecutor(special, formula);
         }
         else if (trim_buffer) {

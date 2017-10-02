@@ -645,6 +645,24 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A2.v, 11);
         });
     });
+    describe('raw function importer', function() {
+        it('should sends the raw argument', function() {
+            workbook.Sheets.Sheet1.A1 = { f: "MYRAWFN(A2,3-2,0)"};
+            workbook.Sheets.Sheet1.A2 = { v: "VaLuE"};
+            workbook.Sheets.Sheet1.B1 = { v: 1};
+            XLSX_CALC.import_raw_functions({
+                MYRAWFN: function(expr1, expr2, expr3) {
+                    console.log(expr1.name); // Expression
+                    console.log(expr1.args[0].name); // RefValue
+                    console.log(expr1.args[0].str_expression); // A2
+                    console.log(expr1.args[0].calc()); // VaLuE
+                    return [expr1.args[0].str_expression, expr2.calc(), expr3.calc()];
+                },
+            });
+            XLSX_CALC(workbook);
+            assert.deepEqual(workbook.Sheets.Sheet1.A1.v, ['A2',1,0]);
+        });
+    });
     
     // describe('HELLO', function() {
     //     it('says: Hello, World!', function() {
