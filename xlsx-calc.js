@@ -30,11 +30,14 @@
     '_xlfn.COVARIANCE.P': covariance_p,
     'COVARIANCE.P': covariance_p,
     'TRIM': trim,
-    'LEN': len
+    'LEN': len,
+    'ISBLANK': is_blank
     // 'HELLO': hello
   };
   
-  var xlsx_raw_Fx = {};
+  var xlsx_raw_Fx = {
+    'OFFSET': raw_offset
+  };
 
   // +---------------------+
   // | THE IMPLEMENTATIONS |
@@ -43,12 +46,39 @@
   // function hello(name) {
   //   return "Hello, " + name + "!";
   // }
+  
+  function raw_offset(cell_ref, rows, columns, height, width) {
+    height = (height || new RawValue(1)).calc();
+    width = (width || new RawValue(1)).calc();
+    if (cell_ref.args.length === 1 && cell_ref.args[0].name === 'RefValue') {
+      var ref_value = cell_ref.args[0];
+      var parsed_ref = ref_value.parseRef();
+      var col = col_str_2_int(parsed_ref.cell_name) + columns.calc();
+      var col_str = int_2_col_str(col);
+      var row = +parsed_ref.cell_name.replace(/^[A-Z]+/g, '') + rows.calc();
+      var cell_name = col_str + row;
+      if (height === 1 && width === 1) {
+        return new RefValue(cell_name, ref_value.formula).calc();
+      } else {
+        var end_range_col = int_2_col_str(col + width - 1);
+        var end_range_row = row + height - 1;
+        var end_range = end_range_col + end_range_row;
+        var str_expression = parsed_ref.sheet_name + '!' + cell_name + ':' + end_range;
+        return new Range(str_expression, ref_value.formula).calc();
+      }
+    }
+  }
+  
   function len(a) {
     return ('' + a).length;
   }
   
   function trim(a) {
     return ('' + a).trim();
+  }
+  
+  function is_blank(a) {
+    return !a;
   }
   
   function covariance_p(a, b) {
@@ -342,7 +372,9 @@
         var matrix = arg;
         for (var j = matrix.length; j--;) {
           for (var k = matrix[j].length; k--;) {
-            r += +matrix[j][k];
+            if (!isNaN(matrix[j][k])) {
+              r += +matrix[j][k];
+            }
           }
         }
       }
@@ -475,10 +507,13 @@
   }
 
   function RefValue(str_expression, formula) {
+    var self = this;
     this.name = 'RefValue';
     this.str_expression = str_expression;
-    this.calc = function() {
-      var cell_name, sheet, sheet_name;
+    this.formula = formula;
+    
+    self.parseRef = function() {
+      var sheet, sheet_name, cell_name, cell_full_name;
       if (str_expression.indexOf('!') != -1) {
         var aux = str_expression.split('!');
         sheet = formula.wb.Sheets[aux[0]];
@@ -497,10 +532,26 @@
         sheet_name = formula.sheet_name;
         cell_name = str_expression;
       }
-      var cell_full_name = sheet_name + '!' + cell_name;
+      if (!sheet) {
+        throw Error("Sheet " + sheet_name + " not found.");
+      }
+      cell_full_name = sheet_name + '!' + cell_name;
+      return {
+        sheet: sheet,
+        sheet_name: sheet_name,
+        cell_name: cell_name,
+        cell_full_name: cell_full_name
+      };
+    };
+    
+    this.calc = function() {
+      var resolved_ref = self.parseRef();
+      var sheet = resolved_ref.sheet;
+      var cell_name = resolved_ref.cell_name;
+      var cell_full_name = resolved_ref.cell_full_name;
       var ref_cell = sheet[cell_name];
       if (!ref_cell) {
-        throw Error("Cell " + cell_full_name + " not found.");
+        return null;
       }
       var formula_ref = formula.formula_ref[cell_full_name];
       if (formula_ref) {

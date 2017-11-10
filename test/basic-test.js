@@ -604,6 +604,20 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 2);
         });
     });
+    describe('ISBLANK', function() {
+        it('calculates ISBLANK as false', function() {
+            workbook.Sheets.Sheet1.A1.f = 'ISBLANK(B1)';
+            workbook.Sheets.Sheet1.B1 = {v: ' '};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, false);
+        });
+        it('calculates ISBLANK as true', function() {
+            workbook.Sheets.Sheet1.A1.f = 'ISBLANK(B1)';
+            workbook.Sheets.Sheet1.B1 = {v: ''};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, true);
+        });
+    });
     describe('Sheet ref references', function() {
         it('calculates the sum of Sheet2!A1+Sheet2!A2', function() {
             workbook.Sheets.Sheet1.A1.f = 'Sheet2!A1+Sheet2!A2';
