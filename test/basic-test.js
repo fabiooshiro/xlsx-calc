@@ -1,8 +1,10 @@
-var XLSX_CALC = require("../");
-var assert = require('assert');
+"use strict";
+
+const XLSX_CALC = require("../");
+const assert = require('assert');
 
 describe('XLSX_CALC', function() {
-    var workbook;
+    let workbook;
     beforeEach(function() {
         workbook = {
             Sheets: {
