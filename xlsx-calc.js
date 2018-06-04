@@ -506,6 +506,15 @@
     };
   }
 
+  function getSanitizedSheetName(sheet_name) {
+    var quotedMatch = sheet_name.match(/^'(.*)'$/);
+    if (quotedMatch) {
+      return quotedMatch[1];
+    } else {
+      return sheet_name;
+    }
+  }
+
   function RefValue(str_expression, formula) {
     var self = this;
     this.name = 'RefValue';
@@ -516,15 +525,8 @@
       var sheet, sheet_name, cell_name, cell_full_name;
       if (str_expression.indexOf('!') != -1) {
         var aux = str_expression.split('!');
-        sheet = formula.wb.Sheets[aux[0]];
-        if (!sheet) {
-          var quoted = aux[0].match(/^'(.*)'$/);
-          if (quoted) {
-            aux[0] = quoted[1];
-          }
-          sheet = formula.wb.Sheets[aux[0]];
-        }
-        sheet_name = aux[0];
+        sheet_name = getSanitizedSheetName(aux[0]);
+        sheet = formula.wb.Sheets[sheet_name];
         cell_name = aux[1];
       } 
       else {
@@ -604,7 +606,7 @@
       var range_expression, sheet_name, sheet;
       if (str_expression.indexOf('!') != -1) {
         var aux = str_expression.split('!');
-        sheet_name = aux[0];
+        sheet_name = getSanitizedSheetName(aux[0]);
         range_expression = aux[1];
       } else {
         sheet_name = formula.sheet_name;
