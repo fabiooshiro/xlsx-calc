@@ -55,9 +55,14 @@ console.log(workbook.Sheets.Sheet1.A5.v);
 
 Read the <a href="https://github.com/fabiooshiro/xlsx-calc/blob/master/test/basic-test.js">basic-tests.js</a>.
 
-Run the mocha
+Run tests
 ```sh
-$ mocha -w
+$ npm run test-w
+```
+
+Run webpack
+```sh
+$ npm run dev
 ```
 
 write some test like:
@@ -73,14 +78,14 @@ describe('HELLO', function() {
 //(...)
 ```
 
-Register your formula/function in the xlsx_Fx variable found inside <a href="https://github.com/fabiooshiro/xlsx-calc/blob/master/xlsx-calc.js">xlsx-calc.js</a> 
+Register your formula/function in the src/formulas.js file
 below the commentary "FORMULAS REGISTERED"
 
 ```js
   // +---------------------+
   // | FORMULAS REGISTERED |
   // +---------------------+
-  var xlsx_Fx = {
+  var formulas = {
     'FLOOR': Math.floor,
     'COUNTA': counta,
     'IRR': irr,

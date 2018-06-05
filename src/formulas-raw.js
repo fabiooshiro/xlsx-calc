@@ -2,9 +2,9 @@
 
 const int_2_col_str = require('./int_2_col_str.js');
 const col_str_2_int = require('./col_str_2_int.js');
-const RawValue = require('./raw_value.js');
-const Range = require('./range.js');
-const RefValue = require('./ref_value.js');
+const RawValue = require('./RawValue.js');
+const Range = require('./Range.js');
+const RefValue = require('./RefValue.js');
 
 function raw_offset(cell_ref, rows, columns, height, width) {
     height = (height || new RawValue(1)).calc();

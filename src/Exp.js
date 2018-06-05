@@ -1,8 +1,8 @@
 "use strict";
 
-const RawValue = require('./raw_value.js');
-const RefValue = require('./ref_value.js');
-const Range = require('./range.js');
+const RawValue = require('./RawValue.js');
+const RefValue = require('./RefValue.js');
+const Range = require('./Range.js');
 
 var exp_id = 0;
 
@@ -38,12 +38,12 @@ module.exports = function Exp(formula) {
         }
     }
     
-    function exec(op, fn) {
-        for (var i = 0; i < self.args.length; i++) {
-            if (self.args[i] === op) {
+    function exec(op, args, fn) {
+        for (var i = 0; i < args.length; i++) {
+            if (args[i] === op) {
                 try {
-                    var r = fn(self.args[i - 1].calc(), self.args[i + 1].calc());
-                    self.args.splice(i - 1, 3, new RawValue(r));
+                    var r = fn(args[i - 1].calc(), args[i + 1].calc());
+                    args.splice(i - 1, 3, new RawValue(r));
                     i--;
                 }
                 catch (e) {
@@ -54,62 +54,63 @@ module.exports = function Exp(formula) {
         }
     }
 
-    function exec_minus() {
-        for (var i = self.args.length; i--;) {
-            if (self.args[i] === '-') {
-                var r = -self.args[i + 1].calc();
-                if (typeof self.args[i - 1] !== 'string' && i > 0) {
-                    self.args.splice(i, 1, '+');
-                    self.args.splice(i + 1, 1, new RawValue(r));
+    function exec_minus(args) {
+        for (var i = args.length; i--;) {
+            if (args[i] === '-') {
+                var r = -args[i + 1].calc();
+                if (typeof args[i - 1] !== 'string' && i > 0) {
+                    args.splice(i, 1, '+');
+                    args.splice(i + 1, 1, new RawValue(r));
                 }
                 else {
-                    self.args.splice(i, 2, new RawValue(r));
+                    args.splice(i, 2, new RawValue(r));
                 }
             }
         }
     }
 
     self.calc = function() {
-        exec_minus();
-        exec('^', function(a, b) {
+        let args = self.args.concat();
+        exec_minus(args);
+        exec('^', args, function(a, b) {
             return Math.pow(+a, +b);
         });
-        exec('*', function(a, b) {
+        exec('*', args, function(a, b) {
             return (+a) * (+b);
         });
-        exec('/', function(a, b) {
+        exec('/', args, function(a, b) {
             return (+a) / (+b);
         });
-        exec('+', function(a, b) {
+        exec('+', args, function(a, b) {
             return (+a) + (+b);
         });
-        exec('&', function(a, b) {
+        exec('&', args, function(a, b) {
             return '' + a + b;
         });
-        exec('<', function(a, b) {
+        exec('<', args, function(a, b) {
             return a < b;
         });
-        exec('>', function(a, b) {
+        exec('>', args, function(a, b) {
             return a > b;
         });
-        exec('>=', function(a, b) {
+        exec('>=', args, function(a, b) {
             return a >= b;
         });
-        exec('<=', function(a, b) {
+        exec('<=', args, function(a, b) {
             return a <= b;
         });
-        exec('<>', function(a, b) {
+        exec('<>', args, function(a, b) {
             return a != b;
         });
-        exec('=', function(a, b) {
+        exec('=', args, function(a, b) {
             return a == b;
         });
-        if (self.args.length == 1) {
-            if (typeof(self.args[0].calc) != 'function') {
-                return self.args[0];
+        if (args.length == 1) {
+            if (typeof(args[0].calc) != 'function') {
+                return args[0];
             }
             else {
-                return self.args[0].calc();
+                return args[0].calc();
             }
         }
     };

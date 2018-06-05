@@ -2,13 +2,14 @@
 
 const col_str_2_int = require('./col_str_2_int.js');
 const int_2_col_str = require('./int_2_col_str.js');
+const getSanitizedSheetName = require('./getSanitizedSheetName.js');
 
 module.exports = function Range(str_expression, formula) {
     this.calc = function() {
         var range_expression, sheet_name, sheet;
         if (str_expression.indexOf('!') != -1) {
             var aux = str_expression.split('!');
-            sheet_name = aux[0];
+            sheet_name = getSanitizedSheetName(aux[0]);
             range_expression = aux[1];
         }
         else {

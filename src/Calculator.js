@@ -1,9 +1,10 @@
 "use strict";
 
-const RawValue = require('./raw_value.js');
+const RawValue = require('./RawValue.js');
 const find_all_cells_with_formulas = require('./find_all_cells_with_formulas.js');
 
 class Calculator {
+    
     constructor(workbook, exec_formula) {
         this.workbook = workbook;
         this.expressions = [];
@@ -15,21 +16,29 @@ class Calculator {
             this.expressions.push(exp);
         }
     }
+    
     setVar(var_name, value) {
         let variable = this.variables[var_name];
         if (variable) {
             variable.setValue(value);
         } else {
             this.expressions.forEach(exp => {
-                for (let i = 0; i < exp.args.length; i++) {
-                    let arg = exp.args[i];
-                    if (arg === var_name) {
-                        exp.args[i] = this.variables[var_name] || (this.variables[var_name] = new RawValue(value));
-                    }
-                }
+                this.setVarOfExpression(exp, var_name, value);
             });
         }
     }
+    
+    setVarOfExpression(exp, var_name, value) {
+        for (let i = 0; i < exp.args.length; i++) {
+            let arg = exp.args[i];
+            if (arg === var_name) {
+                exp.args[i] = this.variables[var_name] || (this.variables[var_name] = new RawValue(value));
+            } else if (typeof arg === 'object' && (arg.name === 'Expression' || arg.name === 'UserFn')) {
+                this.setVarOfExpression(arg, var_name, value);
+            }
+        }
+    }
+    
     execute() {
         this.expressions.forEach(exp => {
             exp.update_cell_value();

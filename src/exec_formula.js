@@ -1,9 +1,9 @@
 "use strict";
 
-const Exp = require('./exp.js');
-const RawValue = require('./raw_value.js');
-const UserFnExecutor = require('./user_fn_executor.js');
-const UserRawFnExecutor = require('./user_raw_fn_executor.js');
+const Exp = require('./Exp.js');
+const RawValue = require('./RawValue.js');
+const UserFnExecutor = require('./UserFnExecutor.js');
+const UserRawFnExecutor = require('./UserRawFnExecutor.js');
 
 var xlsx_Fx = {};
 var xlsx_raw_Fx = {};

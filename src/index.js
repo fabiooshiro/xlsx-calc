@@ -4,7 +4,7 @@ const int_2_col_str = require('./int_2_col_str.js');
 const col_str_2_int = require('./col_str_2_int.js');
 const exec_formula = require('./exec_formula.js');
 const find_all_cells_with_formulas = require('./find_all_cells_with_formulas.js');
-const Calculator = require('./calculator.js');
+const Calculator = require('./Calculator.js');
 
 var mymodule = function(workbook) {
     var formulas = find_all_cells_with_formulas(workbook, exec_formula);

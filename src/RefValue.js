@@ -1,5 +1,7 @@
 "use strict";
 
+const getSanitizedSheetName = require('./getSanitizedSheetName.js');
+
 module.exports = function RefValue(str_expression, formula) {
     var self = this;
     this.name = 'RefValue';
@@ -10,15 +12,8 @@ module.exports = function RefValue(str_expression, formula) {
         var sheet, sheet_name, cell_name, cell_full_name;
         if (str_expression.indexOf('!') != -1) {
             var aux = str_expression.split('!');
-            sheet = formula.wb.Sheets[aux[0]];
-            if (!sheet) {
-                var quoted = aux[0].match(/^'(.*)'$/);
-                if (quoted) {
-                    aux[0] = quoted[1];
-                }
-                sheet = formula.wb.Sheets[aux[0]];
-            }
-            sheet_name = aux[0];
+            sheet_name = getSanitizedSheetName(aux[0]);
+            sheet = formula.wb.Sheets[sheet_name];
             cell_name = aux[1];
         }
         else {
