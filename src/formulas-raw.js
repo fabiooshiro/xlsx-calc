@@ -29,6 +29,19 @@ function raw_offset(cell_ref, rows, columns, height, width) {
     }
 }
 
+function iferror(cell_ref, onerrorvalue) {
+    try {
+        var value = cell_ref.calc();
+        if (typeof value === 'number' && (isNaN(value) || value === Infinity || value === -Infinity)) {
+            return onerrorvalue.calc();
+        }
+        return value;
+    } catch(e) {
+        return onerrorvalue.calc();
+    }
+}
+
 module.exports = {
-    'OFFSET': raw_offset
+    'OFFSET': raw_offset,
+    'IFERROR': iferror
 };

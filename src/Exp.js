@@ -12,6 +12,7 @@ module.exports = function Exp(formula) {
     self.args = [];
     self.name = 'Expression';
     self.update_cell_value = update_cell_value;
+    self.formula = formula;
     
     function update_cell_value() {
         try {

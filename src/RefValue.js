@@ -52,6 +52,10 @@ module.exports = function RefValue(str_expression, formula) {
                 throw new Error('Circular ref');
             }
             else if (formula_ref.status === 'done') {
+                if (sheet[cell_name].t === 'e') {
+                    console.log('ref is an error');
+                    throw new Error(sheet[cell_name].w);
+                }
                 return sheet[cell_name].v;
             }
         }

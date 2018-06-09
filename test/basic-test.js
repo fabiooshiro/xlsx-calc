@@ -680,6 +680,37 @@ describe('XLSX_CALC', function() {
         });
     });
     
+    describe('IFERROR', function() {
+        it('returns the string Error', function() {
+            workbook.Sheets.Sheet1.A1 = { f: "IFERROR(A2,\"Error\")"};
+            workbook.Sheets.Sheet1.A2 = { f: "0/0"};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'Error');
+        });
+        it('returns the string Error when res is Infinity', function() {
+            workbook.Sheets.Sheet1.A1 = { f: "IFERROR(1/0,\"Error\")"};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'Error');
+        });
+        it('returns the string Error when res is -Infinity', function() {
+            workbook.Sheets.Sheet1.A1 = { f: "IFERROR(-1/0,\"Error\")"};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'Error');
+        });
+        it('returns the string boston', function() {
+            workbook.Sheets.Sheet1.A1 = { f: "IFERROR(A2,\"Error\")"};
+            workbook.Sheets.Sheet1.A2 = { v: "boston"};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'boston');
+        });
+        it('returns the string Error when VLOOKUP fail', function() {
+            workbook.Sheets.Sheet1.A1 = { f: "IFERROR(A2,\"Error\")"};
+            workbook.Sheets.Sheet1.A2 = { f: "VLOOKUP(\"void\",\"A3:B7\",2)"};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'Error');
+        });
+    });
+    
     // describe('HELLO', function() {
     //     it('says: Hello, World!', function() {
     //         workbook.Sheets.Sheet1.A1.f = 'HELLO("World")';
