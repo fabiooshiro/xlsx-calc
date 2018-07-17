@@ -5,6 +5,7 @@ const RefValue = require('./RefValue.js');
 const Range = require('./Range.js');
 
 var exp_id = 0;
+let exec_id = 0;
 
 module.exports = function Exp(formula) {
     var self = this;
@@ -15,28 +16,51 @@ module.exports = function Exp(formula) {
     self.formula = formula;
     
     function update_cell_value() {
-        try {
-            formula.cell.v = self.calc();
-            if (typeof(formula.cell.v) === 'string') {
-                formula.cell.t = 's';
+        return new Promise((resolve, reject) => {
+            let current_execution = exec_id++;
+            try {
+                //console.log('Exec', current_execution);
+                var val_or_promise = self.calc();
+                if (typeof val_or_promise === 'object' && typeof val_or_promise['then'] === 'function') {
+                    val_or_promise.then(res => {
+                        formula.cell.v = res;
+                        if (typeof(formula.cell.v) === 'string') {
+                            formula.cell.t = 's';
+                        }
+                        else if (typeof(formula.cell.v) === 'number') {
+                            formula.cell.t = 'n';
+                        }
+                        resolve(formula.cell.v);
+                    }).catch(reject);
+                }
+                else {
+                    formula.cell.v = val_or_promise;
+                    if (typeof(formula.cell.v) === 'string') {
+                        formula.cell.t = 's';
+                    }
+                    else if (typeof(formula.cell.v) === 'number') {
+                        formula.cell.t = 'n';
+                    }
+                    resolve(formula.cell.v);
+                }
             }
-            else if (typeof(formula.cell.v) === 'number') {
-                formula.cell.t = 'n';
+            catch (e) {
+                if (e.message == '#N/A') {
+                    formula.cell.v = 42;
+                    formula.cell.t = 'e';
+                    formula.cell.w = e.message;
+                    resolve();
+                }
+                else {
+                    //console.error('Error', current_execution, e);
+                    reject(e);
+                    //throw e;
+                }
             }
-        }
-        catch (e) {
-            if (e.message == '#N/A') {
-                formula.cell.v = 42;
-                formula.cell.t = 'e';
-                formula.cell.w = e.message;
+            finally {
+                formula.status = 'done';
             }
-            else {
-                throw e;
-            }
-        }
-        finally {
-            formula.status = 'done';
-        }
+        });
     }
     
     function exec(op, args, fn) {

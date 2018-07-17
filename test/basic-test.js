@@ -29,13 +29,15 @@ describe('XLSX_CALC', function() {
             }
         };
     });
-    describe('plus', function() {
+    describe('plus', function(done) {
         it('should calc A2+C5', function() {
             workbook.Sheets.Sheet1.A2.v = 7;
             workbook.Sheets.Sheet1.C5.v = 3;
             workbook.Sheets.Sheet1.A1.f = 'A2+C5';
-            XLSX_CALC(workbook);
-            assert.equal(workbook.Sheets.Sheet1.A1.v, 10);
+            XLSX_CALC(workbook).then(function() {
+                assert.equal(workbook.Sheets.Sheet1.A1.v, 10);
+                done();
+            }).catch(done);
         });
         it('should calc 1+2', function() {
             workbook.Sheets.Sheet1.A1.f = '1+2';
@@ -151,6 +153,16 @@ describe('XLSX_CALC', function() {
         it('sets new function', function() {
             XLSX_CALC.set_fx('ADD_1', function(arg) {
                 return arg + 1;
+            });
+            workbook.Sheets.Sheet1.A1.f = 'ADD_1(123)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 124);
+        });
+        it('sets promise function', function() {
+            XLSX_CALC.set_fx('ADD_1', function(arg) {
+                return new Promise((resolve, reject) => {
+                    resolve(arg + 1);
+                });
             });
             workbook.Sheets.Sheet1.A1.f = 'ADD_1(123)';
             XLSX_CALC(workbook);
@@ -419,53 +431,76 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 123);
         });
     });
-    it('calcs ref with space', function() {
-        workbook.Sheets.Sheet1.A1.f = 'A2 ';
-        workbook.Sheets.Sheet1.A2.v = 1979;
-        XLSX_CALC(workbook);
-        assert.equal(workbook.Sheets.Sheet1.A1.v, 1979);
+    
+    describe.only('references', function() {
+        it('calcs ref with space', function(done) {
+            workbook.Sheets.Sheet1.A1.f = 'A2 ';
+            workbook.Sheets.Sheet1.A2.v = 1979;
+            XLSX_CALC(workbook).then(res => {
+                assert.equal(workbook.Sheets.Sheet1.A1.v, 1979);
+                done();
+            }).catch(done);
+        });
+        it('calcs ref with $', function(done) {
+            workbook.Sheets.Sheet1.A1.f = '$A$2 ';
+            workbook.Sheets.Sheet1.A2.v = 1979;
+            XLSX_CALC(workbook).then(res => {
+                assert.equal(workbook.Sheets.Sheet1.A1.v, 1979);
+                done();
+            }).catch(done);
+        });
+        it('calcs simple chain', function(done) {
+            workbook.Sheets.Sheet1.C4.f = 'A1';
+            workbook.Sheets.Sheet1.A1.f = 'A2';
+            workbook.Sheets.Sheet1.A2.v = 1979;
+            XLSX_CALC(workbook).then(res => {
+                assert.equal(workbook.Sheets.Sheet1.C4.v, 1979);
+                done();
+            }).catch(done);
+        });
+        it('calcs long chain', function(done) {
+            workbook.Sheets.Sheet1.C4.f = 'C3';
+            workbook.Sheets.Sheet1.C3.f = 'C2';
+            workbook.Sheets.Sheet1.C2.f = 'A2';
+            workbook.Sheets.Sheet1.A2.f = 'A1';
+            workbook.Sheets.Sheet1.A1.v = 1979;
+            workbook.Sheets.Sheet1.C5.f = 'C3';
+            XLSX_CALC(workbook).then(res => {
+                assert.equal(workbook.Sheets.Sheet1.C4.v, 1979);
+                done();
+            }).catch(done);
+        });
+        it('throws a circular exception', function(done) {
+            workbook.Sheets.Sheet1.C4.f = 'A1';
+            workbook.Sheets.Sheet1.A1.f = 'C4';
+            XLSX_CALC(workbook).then(x=> {
+                done(new Error('Where is the error?'));
+            }).catch(err => {
+                assert.throws(
+                    function() {
+                        throw err;
+                    },
+                    /Circular ref/
+                );
+                done();
+            });
+        });
     });
-    it('calcs ref with $', function() {
-        workbook.Sheets.Sheet1.A1.f = '$A$2 ';
-        workbook.Sheets.Sheet1.A2.v = 1979;
-        XLSX_CALC(workbook);
-        assert.equal(workbook.Sheets.Sheet1.A1.v, 1979);
-    });
-    it('calcs ref chain', function() {
-        workbook.Sheets.Sheet1.C4.f = 'A1';
-        workbook.Sheets.Sheet1.A1.f = 'A2';
-        workbook.Sheets.Sheet1.A2.v = 1979;
-        XLSX_CALC(workbook);
-        assert.equal(workbook.Sheets.Sheet1.C4.v, 1979);
-    });
-    it('calcs ref chain 2', function() {
-        workbook.Sheets.Sheet1.C4.f = 'C3';
-        workbook.Sheets.Sheet1.C3.f = 'C2';
-        workbook.Sheets.Sheet1.C2.f = 'A2';
-        workbook.Sheets.Sheet1.A2.f = 'A1';
-        workbook.Sheets.Sheet1.A1.v = 1979;
-        workbook.Sheets.Sheet1.C5.f = 'C3';
-        XLSX_CALC(workbook);
-        assert.equal(workbook.Sheets.Sheet1.C4.v, 1979);
-    });
-    it('throws a circular exception', function() {
-        workbook.Sheets.Sheet1.C4.f = 'A1';
-        workbook.Sheets.Sheet1.A1.f = 'C4';
-        assert.throws(
-            function() {
-                XLSX_CALC(workbook);
-            },
-            /Circular ref/
-        );
-    });
-    it('throws a function XPTO not found', function() {
+    
+    it('throws a function XPTO not found', function(done) {
         workbook.Sheets.Sheet1.A1.f = 'XPTO()';
-        assert.throws(
-            function() {
-                XLSX_CALC(workbook);
-            },
-            /"Sheet1"!A1.*Function XPTO not found/
-        );
+        XLSX_CALC(workbook).then(x => {
+            done('Missing expected exception.');
+        }).catch(err => {
+            assert.throws(
+                function() {
+                    throw err;
+                },
+                /"Sheet1"!A1.*Function XPTO not found/
+            );
+            done();
+        });
+        
     });
     describe('PTM', function() {
         it('calcs PMT(0.07/12, 24, 1000)', function() {

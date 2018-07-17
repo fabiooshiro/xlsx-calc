@@ -34,33 +34,39 @@ module.exports = function RefValue(str_expression, formula) {
     };
 
     this.calc = function() {
-        var resolved_ref = self.parseRef();
-        var sheet = resolved_ref.sheet;
-        var cell_name = resolved_ref.cell_name;
-        var cell_full_name = resolved_ref.cell_full_name;
-        var ref_cell = sheet[cell_name];
-        if (!ref_cell) {
-            return null;
-        }
-        var formula_ref = formula.formula_ref[cell_full_name];
-        if (formula_ref) {
-            if (formula_ref.status === 'new') {
-                formula.exec_formula(formula_ref);
-                return sheet[cell_name].v;
+        return new Promise((resolve, reject) => {
+            var resolved_ref = self.parseRef();
+            var sheet = resolved_ref.sheet;
+            var cell_name = resolved_ref.cell_name;
+            var cell_full_name = resolved_ref.cell_full_name;
+            var ref_cell = sheet[cell_name];
+            if (!ref_cell) {
+                return resolve(null);
             }
-            else if (formula_ref.status === 'working') {
-                throw new Error('Circular ref');
-            }
-            else if (formula_ref.status === 'done') {
-                if (sheet[cell_name].t === 'e') {
-                    console.log('ref is an error');
-                    throw new Error(sheet[cell_name].w);
+            var formula_ref = formula.formula_ref[cell_full_name];
+            if (formula_ref) {
+                if (formula_ref.status === 'new') {
+                    formula.exec_formula(formula_ref).then(res => {
+                        resolve(res);
+                    }).catch(reject);
+                    //return sheet[cell_name].v;
                 }
-                return sheet[cell_name].v;
+                else if (formula_ref.status === 'working') {
+                    reject('Circular ref');
+                    //throw new Error('Circular ref');
+                }
+                else if (formula_ref.status === 'done') {
+                    if (sheet[cell_name].t === 'e') {
+                        reject(sheet[cell_name].w);
+                        //console.log('ref is an error');
+                        //throw new Error(sheet[cell_name].w);
+                    }
+                    return resolve(sheet[cell_name].v);
+                }
             }
-        }
-        else {
-            return sheet[cell_name].v;
-        }
+            else {
+                return resolve(sheet[cell_name].v);
+            }
+        });
     };
 };

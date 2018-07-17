@@ -142,7 +142,7 @@ function build_expression(formula) {
 
 function exec_formula(formula) {
     let root_exp = build_expression(formula);
-    root_exp.update_cell_value();
+    return root_exp.update_cell_value();
 }
 
 exec_formula.set_fx = function set_fx(name, fn) {

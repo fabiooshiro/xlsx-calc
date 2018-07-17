@@ -6,24 +6,43 @@ const exec_formula = require('./exec_formula.js');
 const find_all_cells_with_formulas = require('./find_all_cells_with_formulas.js');
 const Calculator = require('./Calculator.js');
 
-var mymodule = function(workbook) {
-    var formulas = find_all_cells_with_formulas(workbook, exec_formula);
-    for (var i = formulas.length - 1; i >= 0; i--) {
-        exec_formula(formulas[i]);
+
+function exec_next(formulas, i, resolve, reject) {
+    if (i === formulas.length) {
+        resolve();
+        return;
     }
+    //console.log('executing', i+1, 'of', formulas.length,'...');
+    exec_formula(formulas[i]).then(x => {
+        exec_next(formulas, i + 1, resolve, reject);
+    }).catch(err => {
+        //console.error(err);
+        reject(err);
+    });
+}
+
+var XLSX_CALC = function(workbook) {
+    return new Promise((resolve, reject) => {
+        var formulas = find_all_cells_with_formulas(workbook, exec_formula);
+        exec_next(formulas, 0, resolve, reject);
+        //for (var i = formulas.length - 1; i >= 0; i--) {
+        //    exec_formula(formulas[i]);
+        //}
+        //resolve();
+    });
 };
 
-mymodule.calculator = function calculator(workbook) {
+XLSX_CALC.calculator = function calculator(workbook) {
     return new Calculator(workbook, exec_formula);
 };
 
-mymodule.set_fx = exec_formula.set_fx;
-mymodule.exec_fx = exec_formula.exec_fx;
-mymodule.col_str_2_int = col_str_2_int;
-mymodule.int_2_col_str = int_2_col_str;
-mymodule.import_functions = exec_formula.import_functions;
-mymodule.import_raw_functions = exec_formula.import_raw_functions;
+XLSX_CALC.set_fx = exec_formula.set_fx;
+XLSX_CALC.exec_fx = exec_formula.exec_fx;
+XLSX_CALC.col_str_2_int = col_str_2_int;
+XLSX_CALC.int_2_col_str = int_2_col_str;
+XLSX_CALC.import_functions = exec_formula.import_functions;
+XLSX_CALC.import_raw_functions = exec_formula.import_raw_functions;
 
 
 
-module.exports = mymodule;
+module.exports = XLSX_CALC;
