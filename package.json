@@ -8,7 +8,8 @@
   "scripts": {
     "test": "mocha",
     "dev": "webpack --mode=development -w",
-    "test-w": "mocha -w --check-leaks"
+    "test-w": "mocha -w --check-leaks",
+    "build": "webpack --mode=production"
   },
   "dependencies": {},
   "devDependencies": {
