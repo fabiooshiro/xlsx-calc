@@ -28,41 +28,51 @@ describe('Bugs', function() {
             }
         };
     });
-    it('should consider the end of string', function() {
+    it('should consider the end of string', function(done) {
         workbook.Sheets.Sheet1.A1.f = 'IF($C$3<=0,"Tempo de Investimento Invalido",IF($C$3<=24,"x","y"))';
         workbook.Sheets.Sheet1.C3 = { v: 24 };
-        XLSX_CALC(workbook);
-        assert.equal(workbook.Sheets.Sheet1.A1.v, 'x');
+        XLSX_CALC(workbook).then(x => {
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'x');
+            done();
+        }).catch(done);
     });
-    it('should eval 10%', function() {
+    it('should eval 10%', function(done) {
         workbook.Sheets.Sheet1.A1.f = '(B3*10%)/12';
         workbook.Sheets.Sheet1.B3 = { v: 120 };
-        XLSX_CALC(workbook);
-        assert.equal(workbook.Sheets.Sheet1.A1.v, 1);
+        XLSX_CALC(workbook).then(x => {
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 1);
+            done();
+        }).catch(done);
     });
-    it('should works', function() {
+    it('should works', function(done) {
         workbook.Sheets.Sheet1.A1.f = '-1-2';
         workbook.Sheets.Sheet1.B1 = {f: '4^5'};
         workbook.Sheets.Sheet1.C1 = {v: 33};
         workbook.Sheets.Sheet1.A2 = {f: 'SUM(A1:C1)'};
-        XLSX_CALC(workbook);
-        assert.equal(workbook.Sheets.Sheet1.A2.v, 1054);
+        XLSX_CALC(workbook).then(x => {
+            assert.equal(workbook.Sheets.Sheet1.A2.v, 1054);
+            done();
+        }).catch(done);
     });
-    it('should ignore spaces before (', function() {
+    it('should ignore spaces before (', function(done) {
         workbook.Sheets.Sheet1.A1.f = '- 1 - (1+1)';
         workbook.Sheets.Sheet1.B1 = {f: '4^5'};
         workbook.Sheets.Sheet1.C1 = {v: 33};
         workbook.Sheets.Sheet1.A2 = {f: 'SUM(A1:C1)'};
-        XLSX_CALC(workbook);
-        assert.equal(workbook.Sheets.Sheet1.A2.v, 1054);
+        XLSX_CALC(workbook).then(x => {
+            assert.equal(workbook.Sheets.Sheet1.A2.v, 1054);
+            done();
+        }).catch(done);
     });
     it('returns the correct string for column', function() {
         assert.equal(XLSX_CALC.int_2_col_str(130), 'EA');
     });
-    it('resolves the bug of quoted sheet names', function() {
+    it('resolves the bug of quoted sheet names', function(done) {
         workbook = XLSX.readFile('test/abc.xlsx');
         workbook.Sheets['B C'].A1.v = 2000;
-        XLSX_CALC(workbook);
-        assert.equal(workbook.Sheets['A'].A1.v, 2000);
+        XLSX_CALC(workbook).then(x => {
+            assert.equal(workbook.Sheets['A'].A1.v, 2000);
+            done();
+        }).catch(done);
     });
 });

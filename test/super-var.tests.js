@@ -3,7 +3,7 @@
 const XLSX_CALC = require("../");
 const assert = require('assert');
 
-describe('trocar variavel', () => {
+describe.only('trocar variavel', () => {
     let workbook;
     beforeEach(() => {
         workbook = {
@@ -19,18 +19,22 @@ describe('trocar variavel', () => {
             }
         }; 
     });
-    it('troca o valor da variavel', () => {
+    it('troca o valor da variavel', (done) => {
         let calculator = XLSX_CALC.calculator(workbook);
         calculator.setVar('[a]', 1);
-        calculator.execute();
-        assert.equal(workbook.Sheets.Sheet1.A1.v, 2);
+        calculator.execute().then(() => {
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 2);
+            done();
+        }).catch(done);
     });
-    it('troca o valor da variavel duas vezes', () => {
+    it('troca o valor da variavel duas vezes', (done) => {
         let calculator = XLSX_CALC.calculator(workbook);
         calculator.setVar('[a]', 1);
         calculator.setVar('[a]', 2);
-        calculator.execute();
-        assert.equal(workbook.Sheets.Sheet1.A1.v, 3);
+        calculator.execute().then(() => {
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 3);
+            done();
+        }).catch(done);
     });
     xit('calcula normal', () => {
         for (let i = 0; i < 10000; i++) {
@@ -46,44 +50,51 @@ describe('trocar variavel', () => {
             assert.equal(workbook.Sheets.Sheet1.B1.v, 3);
         }
     });
-    it('troca o valor da variavel duas vezes nas duas celulas', () => {
+    it('troca o valor da variavel duas vezes nas duas celulas', (done) => {
         let calculator = XLSX_CALC.calculator(workbook);
-        for (let i = 0; i < 1000; i++) {
-            calculator.setVar('[a]', 4);
-            calculator.execute();
+        calculator.setVar('[a]', 4);
+        calculator.execute().then(() => {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 5);
             assert.equal(workbook.Sheets.Sheet1.B1.v, 5);
             calculator.setVar('[a]', 2);
-            calculator.execute();
+            return calculator.execute();
+        }).then(() => {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 3);
             assert.equal(workbook.Sheets.Sheet1.B1.v, 3);
-        }
+            done();
+        }).catch(done);
     });
-    it('troca o valor da variavel dentro de outras expressoes', () => {
+    it('troca o valor da variavel dentro de outras expressoes', (done) => {
         workbook.Sheets.Sheet1.A1.f = '1+[a]+([a2]+[a3])';
         let calculator = XLSX_CALC.calculator(workbook);
         calculator.setVar('[a]', 1);
         calculator.setVar('[a2]', 1);
         calculator.setVar('[a3]', 2);
-        calculator.execute();
-        assert.equal(workbook.Sheets.Sheet1.A1.v, 5);
+        calculator.execute().then(() => {
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 5);
+            done();
+        }).catch(done);
     });
-    it('troca o valor da variavel dentro de argumentos de funcoes', () => {
+    it('troca o valor da variavel dentro de argumentos de funcoes', (done) => {
         workbook.Sheets.Sheet1.A1.f = '1+SUM([a2],[a3])';
         let calculator = XLSX_CALC.calculator(workbook);
         calculator.setVar('[a]', 1);
         calculator.setVar('[a2]', 2);
         calculator.setVar('[a3]', 3);
-        calculator.execute();
-        assert.equal(workbook.Sheets.Sheet1.A1.v, 6);
+        calculator.execute().then(() => {
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 6);
+            done();
+        }).catch(done);
     });
-    it('troca o valor da variavel dentro de argumentos de funcoes', () => {
+    it('troca o valor da variavel dentro de argumentos de funcoes', (done) => {
         workbook.Sheets.Sheet1.A1.f = '1+SUM([a2],([a3]+[a]))';
         let calculator = XLSX_CALC.calculator(workbook);
         calculator.setVar('[a]', 1);
         calculator.setVar('[a2]', 2);
         calculator.setVar('[a3]', 3);
-        calculator.execute();
-        assert.equal(workbook.Sheets.Sheet1.A1.v, 7);
+        calculator.execute().then(() => {
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 7);
+            done();
+        }).catch(done);
     });
 });

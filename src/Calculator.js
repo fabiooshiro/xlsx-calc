@@ -40,9 +40,10 @@ class Calculator {
     }
     
     execute() {
-        this.expressions.forEach(exp => {
-            exp.update_cell_value();
+        let promises = this.expressions.map(exp => {
+            return exp.update_cell_value();
         });
+        return Promise.all(promises);
     }
 }
 

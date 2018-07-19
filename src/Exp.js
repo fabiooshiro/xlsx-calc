@@ -3,8 +3,8 @@
 const RawValue = require('./RawValue.js');
 const RefValue = require('./RefValue.js');
 const Range = require('./Range.js');
-
-var exp_id = 0;
+const resolve_promises = require('./resolve_promises.js');
+let exp_id = 0;
 let exec_id = 0;
 
 module.exports = function Exp(formula) {
@@ -15,11 +15,25 @@ module.exports = function Exp(formula) {
     self.update_cell_value = update_cell_value;
     self.formula = formula;
     
+    function handleException(e, formula, resolve, reject) {
+        if (e.message == '#N/A') {
+            formula.cell.v = 42;
+            formula.cell.t = 'e';
+            formula.cell.w = e.message;
+            resolve();
+        }
+        else {
+            //console.error('Error', current_execution, e);
+            reject(e);
+            //throw e;
+        }
+    }
+    
     function update_cell_value() {
         return new Promise((resolve, reject) => {
-            let current_execution = exec_id++;
+            //let current_execution = exec_id++;
             try {
-                //console.log('Exec', current_execution);
+                //console.log('Exec', current_execution, formula.name, formula.cell.f);
                 var val_or_promise = self.calc();
                 if (typeof val_or_promise === 'object' && typeof val_or_promise['then'] === 'function') {
                     val_or_promise.then(res => {
@@ -31,7 +45,11 @@ module.exports = function Exp(formula) {
                             formula.cell.t = 'n';
                         }
                         resolve(formula.cell.v);
-                    }).catch(reject);
+                    }).catch(e => {
+                        //console.log('Exp', self.id, 'error:', e);
+                        //reject(e);
+                        handleException(e, formula, resolve, reject);
+                    });
                 }
                 else {
                     formula.cell.v = val_or_promise;
@@ -45,17 +63,7 @@ module.exports = function Exp(formula) {
                 }
             }
             catch (e) {
-                if (e.message == '#N/A') {
-                    formula.cell.v = 42;
-                    formula.cell.t = 'e';
-                    formula.cell.w = e.message;
-                    resolve();
-                }
-                else {
-                    //console.error('Error', current_execution, e);
-                    reject(e);
-                    //throw e;
-                }
+                handleException(e, formula, resolve, reject);
             }
             finally {
                 formula.status = 'done';
@@ -72,6 +80,7 @@ module.exports = function Exp(formula) {
                     i--;
                 }
                 catch (e) {
+                    console.error(e);
                     throw Error(formula.name + ': evaluating ' + formula.cell.f + '\n' + e.message);
                     //throw e;
                 }
@@ -93,51 +102,65 @@ module.exports = function Exp(formula) {
             }
         }
     }
-
+    
     self.calc = function() {
-        let args = self.args.concat();
-        exec_minus(args);
-        exec('^', args, function(a, b) {
-            return Math.pow(+a, +b);
+        return new Promise((resolve, reject) => {
+            resolve_promises(self.args.concat()).then(args => {
+                try {
+                    exec_minus(args);
+                    exec('^', args, function(a, b) {
+                        return Math.pow(+a, +b);
+                    });
+                    exec('*', args, function(a, b) {
+                        return (+a) * (+b);
+                    });
+                    exec('/', args, function(a, b) {
+                        return (+a) / (+b);
+                    });
+                    exec('+', args, function(a, b) {
+                        return (+a) + (+b);
+                    });
+                    exec('&', args, function(a, b) {
+                        return '' + a + b;
+                    });
+                    exec('<', args, function(a, b) {
+                        return a < b;
+                    });
+                    exec('>', args, function(a, b) {
+                        return a > b;
+                    });
+                    exec('>=', args, function(a, b) {
+                        return a >= b;
+                    });
+                    exec('<=', args, function(a, b) {
+                        return a <= b;
+                    });
+                    exec('<>', args, function(a, b) {
+                        return a != b;
+                    });
+                    exec('=', args, function(a, b) {
+                        return a == b;
+                    });
+                    if (args.length == 1) {
+                        if (typeof args[0] === 'object' && typeof args[0]['then'] === 'function') {
+                            args[0].then(resolve).catch(reject);
+                            return;
+                        }
+                        if (typeof(args[0].calc) != 'function') {
+                            return resolve(args[0]);
+                        }
+                        else {
+                            return resolve(args[0].calc());
+                        }
+                    }
+                    else {
+                        console.log('something is not right');
+                    }
+                } catch(e) {
+                    reject(e);
+                }
+            }).catch(reject);
         });
-        exec('*', args, function(a, b) {
-            return (+a) * (+b);
-        });
-        exec('/', args, function(a, b) {
-            return (+a) / (+b);
-        });
-        exec('+', args, function(a, b) {
-            return (+a) + (+b);
-        });
-        exec('&', args, function(a, b) {
-            return '' + a + b;
-        });
-        exec('<', args, function(a, b) {
-            return a < b;
-        });
-        exec('>', args, function(a, b) {
-            return a > b;
-        });
-        exec('>=', args, function(a, b) {
-            return a >= b;
-        });
-        exec('<=', args, function(a, b) {
-            return a <= b;
-        });
-        exec('<>', args, function(a, b) {
-            return a != b;
-        });
-        exec('=', args, function(a, b) {
-            return a == b;
-        });
-        if (args.length == 1) {
-            if (typeof(args[0].calc) != 'function') {
-                return args[0];
-            }
-            else {
-                return args[0].calc();
-            }
-        }
     };
 
     var last_arg;

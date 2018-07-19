@@ -29,16 +29,43 @@ function raw_offset(cell_ref, rows, columns, height, width) {
     }
 }
 
+function resolveOnErrorValue(onerrorvalue, resolve, reject) {
+    let v_or_promise = onerrorvalue.calc();
+    if (typeof v_or_promise === 'object' && typeof v_or_promise['then'] === 'function') {
+        //console.log('resolvendo onerrorvalue');
+        v_or_promise.then(r => {
+            //console.log('On error value =', r);
+            resolve(r);
+        }).catch(e=> {
+            //console.log('Erro no on error value');
+            reject(e);
+        });
+    } else {
+        //console.log('valor no caso de erro =', v_or_promise);
+        resolve(v_or_promise);
+    }
+}
+
 function iferror(cell_ref, onerrorvalue) {
-    try {
-        var value = cell_ref.calc();
-        if (typeof value === 'number' && (isNaN(value) || value === Infinity || value === -Infinity)) {
+    return new Promise((resolve, reject) => {
+        try {
+            cell_ref.calc().then(value=>{
+                //console.log('tudo ok com o cell_ref...', typeof value);
+                if (typeof value === 'undefined') {
+                    resolveOnErrorValue(onerrorvalue, resolve, reject);
+                } else if (typeof value === 'number' && (isNaN(value) || value === Infinity || value === -Infinity)) {
+                    resolveOnErrorValue(onerrorvalue, resolve, reject);
+                } else {
+                    resolve(value);
+                }
+            }).catch(e => {
+                //console.log('2 error level');
+                resolveOnErrorValue(onerrorvalue, resolve, reject);
+            });
+        } catch(e) {
             return onerrorvalue.calc();
         }
-        return value;
-    } catch(e) {
-        return onerrorvalue.calc();
-    }
+    });
 }
 
 module.exports = {

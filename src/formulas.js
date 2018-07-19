@@ -332,6 +332,7 @@ function concatenate() {
 }
 
 function sum() {
+    //console.log('sum...');
     var r = 0;
     for (var i = arguments.length; i--;) {
         var arg = arguments[i];
@@ -349,6 +350,7 @@ function sum() {
             r += +arg;
         }
     }
+    //console.log('end sum.');
     return r;
 }
 
