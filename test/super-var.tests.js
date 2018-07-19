@@ -3,7 +3,7 @@
 const XLSX_CALC = require("../");
 const assert = require('assert');
 
-describe.only('trocar variavel', () => {
+describe('trocar variavel', () => {
     let workbook;
     beforeEach(() => {
         workbook = {
