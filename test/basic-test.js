@@ -201,7 +201,9 @@ describe('XLSX_CALC', function() {
         it('sets promise function', function(done) {
             XLSX_CALC.set_fx('ADD_1', function(arg) {
                 return new Promise((resolve, reject) => {
-                    resolve(arg + 1);
+                    setTimeout(() => {
+                        resolve(arg + 1);
+                    }, 50);
                 });
             });
             workbook.Sheets.Sheet1.A1.f = 'ADD_1(123)';

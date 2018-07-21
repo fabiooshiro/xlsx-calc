@@ -30,12 +30,14 @@ module.exports = function Exp(formula) {
     }
     
     function update_cell_value() {
+        let hasPromise = false;
         return new Promise((resolve, reject) => {
             //let current_execution = exec_id++;
             try {
                 //console.log('Exec', current_execution, formula.name, formula.cell.f);
                 var val_or_promise = self.calc();
                 if (typeof val_or_promise === 'object' && typeof val_or_promise['then'] === 'function') {
+                    hasPromise = true;
                     val_or_promise.then(res => {
                         formula.cell.v = res;
                         if (typeof(formula.cell.v) === 'string') {
@@ -44,10 +46,12 @@ module.exports = function Exp(formula) {
                         else if (typeof(formula.cell.v) === 'number') {
                             formula.cell.t = 'n';
                         }
+                        formula.status = 'done';
                         resolve(formula.cell.v);
                     }).catch(e => {
                         //console.log('Exp', self.id, 'error:', e);
                         //reject(e);
+                        formula.status = 'done';
                         handleException(e, formula, resolve, reject);
                     });
                 }
@@ -66,7 +70,9 @@ module.exports = function Exp(formula) {
                 handleException(e, formula, resolve, reject);
             }
             finally {
-                formula.status = 'done';
+                if (!hasPromise) {
+                    formula.status = 'done';
+                }
             }
         });
     }
