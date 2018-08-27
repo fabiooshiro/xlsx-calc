@@ -29,8 +29,18 @@ let formulas = {
     'COVARIANCE.P': covariance_p,
     'TRIM': trim,
     'LEN': len,
-    'ISBLANK': is_blank
+    'ISBLANK': is_blank,
+    'HLOOKUP': hlookup
 };
+
+function hlookup(key, matrix, return_index) {
+    for (var i = 0; i < matrix[0].length; i++) {
+        if (matrix[0][i] == key) {
+            return matrix[return_index - 1][i];
+        }
+    }
+    throw Error('#N/A');
+}
 
 function len(a) {
     return ('' + a).length;

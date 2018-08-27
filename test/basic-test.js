@@ -710,6 +710,28 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 'Error');
         });
     });
+
+    describe('HLOOKUP', function () {
+        it('searches for a key in the top row of a matrix and returns the value in the same column at the specified return_index row', function () {
+            workbook.Sheets.Sheet1.A1 = { v: 'Axles' };
+            workbook.Sheets.Sheet1.B1 = { v: 'Bearings' };
+            workbook.Sheets.Sheet1.C1 = { v: 'Bolts' };
+
+            workbook.Sheets.Sheet1.A2 = { v: 4 };
+            workbook.Sheets.Sheet1.B2 = { v: 4 };
+            workbook.Sheets.Sheet1.C2 = { v: 9 };
+            workbook.Sheets.Sheet1.A3 = { v: 5 };
+            workbook.Sheets.Sheet1.B3 = { v: 7 };
+            workbook.Sheets.Sheet1.C3 = { v: 10 };
+            workbook.Sheets.Sheet1.A4 = { v: 6 };
+            workbook.Sheets.Sheet1.B4 = { v: 8 };
+            workbook.Sheets.Sheet1.C4 = { v: 11 };
+
+            workbook.Sheets.Sheet1.D1 = { f: "HLOOKUP(\"Bearings\", A1:C4, 3, FALSE)" };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.D1.v, 7);
+        });
+    });
     
     // describe('HELLO', function() {
     //     it('says: Hello, World!', function() {
