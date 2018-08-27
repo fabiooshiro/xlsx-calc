@@ -732,6 +732,24 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.D1.v, 7);
         });
     });
+
+    describe('INDEX', function () {
+        it('returns the value of an element in a matrix, selected by the row and column number indexes', function () {
+            workbook.Sheets.Sheet1.A1 = { v: 'Data' };
+            workbook.Sheets.Sheet1.B1 = { v: 'Data' };
+
+            workbook.Sheets.Sheet1.A2 = { v: 'Apples' };
+            workbook.Sheets.Sheet1.B2 = { v: 'Lemons' };
+            workbook.Sheets.Sheet1.A3 = { v: 'Bananas' };
+            workbook.Sheets.Sheet1.B3 = { v: 'Pears' };
+
+            workbook.Sheets.Sheet1.C1 = { f: "INDEX(A2:B3, 2, 2)" };
+            workbook.Sheets.Sheet1.C2 = { f: "INDEX(A2:B3, 2, 1)" };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.v, "Pears");
+            assert.equal(workbook.Sheets.Sheet1.C2.v, "Bananas");
+        });
+    });
     
     // describe('HELLO', function() {
     //     it('says: Hello, World!', function() {
