@@ -25,8 +25,11 @@ describe('formulajs integration', function() {
             assert.equal(workbook.Sheets.Sheet1.A5.v.toFixed(10), (0.6854705810117458).toFixed(10));
         });
         it('doesn\'t import functions that are already explicitely defined in XLSX_CALC', function () {
+            XLSX_CALC.xlsx_Fx.TRUNC = function () { return '' };
             XLSX_CALC.import_functions(formulajs, { ignoreOverrides: true });
-            assert.notStrictEqual(XLSX_CALC.xlsx_Fx.MATCH, formulajs.MATCH);
+            assert.equal(XLSX_CALC.xlsx_Fx.TRUNC === formulajs.TRUNC, false);
+            XLSX_CALC.import_functions(formulajs);
+            assert.equal(XLSX_CALC.xlsx_Fx.TRUNC === formulajs.TRUNC, true);
         });
     });
 });
