@@ -750,6 +750,36 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.C2.v, "Bananas");
         });
     });
+
+    describe('MATCH', function () {
+        it('returns position of element in range (row or column)', function () {
+            workbook.Sheets.Sheet1.A1 = { v: 'Apple' };
+            workbook.Sheets.Sheet1.A2 = { v: 'Raspberry' };
+            workbook.Sheets.Sheet1.A3 = { v: 'Carambola' };
+            workbook.Sheets.Sheet1.A4 = { v: 'Pear' };
+
+            workbook.Sheets.Sheet1.B1 = { v: 'Cantaloupe' };
+            workbook.Sheets.Sheet1.C1 = { v: 'Longan' };
+            workbook.Sheets.Sheet1.D1 = { v: 'Lime' };
+            workbook.Sheets.Sheet1.E1 = { v: 'Carambola' };
+            workbook.Sheets.Sheet1.F1 = { v: 'Grape' };
+            
+            workbook.Sheets.Sheet1.B2 = { v: 'Carambola' };
+            workbook.Sheets.Sheet1.B3 = { f: "MATCH(B2, A1:A4, 0)" };
+            workbook.Sheets.Sheet1.B4 = { f: "MATCH(B2, A1:F1, 0)" };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.B3.v, 3);
+            assert.equal(workbook.Sheets.Sheet1.B4.v, 5);
+        });
+        it('should show "#N/A" error when a multi-dimensional array is passed', function () {
+            workbook.Sheets.Sheet1.B3 = { v: 'Carambola' };
+            workbook.Sheets.Sheet1.A3 = { f: "MATCH(B3, A1:B2, 0)" };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A3.v, 42);
+            assert.equal(workbook.Sheets.Sheet1.A3.t, 'e');
+            assert.equal(workbook.Sheets.Sheet1.A3.w, '#N/A');
+        });
+    });
     
     // describe('HELLO', function() {
     //     it('says: Hello, World!', function() {

@@ -31,8 +31,85 @@ let formulas = {
     'LEN': len,
     'ISBLANK': is_blank,
     'HLOOKUP': hlookup,
-    'INDEX': index
+    'INDEX': index,
+    'MATCH': match
 };
+
+function match(lookupValue, matrix, matchType) {
+    if (Array.isArray(matrix) 
+        && matrix.length === 1
+        && Array.isArray(matrix[0])) {
+        matrix = matrix[0];
+    }
+    if (!lookupValue && !matrix) {
+        throw Error('#N/A');
+    }
+    
+    if (arguments.length === 2) {
+        matchType = 1;
+    }
+    if (!(matrix instanceof Array)) {
+        throw Error('#N/A');
+    }
+
+    if (matchType !== -1 && matchType !== 0 && matchType !== 1) {
+        throw Error('#N/A');
+    }
+    var index;
+    var indexValue;
+    for (var idx = 0; idx < matrix.length; idx++) {
+        if (matchType === 1) {
+            if (matrix[idx] === lookupValue) {
+                return idx + 1;
+            } else if (matrix[idx] < lookupValue) {
+                if (!indexValue) {
+                    index = idx + 1;
+                    indexValue = matrix[idx];
+                } else if (matrix[idx] > indexValue) {
+                    index = idx + 1;
+                    indexValue = matrix[idx];
+                }
+            }
+        } else if (matchType === 0) {
+            if (typeof lookupValue === 'string') {
+                lookupValue = lookupValue.replace(/\?/g, '.');
+
+                if (Array.isArray(matrix[idx])) {
+                    if (matrix[idx].length = 1
+                        && typeof matrix[idx][0] === 'string') {
+                            if (matrix[idx][0].toLowerCase().match(lookupValue.toLowerCase())) {
+                                return idx + 1;
+                            }
+                        } 
+                } else if (typeof matrix[idx] === 'string') {
+                    if (matrix[idx].toLowerCase().match(lookupValue.toLowerCase())) {
+                        return idx + 1;
+                    }
+                }
+            } else {
+                if (matrix[idx] === lookupValue) {
+                    return idx + 1;
+                }
+            }
+        } else if (matchType === -1) {
+            if (matrix[idx] === lookupValue) {
+                return idx + 1;
+            } else if (matrix[idx] > lookupValue) {
+                if (!indexValue) {
+                    index = idx + 1;
+                    indexValue = matrix[idx];
+                } else if (matrix[idx] < indexValue) {
+                    index = idx + 1;
+                    indexValue = matrix[idx];
+                }
+            }
+        }
+    }
+    if (!index ) {
+        throw Error('#N/A');
+    }
+    return index;
+}
 
 function index(matrix, row_num, column_num) {
     if (row_num <= matrix.length) {
