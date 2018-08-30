@@ -32,7 +32,74 @@ let formulas = {
     'ISBLANK': is_blank,
     'HLOOKUP': hlookup,
     'INDEX': index,
-    'MATCH': match
+    'MATCH': match,
+    'SUMPRODUCT': sumproduct
+};
+
+function sumproduct() {
+    var parseNumber = function (string) {
+        if (string === undefined || string === '' || string === null) {
+            return 0;
+        }
+        if (!isNaN(string)) {
+            return parseFloat(string);
+        }
+        return 0;
+    },
+    consistentSizeRanges = function (matrixArray) {
+        var getRowCount = function(matrix) {
+                return matrix.length;
+            },
+            getColCount = function(matrix) {
+                return matrix[0].length;
+            },
+            rowCount = getRowCount(matrixArray[0]),
+            colCount = getColCount(matrixArray[0]);
+
+        for (var i = 1; i < matrixArray.length; i++) {
+            if (getRowCount(matrixArray[i]) !== rowCount
+                || getColCount(matrixArray[i]) !== colCount) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    if (!arguments || arguments.length === 0) {
+        throw Error('#VALUE!');
+    }
+    if (!consistentSizeRanges(arguments)) {
+        throw Error('#VALUE!');
+    }
+
+    var arrays = arguments.length + 1;
+    var result = 0;
+    var product;
+    var k;
+    var _i;
+    var _ij;
+    for (var i = 0; i < arguments[0].length; i++) {
+        if (!(arguments[0][i] instanceof Array)) {
+            product = 1;
+            for (k = 1; k < arrays; k++) {
+                _i = parseNumber(arguments[k - 1][i]);
+                
+                product *= _i;
+            }
+            result += product;
+        } else {
+            for (var j = 0; j < arguments[0][i].length; j++) {
+                product = 1;
+                for (k = 1; k < arrays; k++) {
+                    _ij = parseNumber(arguments[k - 1][i][j]);
+                    
+                    product *= _ij;
+                }
+                result += product;
+            }
+        }
+    }
+    return result;
 };
 
 function match(lookupValue, matrix, matchType) {

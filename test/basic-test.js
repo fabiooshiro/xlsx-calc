@@ -785,6 +785,74 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A3.w, '#N/A');
         });
     });
+
+    describe('SUMPRODUCT', function () {
+        it('Multiplies corresponding components in the given arrays, and returns the sum of those products', function () {
+            workbook.Sheets.Sheet1 = {
+                A1: { v: 'Array 1' },
+                A2: { v: 3 },
+                A3: { v: 8 },
+                A4: { v: 1 },
+                B2: { v: 4 },
+                B3: { v: 6 },
+                B4: { v: 9 },
+                D1: { v: 'Array 2' },
+                D2: { v: 2 },
+                D3: { v: 6 },
+                D4: { v: 5 },
+                E2: { v: 7 },
+                E3: { v: 7 },
+                E4: { v: 3 },
+                C1: { f: "SUMPRODUCT(A2:B4, D2:E4)" }
+            };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.v, 156);
+        });
+        it('should handle empty values in the given arrays', function () {
+            workbook.Sheets.Sheet1 = {
+                A1: { v: 'Array 1' },
+                A2: { v: 3 },
+                A4: { v: 8 },
+                D1: { v: 'Array 2' },
+                D2: { v: 2 },
+                D4: { v: 6 },
+                C1: { f: "SUMPRODUCT(A2:A4, D2:D4)" }
+            };
+            
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.v, 54);
+        });
+        it('shows "#VALUE!" error value if the array arguments dont have the same dimensions', function () {
+            workbook.Sheets.Sheet1 = {
+                A1: { v: 'Array 1' },
+                A2: { v: 3 },
+                A3: { v: 8 },
+                D1: { v: 'Array 2' },
+                D2: { v: 2 },
+                D3: { v: 4 },
+                D4: { v: 6 },
+                C1: { f: "SUMPRODUCT(A2:A3, D2:D4)" }
+            };
+            XLSX_CALC(workbook);
+
+            assert.equal(workbook.Sheets.Sheet1.C1.t, 'e');
+            assert.equal(workbook.Sheets.Sheet1.C1.w, '#VALUE!');
+        });
+        it('treats array entries that are not numeric as if they were zeros', function () {
+            workbook.Sheets.Sheet1 = {
+                A1: { v: 'Array 1' },
+                A2: { v: 3 },
+                A3: { v: 8 },
+                D1: { v: 'Array 2' },
+                D2: { v: 2 },
+                D3: { v: 6 },
+                C1: { f: "SUMPRODUCT(A1:A3, D1:D3)" }
+            };
+            
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.v, 54);
+        });
+    });
     
     // describe('HELLO', function() {
     //     it('says: Hello, World!', function() {
