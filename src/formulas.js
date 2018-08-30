@@ -77,12 +77,12 @@ function match(lookupValue, matrix, matchType) {
                 if (Array.isArray(matrix[idx])) {
                     if (matrix[idx].length = 1
                         && typeof matrix[idx][0] === 'string') {
-                            if (matrix[idx][0].toLowerCase().match(lookupValue.toLowerCase())) {
+                            if (matrix[idx][0].toLowerCase() === lookupValue.toLowerCase()) {
                                 return idx + 1;
                             }
                         } 
                 } else if (typeof matrix[idx] === 'string') {
-                    if (matrix[idx].toLowerCase().match(lookupValue.toLowerCase())) {
+                    if (matrix[idx].toLowerCase() === lookupValue.toLowerCase()) {
                         return idx + 1;
                     }
                 }
