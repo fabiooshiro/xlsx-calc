@@ -25,10 +25,11 @@ module.exports = function Exp(formula) {
             }
         }
         catch (e) {
-            if (e.message == '#N/A') {
-                formula.cell.v = 42;
+            if (e.message == '#N/A'
+            || e.message == '#VALUE!') {
                 formula.cell.t = 'e';
                 formula.cell.w = e.message;
+                console.log('error cell', formula.cell);
             }
             else {
                 throw e;
