@@ -218,6 +218,11 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 47);
         });
+        it('should calc 8/2*10', function () {
+            workbook.Sheets.Sheet1.A1.f = '8/2*10';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 40);
+        });
     });
     describe('SUM', function() {
         it('makes the sum', function() {

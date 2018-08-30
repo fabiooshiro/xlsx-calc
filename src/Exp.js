@@ -77,11 +77,11 @@ module.exports = function Exp(formula) {
         exec('^', args, function(a, b) {
             return Math.pow(+a, +b);
         });
-        exec('*', args, function(a, b) {
-            return (+a) * (+b);
-        });
         exec('/', args, function(a, b) {
             return (+a) / (+b);
+        });
+        exec('*', args, function(a, b) {
+            return (+a) * (+b);
         });
         exec('+', args, function(a, b) {
             return (+a) + (+b);
