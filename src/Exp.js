@@ -25,8 +25,13 @@ module.exports = function Exp(formula) {
             }
         }
         catch (e) {
-            if (e.message == '#N/A'
-            || e.message == '#VALUE!') {
+            if (e.message === '#N/A'
+            || e.message === '#VALUE!'
+            || e.message === '#DIV/0'
+            || e.message === '#NAME?'
+            || e.message === '#NULL!'
+            || e.message === '#NUM!'
+            || e.message === '#REF!') {
                 formula.cell.t = 'e';
                 formula.cell.w = e.message;
                 console.log('error cell', formula.cell);
