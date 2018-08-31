@@ -2,6 +2,16 @@
 
 const XLSX_CALC = require("../");
 const assert = require('assert');
+const errorValues = {
+    '#NULL!': 0x00,
+    '#DIV/0!': 0x07,
+    '#VALUE!': 0x0F,
+    '#REF!': 0x17,
+    '#NAME?': 0x1D,
+    '#NUM!': 0x24,
+    '#N/A': 0x2A,
+    '#GETTING_DATA': 0x2B
+};
 
 describe('XLSX_CALC', function() {
     let workbook;
@@ -472,6 +482,13 @@ describe('XLSX_CALC', function() {
             /"Sheet1"!A1.*Function XPTO not found/
         );
     });
+    it('handles error values', function () {
+        workbook.Sheets.Sheet1.A1.f = '1/0';
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.A1.v, errorValues['#DIV/0!']);
+        assert.equal(workbook.Sheets.Sheet1.A1.w, '#DIV/0!');
+        assert.equal(workbook.Sheets.Sheet1.A1.t, 'e');
+    });
     describe('PTM', function() {
         it('calcs PMT(0.07/12, 24, 1000)', function() {
             workbook.Sheets.Sheet1.A1.f = 'PMT(0.07/12, 24, 1000)';
@@ -837,6 +854,7 @@ describe('XLSX_CALC', function() {
 
             assert.equal(workbook.Sheets.Sheet1.C1.t, 'e');
             assert.equal(workbook.Sheets.Sheet1.C1.w, '#VALUE!');
+            assert.equal(workbook.Sheets.Sheet1.C1.v, errorValues['#VALUE!']);
         });
         it('treats array entries that are not numeric as if they were zeros', function () {
             workbook.Sheets.Sheet1 = {
