@@ -35,15 +35,13 @@ function import_functions(formulajs, opts) {
     for (var key in formulajs) {
         var obj = formulajs[key];
         if (typeof(obj) === 'function') {
-            if (!xlsx_Fx[prefix + key]) {
-                if (opts.override) {
-                    xlsx_Fx[prefix + key] = obj;
-                }
-                else {
-                    console.log(prefix + key, ' already exists.');
-                    console.log('  to override:');
-                    console.log('    XLSX_CALC.import_functions(yourlib, {override: true})');
-                }
+            if (opts.override || !xlsx_Fx[prefix + key]) {
+                xlsx_Fx[prefix + key] = obj;
+            }
+            else {
+                console.log(prefix + key, 'already exists.');
+                console.log('  to override:');
+                console.log('    XLSX_CALC.import_functions(yourlib, {override: true})');
             }
         }
         else if (typeof(obj) === 'object') {
