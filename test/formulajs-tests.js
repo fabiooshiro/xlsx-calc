@@ -24,7 +24,7 @@ describe('formulajs integration', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A5.v.toFixed(10), (0.6854705810117458).toFixed(10));
         });
-        it.only('doesn\'t import functions that are already explicitely defined in XLSX_CALC', function () {
+        it('doesn\'t import functions that are already explicitely defined in XLSX_CALC', function () {
             XLSX_CALC.xlsx_Fx.TRUNC = function () { return '' };
             XLSX_CALC.import_functions(formulajs);
             assert.equal(XLSX_CALC.xlsx_Fx.TRUNC === formulajs.TRUNC, false);
