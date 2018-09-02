@@ -100,7 +100,7 @@ function sumproduct() {
         }
     }
     return result;
-};
+}
 
 function match(lookupValue, matrix, matchType) {
     if (Array.isArray(matrix) 
@@ -142,7 +142,7 @@ function match(lookupValue, matrix, matchType) {
                 lookupValue = lookupValue.replace(/\?/g, '.');
 
                 if (Array.isArray(matrix[idx])) {
-                    if (matrix[idx].length = 1
+                    if (matrix[idx].length === 1
                         && typeof matrix[idx][0] === 'string') {
                             if (matrix[idx][0].toLowerCase() === lookupValue.toLowerCase()) {
                                 return idx + 1;
@@ -188,7 +188,7 @@ function index(matrix, row_num, column_num) {
                 return row[column_num - 1];
             }
         } else {
-            return matrix[row_num]
+            return matrix[row_num];
         }
     }
     throw Error('#REF!');
@@ -200,10 +200,10 @@ function hlookup(needle, table, index, exactmatch) {
         return null;
     }
 
-    var index = index || 0,
-        row = table[0];
+    index = index || 0;
+    let row = table[0];
 
-    for (var i = 0; i < row.length; i++) {
+    for (let i = 0; i < row.length; i++) {
         if (exactmatch && row[i] === needle || row[i].toLowerCase().indexOf(needle.toLowerCase()) !== -1) {
             return index < table.length + 1 ? table[index - 1][i] : table[0][i];
         }
