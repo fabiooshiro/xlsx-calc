@@ -35,7 +35,7 @@ function import_functions(formulajs, opts) {
     for (var key in formulajs) {
         var obj = formulajs[key];
         if (typeof(obj) === 'function') {
-            if (!opts.ignoreOverrides || !xlsx_Fx[prefix + key]) {
+            if (opts.override || !xlsx_Fx[prefix + key]) {
                 xlsx_Fx[prefix + key] = obj;
             }
         }
