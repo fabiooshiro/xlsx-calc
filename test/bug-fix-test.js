@@ -1,3 +1,5 @@
+"use strict";
+
 var XLSX_CALC = require('../');
 var XLSX = require('xlsx');
 var assert = require('assert');
@@ -64,5 +66,31 @@ describe('Bugs', function() {
         workbook.Sheets['B C'].A1.v = 2000;
         XLSX_CALC(workbook);
         assert.equal(workbook.Sheets['A'].A1.v, 2000);
+    });
+    
+    it('some bug?', () => {
+        let workbook = {
+            Sheets: {
+                Sample: {
+                    A1: { f: 'CONCATENATE("I"," told"," you ","10"," times",".")' },
+                    A2: { f: 'CONCATENATE("I"," told"," you ","10"," times",".","")' },
+        
+                    B1: { f: 'CONCATENATE("I"," told"," you ",SUM(1,2,3,4)," times",".","")' },
+                    B2: { f: 'CONCATENATE("I"," told"," you ",SUM(1,2,3,SUM(4))," times",".","")' },
+                    B3: { f: 'CONCATENATE("I"," told"," you ",SUM(1,2,3,SUM(4),0)," times",".","")' }
+                }
+            }
+        };
+        
+        XLSX_CALC(workbook);
+        
+        let sheet = workbook.Sheets.Sample;
+        
+        assert.equal(sheet.A1.v, "I told you 10 times.");
+        assert.equal(sheet.A2.v, "I told you 10 times.");
+        
+        assert.equal(sheet.B1.v, "I told you 10 times.");
+        assert.equal(sheet.B2.v, "I told you 10 times.");
+        assert.equal(sheet.B3.v, "I told you 10 times.");
     });
 });
