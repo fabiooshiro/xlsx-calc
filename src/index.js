@@ -23,6 +23,7 @@ mymodule.col_str_2_int = col_str_2_int;
 mymodule.int_2_col_str = int_2_col_str;
 mymodule.import_functions = exec_formula.import_functions;
 mymodule.import_raw_functions = exec_formula.import_raw_functions;
+mymodule.xlsx_Fx = exec_formula.xlsx_Fx;
 
 
 

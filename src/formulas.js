@@ -29,8 +29,188 @@ let formulas = {
     'COVARIANCE.P': covariance_p,
     'TRIM': trim,
     'LEN': len,
-    'ISBLANK': is_blank
+    'ISBLANK': is_blank,
+    'HLOOKUP': hlookup,
+    'INDEX': index,
+    'MATCH': match,
+    'SUMPRODUCT': sumproduct
 };
+
+function sumproduct() {
+    var parseNumber = function (string) {
+        if (string === undefined || string === '' || string === null) {
+            return 0;
+        }
+        if (!isNaN(string)) {
+            return parseFloat(string);
+        }
+        return 0;
+    },
+    consistentSizeRanges = function (matrixArray) {
+        var getRowCount = function(matrix) {
+                return matrix.length;
+            },
+            getColCount = function(matrix) {
+                return matrix[0].length;
+            },
+            rowCount = getRowCount(matrixArray[0]),
+            colCount = getColCount(matrixArray[0]);
+
+        for (var i = 1; i < matrixArray.length; i++) {
+            if (getRowCount(matrixArray[i]) !== rowCount
+                || getColCount(matrixArray[i]) !== colCount) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    if (!arguments || arguments.length === 0) {
+        throw Error('#VALUE!');
+    }
+    if (!consistentSizeRanges(arguments)) {
+        throw Error('#VALUE!');
+    }
+
+    var arrays = arguments.length + 1;
+    var result = 0;
+    var product;
+    var k;
+    var _i;
+    var _ij;
+    for (var i = 0; i < arguments[0].length; i++) {
+        if (!(arguments[0][i] instanceof Array)) {
+            product = 1;
+            for (k = 1; k < arrays; k++) {
+                _i = parseNumber(arguments[k - 1][i]);
+                
+                product *= _i;
+            }
+            result += product;
+        } else {
+            for (var j = 0; j < arguments[0][i].length; j++) {
+                product = 1;
+                for (k = 1; k < arrays; k++) {
+                    _ij = parseNumber(arguments[k - 1][i][j]);
+                    
+                    product *= _ij;
+                }
+                result += product;
+            }
+        }
+    }
+    return result;
+};
+
+function match(lookupValue, matrix, matchType) {
+    if (Array.isArray(matrix) 
+        && matrix.length === 1
+        && Array.isArray(matrix[0])) {
+        matrix = matrix[0];
+    }
+    if (!lookupValue && !matrix) {
+        throw Error('#N/A');
+    }
+    
+    if (arguments.length === 2) {
+        matchType = 1;
+    }
+    if (!(matrix instanceof Array)) {
+        throw Error('#N/A');
+    }
+
+    if (matchType !== -1 && matchType !== 0 && matchType !== 1) {
+        throw Error('#N/A');
+    }
+    var index;
+    var indexValue;
+    for (var idx = 0; idx < matrix.length; idx++) {
+        if (matchType === 1) {
+            if (matrix[idx] === lookupValue) {
+                return idx + 1;
+            } else if (matrix[idx] < lookupValue) {
+                if (!indexValue) {
+                    index = idx + 1;
+                    indexValue = matrix[idx];
+                } else if (matrix[idx] > indexValue) {
+                    index = idx + 1;
+                    indexValue = matrix[idx];
+                }
+            }
+        } else if (matchType === 0) {
+            if (typeof lookupValue === 'string') {
+                lookupValue = lookupValue.replace(/\?/g, '.');
+
+                if (Array.isArray(matrix[idx])) {
+                    if (matrix[idx].length = 1
+                        && typeof matrix[idx][0] === 'string') {
+                            if (matrix[idx][0].toLowerCase() === lookupValue.toLowerCase()) {
+                                return idx + 1;
+                            }
+                        } 
+                } else if (typeof matrix[idx] === 'string') {
+                    if (matrix[idx].toLowerCase() === lookupValue.toLowerCase()) {
+                        return idx + 1;
+                    }
+                }
+            } else {
+                if (matrix[idx] === lookupValue) {
+                    return idx + 1;
+                }
+            }
+        } else if (matchType === -1) {
+            if (matrix[idx] === lookupValue) {
+                return idx + 1;
+            } else if (matrix[idx] > lookupValue) {
+                if (!indexValue) {
+                    index = idx + 1;
+                    indexValue = matrix[idx];
+                } else if (matrix[idx] < indexValue) {
+                    index = idx + 1;
+                    indexValue = matrix[idx];
+                }
+            }
+        }
+    }
+    if (!index ) {
+        throw Error('#N/A');
+    }
+    return index;
+}
+
+function index(matrix, row_num, column_num) {
+    if (row_num <= matrix.length) {
+        var row = matrix[row_num - 1];
+        if (Array.isArray(row)) {
+            if (!column_num) {
+                return row;
+            } else if (column_num <= row.length) {
+                return row[column_num - 1];
+            }
+        } else {
+            return matrix[row_num]
+        }
+    }
+    throw Error('#REF!');
+}
+
+// impl ported from https://github.com/FormulaPages/hlookup
+function hlookup(needle, table, index, exactmatch) {
+    if (typeof needle === "undefined" || (0, is_blank)(needle)) {
+        return null;
+    }
+
+    var index = index || 0,
+        row = table[0];
+
+    for (var i = 0; i < row.length; i++) {
+        if (exactmatch && row[i] === needle || row[i].toLowerCase().indexOf(needle.toLowerCase()) !== -1) {
+            return index < table.length + 1 ? table[index - 1][i] : table[0][i];
+        }
+    }
+
+    throw Error('#N/A');
+}
 
 function len(a) {
     return ('' + a).length;

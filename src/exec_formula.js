@@ -35,7 +35,9 @@ function import_functions(formulajs, opts) {
     for (var key in formulajs) {
         var obj = formulajs[key];
         if (typeof(obj) === 'function') {
-            xlsx_Fx[prefix + key] = obj;
+            if (!opts.ignoreOverrides || !xlsx_Fx[prefix + key]) {
+                xlsx_Fx[prefix + key] = obj;
+            }
         }
         else if (typeof(obj) === 'object') {
             import_functions(obj, my_assign(opts, { prefix: key + '.' }));
@@ -156,4 +158,5 @@ exec_formula.exec_fx = function exec_fx(name, args) {
 exec_formula.import_functions = import_functions;
 exec_formula.import_raw_functions = import_raw_functions;
 exec_formula.build_expression = build_expression;
+exec_formula.xlsx_Fx = xlsx_Fx;
 module.exports = exec_formula;

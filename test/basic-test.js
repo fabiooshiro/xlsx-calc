@@ -2,6 +2,16 @@
 
 const XLSX_CALC = require("../");
 const assert = require('assert');
+const errorValues = {
+    '#NULL!': 0x00,
+    '#DIV/0!': 0x07,
+    '#VALUE!': 0x0F,
+    '#REF!': 0x17,
+    '#NAME?': 0x1D,
+    '#NUM!': 0x24,
+    '#N/A': 0x2A,
+    '#GETTING_DATA': 0x2B
+};
 
 describe('XLSX_CALC', function() {
     let workbook;
@@ -217,6 +227,11 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.A1.f = '(3*10)-(-2-(3*5))';
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 47);
+        });
+        it('should calc 8/2*10', function () {
+            workbook.Sheets.Sheet1.A1.f = '8/2*10';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 40);
         });
     });
     describe('SUM', function() {
@@ -467,6 +482,13 @@ describe('XLSX_CALC', function() {
             /"Sheet1"!A1.*Function XPTO not found/
         );
     });
+    it('handles error values', function () {
+        workbook.Sheets.Sheet1.A1.f = '1/0';
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.A1.v, errorValues['#DIV/0!']);
+        assert.equal(workbook.Sheets.Sheet1.A1.w, '#DIV/0!');
+        assert.equal(workbook.Sheets.Sheet1.A1.t, 'e');
+    });
     describe('PTM', function() {
         it('calcs PMT(0.07/12, 24, 1000)', function() {
             workbook.Sheets.Sheet1.A1.f = 'PMT(0.07/12, 24, 1000)';
@@ -708,6 +730,145 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.A2 = { f: "VLOOKUP(\"void\",\"A3:B7\",2)"};
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 'Error');
+        });
+    });
+
+    describe('HLOOKUP', function () {
+        it('searches for a key in the top row of a matrix and returns the value in the same column at the specified return_index row', function () {
+            workbook.Sheets.Sheet1.A1 = { v: 'Axles' };
+            workbook.Sheets.Sheet1.B1 = { v: 'Bearings' };
+            workbook.Sheets.Sheet1.C1 = { v: 'Bolts' };
+
+            workbook.Sheets.Sheet1.A2 = { v: 4 };
+            workbook.Sheets.Sheet1.B2 = { v: 4 };
+            workbook.Sheets.Sheet1.C2 = { v: 9 };
+            workbook.Sheets.Sheet1.A3 = { v: 5 };
+            workbook.Sheets.Sheet1.B3 = { v: 7 };
+            workbook.Sheets.Sheet1.C3 = { v: 10 };
+            workbook.Sheets.Sheet1.A4 = { v: 6 };
+            workbook.Sheets.Sheet1.B4 = { v: 8 };
+            workbook.Sheets.Sheet1.C4 = { v: 11 };
+
+            workbook.Sheets.Sheet1.D1 = { f: "HLOOKUP(\"Bearings\", A1:C4, 3, FALSE)" };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.D1.v, 7);
+        });
+    });
+
+    describe('INDEX', function () {
+        it('returns the value of an element in a matrix, selected by the row and column number indexes', function () {
+            workbook.Sheets.Sheet1.A1 = { v: 'Data' };
+            workbook.Sheets.Sheet1.B1 = { v: 'Data' };
+
+            workbook.Sheets.Sheet1.A2 = { v: 'Apples' };
+            workbook.Sheets.Sheet1.B2 = { v: 'Lemons' };
+            workbook.Sheets.Sheet1.A3 = { v: 'Bananas' };
+            workbook.Sheets.Sheet1.B3 = { v: 'Pears' };
+
+            workbook.Sheets.Sheet1.C1 = { f: "INDEX(A2:B3, 2, 2)" };
+            workbook.Sheets.Sheet1.C2 = { f: "INDEX(A2:B3, 2, 1)" };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.v, "Pears");
+            assert.equal(workbook.Sheets.Sheet1.C2.v, "Bananas");
+        });
+    });
+
+    describe('MATCH', function () {
+        it('returns position of element in range (row or column)', function () {
+            workbook.Sheets.Sheet1.A1 = { v: 'Apple' };
+            workbook.Sheets.Sheet1.A2 = { v: 'Raspberry' };
+            workbook.Sheets.Sheet1.A3 = { v: 'Carambola' };
+            workbook.Sheets.Sheet1.A4 = { v: 'Pear' };
+
+            workbook.Sheets.Sheet1.B1 = { v: 'Cantaloupe' };
+            workbook.Sheets.Sheet1.C1 = { v: 'Longan' };
+            workbook.Sheets.Sheet1.D1 = { v: 'Lime' };
+            workbook.Sheets.Sheet1.E1 = { v: 'Carambola' };
+            workbook.Sheets.Sheet1.F1 = { v: 'Grape' };
+            
+            workbook.Sheets.Sheet1.B2 = { v: 'Carambola' };
+            workbook.Sheets.Sheet1.B3 = { f: "MATCH(B2, A1:A4, 0)" };
+            workbook.Sheets.Sheet1.B4 = { f: "MATCH(B2, A1:F1, 0)" };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.B3.v, 3);
+            assert.equal(workbook.Sheets.Sheet1.B4.v, 5);
+        });
+        it('should show "#N/A" error when a multi-dimensional array is passed', function () {
+            workbook.Sheets.Sheet1.B3 = { v: 'Carambola' };
+            workbook.Sheets.Sheet1.A3 = { f: "MATCH(B3, A1:B2, 0)" };
+            XLSX_CALC(workbook);
+            
+            assert.equal(workbook.Sheets.Sheet1.A3.t, 'e');
+            assert.equal(workbook.Sheets.Sheet1.A3.w, '#N/A');
+        });
+    });
+
+    describe('SUMPRODUCT', function () {
+        it('Multiplies corresponding components in the given arrays, and returns the sum of those products', function () {
+            workbook.Sheets.Sheet1 = {
+                A1: { v: 'Array 1' },
+                A2: { v: 3 },
+                A3: { v: 8 },
+                A4: { v: 1 },
+                B2: { v: 4 },
+                B3: { v: 6 },
+                B4: { v: 9 },
+                D1: { v: 'Array 2' },
+                D2: { v: 2 },
+                D3: { v: 6 },
+                D4: { v: 5 },
+                E2: { v: 7 },
+                E3: { v: 7 },
+                E4: { v: 3 },
+                C1: { f: "SUMPRODUCT(A2:B4, D2:E4)" }
+            };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.v, 156);
+        });
+        it('should handle empty values in the given arrays', function () {
+            workbook.Sheets.Sheet1 = {
+                A1: { v: 'Array 1' },
+                A2: { v: 3 },
+                A4: { v: 8 },
+                D1: { v: 'Array 2' },
+                D2: { v: 2 },
+                D4: { v: 6 },
+                C1: { f: "SUMPRODUCT(A2:A4, D2:D4)" }
+            };
+            
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.v, 54);
+        });
+        it('shows "#VALUE!" error value if the array arguments dont have the same dimensions', function () {
+            workbook.Sheets.Sheet1 = {
+                A1: { v: 'Array 1' },
+                A2: { v: 3 },
+                A3: { v: 8 },
+                D1: { v: 'Array 2' },
+                D2: { v: 2 },
+                D3: { v: 4 },
+                D4: { v: 6 },
+                C1: { f: "SUMPRODUCT(A2:A3, D2:D4)" }
+            };
+            XLSX_CALC(workbook);
+
+            assert.equal(workbook.Sheets.Sheet1.C1.t, 'e');
+            assert.equal(workbook.Sheets.Sheet1.C1.w, '#VALUE!');
+            assert.equal(workbook.Sheets.Sheet1.C1.v, errorValues['#VALUE!']);
+        });
+        it('treats array entries that are not numeric as if they were zeros', function () {
+            workbook.Sheets.Sheet1 = {
+                A1: { v: 'Array 1' },
+                A2: { v: 3 },
+                A3: { v: 8 },
+                D1: { v: 'Array 2' },
+                D2: { v: 2 },
+                D3: { v: 6 },
+                C1: { f: "SUMPRODUCT(A1:A3, D1:D3)" }
+            };
+            
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.v, 54);
         });
     });
     

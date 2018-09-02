@@ -25,10 +25,21 @@ module.exports = function Exp(formula) {
             }
         }
         catch (e) {
-            if (e.message == '#N/A') {
-                formula.cell.v = 42;
+            var errorValues = {
+                '#NULL!': 0x00,
+                '#DIV/0!': 0x07,
+                '#VALUE!': 0x0F,
+                '#REF!': 0x17,
+                '#NAME?': 0x1D,
+                '#NUM!': 0x24,
+                '#N/A': 0x2A,
+                '#GETTING_DATA': 0x2B
+            };
+            if (errorValues[e.message] !== undefined) {
                 formula.cell.t = 'e';
                 formula.cell.w = e.message;
+                formula.cell.v = errorValues[e.message]
+                console.log('error cell', formula.cell);
             }
             else {
                 throw e;
@@ -48,8 +59,9 @@ module.exports = function Exp(formula) {
                     i--;
                 }
                 catch (e) {
-                    throw Error(formula.name + ': evaluating ' + formula.cell.f + '\n' + e.message);
-                    //throw e;
+                    // throw Error(formula.name + ': evaluating ' + formula.cell.f + '\n' + e.message);
+                    console.log(formula.name + ': evaluating ' + formula.cell.f + '\n' + e.message);
+                    throw e;
                 }
             }
         }
@@ -76,11 +88,14 @@ module.exports = function Exp(formula) {
         exec('^', args, function(a, b) {
             return Math.pow(+a, +b);
         });
+        exec('/', args, function(a, b) {
+            if (b == 0) {
+                throw Error('#DIV/0!');
+            }
+            return (+a) / (+b);
+        });
         exec('*', args, function(a, b) {
             return (+a) * (+b);
-        });
-        exec('/', args, function(a, b) {
-            return (+a) / (+b);
         });
         exec('+', args, function(a, b) {
             return (+a) + (+b);
