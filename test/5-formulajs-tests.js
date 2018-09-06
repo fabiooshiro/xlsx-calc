@@ -1,5 +1,5 @@
 var formulajs = require('formulajs');
-var XLSX_CALC = require('../');
+var XLSX_CALC = require('../lib/xlsx-calc');
 var assert = require('assert');
 
 describe('formulajs integration', function() {

@@ -60,7 +60,7 @@ module.exports = function Exp(formula) {
                 }
                 catch (e) {
                     // throw Error(formula.name + ': evaluating ' + formula.cell.f + '\n' + e.message);
-                    console.log(formula.name + ': evaluating ' + formula.cell.f + '\n' + e.message);
+                    console.log('[Exp.js] - ' + formula.name + ': evaluating ' + formula.cell.f + '\n' + e.message);
                     throw e;
                 }
             }
@@ -122,7 +122,7 @@ module.exports = function Exp(formula) {
             return a == b;
         });
         if (args.length == 1) {
-            if (typeof(args[0].calc) != 'function') {
+            if (typeof(args[0].calc) !== 'function') {
                 return args[0];
             }
             else {

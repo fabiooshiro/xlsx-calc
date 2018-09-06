@@ -1,15 +1,15 @@
 var assert = require('assert');
 var XLSX = require('xlsx');
-var XLSX_CALC = require("../");
+var XLSX_CALC = require("../lib/xlsx-calc");
 
 describe('XLSX with XLSX_CALC', function() {
 
     function assert_values(sheet_expected, sheet_calculated) {
         for (var prop in sheet_expected) {
             if(prop.match(/[A-Z]+[0-9]+/)) {
-                assert.equal(sheet_expected[prop].v, sheet_calculated[prop].v, "Error: " + prop + ' f="' + sheet_expected[prop].f +'"\nexpected ' + sheet_expected[prop].v + " got " + sheet_calculated[prop].v);
-                assert.equal(sheet_expected[prop].w, sheet_calculated[prop].w, "Error: " + prop + ' f="' + sheet_expected[prop].f +'"');
-                assert.equal(sheet_expected[prop].t, sheet_calculated[prop].t, "Error: " + prop + ' f="' + sheet_expected[prop].f +'"');
+                assert.equal(sheet_calculated[prop].v, sheet_expected[prop].v, "Error: " + prop + ' f="' + sheet_expected[prop].f +'"\nexpected ' + sheet_expected[prop].v + " got " + sheet_calculated[prop].v);
+                assert.equal(sheet_calculated[prop].w, sheet_expected[prop].w, "Error: " + prop + ' f="' + sheet_expected[prop].f +'"');
+                assert.equal(sheet_calculated[prop].t, sheet_expected[prop].t, "Error: " + prop + ' f="' + sheet_expected[prop].f +'"');
             }
         }
     }
