@@ -16,13 +16,25 @@ describe('XLSX with XLSX_CALC', function() {
 
     function erase_values_that_contains_formula(sheets) {
         for (var sheet in sheets) {
-            for (var prop in sheet) {
-                if(prop.match(/[A-Z]+[0-9]+/) && sheet[prop].f) {
-                    sheet[prop].v = null;
-                }
+            for (var prop in sheets[sheet]) {
+                if(prop.match(/[A-Z]+[0-9]+/) && sheets[sheet][prop].f) {
+                    sheets[sheet][prop].v = null;
+                }       
             }
         }
     }
+
+    it('erase_values_that_contains_formula sets values to null', function () {
+        var workbook = {
+            Sheets: {
+                Sheet1: {
+                    A1: { v: 1, f: '1*1', t: 'n' }
+                }
+            }
+        };
+        erase_values_that_contains_formula(workbook.Sheets);
+        assert.equal(workbook.Sheets.Sheet1.A1.v, null);
+    });
 
     it('recalc the workbook Sheet1', function() {
         var workbook = XLSX.readFile('test/testcase.xlsx');
