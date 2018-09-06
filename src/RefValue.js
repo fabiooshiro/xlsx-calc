@@ -46,21 +46,29 @@ module.exports = function RefValue(str_expression, formula) {
         if (formula_ref) {
             if (formula_ref.status === 'new') {
                 formula.exec_formula(formula_ref);
-                return sheet[cell_name].v;
+                if (ref_cell.t === 'e') {
+                    console.log('ref is an error with new formula', cell_name);
+                    throw new Error(ref_cell.w);
+                }
+                return ref_cell.v;
             }
             else if (formula_ref.status === 'working') {
                 throw new Error('Circular ref');
             }
             else if (formula_ref.status === 'done') {
-                if (sheet[cell_name].t === 'e') {
-                    console.log('ref is an error');
-                    throw new Error(sheet[cell_name].w);
+                if (ref_cell.t === 'e') {
+                    console.log('ref is an error after formula eval');
+                    throw new Error(ref_cell.w);
                 }
-                return sheet[cell_name].v;
+                return ref_cell.v;
             }
         }
         else {
-            return sheet[cell_name].v;
+            if (ref_cell.t === 'e') {
+                console.log('ref is an error with no formula', cell_name);
+                throw new Error(ref_cell.w);
+            }
+            return ref_cell.v;
         }
     };
 };

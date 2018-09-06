@@ -489,6 +489,29 @@ describe('XLSX_CALC', function() {
         assert.equal(workbook.Sheets.Sheet1.A1.w, '#DIV/0!');
         assert.equal(workbook.Sheets.Sheet1.A1.t, 'e');
     });
+    it('propagates error values', function () {
+        workbook.Sheets.Sheet1.A1 = {
+            t: 'e',
+            w: '#N/A',
+            v: errorValues['#N/A']
+        };
+        workbook.Sheets.Sheet1.A2.f = '2*A1';
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.A2.v, errorValues['#N/A']);
+        assert.equal(workbook.Sheets.Sheet1.A2.w, '#N/A');
+        assert.equal(workbook.Sheets.Sheet1.A2.t, 'e');
+
+        workbook.Sheets.Sheet1.B1 = {
+            f: '1/0'
+        };
+        workbook.Sheets.Sheet1.B2 = {
+            f: '2*B1'
+        };
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.B2.v, errorValues['#DIV/0!']);
+        assert.equal(workbook.Sheets.Sheet1.B2.w, '#DIV/0!');
+        assert.equal(workbook.Sheets.Sheet1.B2.t, 'e');
+    });
     describe('PTM', function() {
         it('calcs PMT(0.07/12, 24, 1000)', function() {
             workbook.Sheets.Sheet1.A1.f = 'PMT(0.07/12, 24, 1000)';
@@ -640,6 +663,18 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.B1 = {v: ''};
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, true);
+        });
+        it('calculates ISBLANK as false for a ref to an error cell', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'e',
+                w: '#N/A',
+                v: errorValues['#N/A']
+            };
+            workbook.Sheets.Sheet1.B1 = {
+                f: 'ISBLANK(A1)'
+            };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.B1.v, false);
         });
     });
     describe('Sheet ref references', function() {
@@ -800,6 +835,7 @@ describe('XLSX_CALC', function() {
             
             assert.equal(workbook.Sheets.Sheet1.A3.t, 'e');
             assert.equal(workbook.Sheets.Sheet1.A3.w, '#N/A');
+            assert.equal(workbook.Sheets.Sheet1.A3.v, errorValues['#N/A']);
         });
     });
 
