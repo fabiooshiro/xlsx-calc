@@ -766,6 +766,17 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 'Error');
         });
+        it('returns the string Error when in reference to an error cell', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'e',
+                w: '#N/A',
+                v: errorValues['#N/A']
+            };
+            workbook.Sheets.Sheet1.A2 = { f: "IFERROR(A1, \"Error\")" };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, 'Error');
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 's');
+        });
     });
 
     describe('HLOOKUP', function () {
