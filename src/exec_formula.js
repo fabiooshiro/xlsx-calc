@@ -38,11 +38,11 @@ function import_functions(formulajs, opts) {
             if (opts.override || !xlsx_Fx[prefix + key]) {
                 xlsx_Fx[prefix + key] = obj;
             }
-            else {
-                console.log(prefix + key, 'already exists.');
-                console.log('  to override:');
-                console.log('    XLSX_CALC.import_functions(yourlib, {override: true})');
-            }
+            // else {
+            //     console.log(prefix + key, 'already exists.');
+            //     console.log('  to override:');
+            //     console.log('    XLSX_CALC.import_functions(yourlib, {override: true})');
+            // }
         }
         else if (typeof(obj) === 'object') {
             import_functions(obj, my_assign(opts, { prefix: key + '.' }));

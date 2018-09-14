@@ -38,8 +38,7 @@ module.exports = function Exp(formula) {
             if (errorValues[e.message] !== undefined) {
                 formula.cell.t = 'e';
                 formula.cell.w = e.message;
-                formula.cell.v = errorValues[e.message]
-                console.log('error cell', formula.cell);
+                formula.cell.v = errorValues[e.message];
             }
             else {
                 throw e;
@@ -59,8 +58,7 @@ module.exports = function Exp(formula) {
                     i--;
                 }
                 catch (e) {
-                    // throw Error(formula.name + ': evaluating ' + formula.cell.f + '\n' + e.message);
-                    console.log(formula.name + ': evaluating ' + formula.cell.f + '\n' + e.message);
+                    // console.log('[Exp.js] - ' + formula.name + ': evaluating ' + formula.cell.f + '\n' + e.message);
                     throw e;
                 }
             }
@@ -122,7 +120,7 @@ module.exports = function Exp(formula) {
             return a == b;
         });
         if (args.length == 1) {
-            if (typeof(args[0].calc) != 'function') {
+            if (typeof(args[0].calc) !== 'function') {
                 return args[0];
             }
             else {
