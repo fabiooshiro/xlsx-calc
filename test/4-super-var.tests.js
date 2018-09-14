@@ -86,4 +86,15 @@ describe('trocar variavel', () => {
         calculator.execute();
         assert.equal(workbook.Sheets.Sheet1.A1.v, 7);
     });
+    it('cria um erro inteligivel quando a variavel nao for setada', () => {
+        workbook.Sheets.Sheet1.A1.f = '1+SUM([a2],([a3]+[a]))';
+        let calculator = XLSX_CALC.calculator(workbook);
+        calculator.setVar('[a]', 1);
+        try {
+            calculator.execute();
+            throw new Error('Where is the error?');
+        } catch(e) {
+            assert.equal(e.message, 'Undefined [a3]');
+        }
+    });
 });

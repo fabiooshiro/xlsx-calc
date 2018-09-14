@@ -49,10 +49,18 @@ module.exports = function Exp(formula) {
         }
     }
     
+    function checkVariable(obj) {
+        if (typeof obj.calc !== 'function') {
+            throw new Error('Undefined ' + obj);
+        }
+    }
+    
     function exec(op, args, fn) {
         for (var i = 0; i < args.length; i++) {
             if (args[i] === op) {
                 try {
+                    checkVariable(args[i - 1]);
+                    checkVariable(args[i + 1]);
                     var r = fn(args[i - 1].calc(), args[i + 1].calc());
                     args.splice(i - 1, 3, new RawValue(r));
                     i--;
