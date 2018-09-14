@@ -97,4 +97,15 @@ describe('trocar variavel', () => {
             assert.equal(e.message, 'Undefined [a3]');
         }
     });
+    it('cria um erro inteligivel quando a variavel nao for setada e ela estiver com o sinal de menos na frente', () => {
+        workbook.Sheets.Sheet1.A1.f = '[a]-[a3]';
+        let calculator = XLSX_CALC.calculator(workbook);
+        calculator.setVar('[a]', 1);
+        try {
+            calculator.execute();
+            throw new Error('Where is the error?');
+        } catch(e) {
+            assert.equal(e.message, 'Undefined [a3]');
+        }
+    });
 });
