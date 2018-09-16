@@ -108,4 +108,15 @@ describe('trocar variavel', () => {
             assert.equal(e.message, 'Undefined [a3]');
         }
     });
+    it('gets all variables setted', () => {
+        workbook.Sheets.Sheet1 = {A1: {f: '[a1]-(([a3]))'}};
+        let calculator = XLSX_CALC.calculator(workbook);
+        calculator.setVar('[a1]', 1);
+        calculator.setVar('[a3]', 3);
+        calculator.execute();
+        let vars = calculator.getVars();
+        assert.equal(workbook.Sheets.Sheet1.A1.v, -2);
+        assert.equal(vars['[a1]'], 1);
+        assert.equal(vars['[a3]'], 3);
+    });
 });
