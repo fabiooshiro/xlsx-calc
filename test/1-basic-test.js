@@ -339,6 +339,15 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, '79xxx');
         });
+        it('concatenates null and undefined values as empty', function () {
+            workbook.Sheets.Sheet1.A1 = { f: 'CONCATENATE(A2, "-", B2, "-", C2, "-", D2)' };
+            workbook.Sheets.Sheet1.A2 = { v: 79 };
+            workbook.Sheets.Sheet1.B2 = { v: null };
+            workbook.Sheets.Sheet1.C2 = {};
+            workbook.Sheets.Sheet1.D2 = { v: 'tutu' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, '79---tutu');
+        })
     });
     describe('range', function() {
         it('should eval the expression in range of sum', function() {
