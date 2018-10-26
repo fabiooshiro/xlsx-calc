@@ -93,4 +93,34 @@ describe('Bugs', function() {
         assert.equal(sheet.B2.v, "I told you 10 times.");
         assert.equal(sheet.B3.v, "I told you 10 times.");
     });
+    
+    describe('"ref is an error with new formula" error thrown when executing a formula containing a number division by a blank cell', () => {
+        it('should not run that division', () => {
+            let workbook = {
+                Sheets: {
+                    Sample: {
+                        A1: {  },
+                        A2: { f: 'IF(AND(ISNUMBER(A1),A1<>0),100/A1,"Number cannot be divided by 0")' },
+                    }
+                }
+            };
+            XLSX_CALC(workbook);
+            let sheet = workbook.Sheets.Sample;
+            assert.equal(sheet.A2.v, "Number cannot be divided by 0");
+        });
+        it('should not run that multiplication', () => {
+            let workbook = {
+                Sheets: {
+                    Sample: {
+                        A1: {  },
+                        A2: { f: 'IF(AND(ISNUMBER(A1),A1<>0),100*A1,"Number cannot be 0")' },
+                    }
+                }
+            };
+            XLSX_CALC(workbook);
+            let sheet = workbook.Sheets.Sample;
+            assert.equal(sheet.A2.v, "Number cannot be 0");
+        });
+    });
+    
 });

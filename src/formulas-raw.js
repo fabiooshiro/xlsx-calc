@@ -41,7 +41,25 @@ function iferror(cell_ref, onerrorvalue) {
     }
 }
 
+function _if(condition, _then, _else) {
+    if (condition.calc()) {
+        return _then.calc();
+    }
+    else {
+        return _else.calc();
+    }
+}
+
+function and() {
+    for (var i = 0; i < arguments.length; i++) {
+        if(!arguments[i].calc()) return false;
+    }
+    return true;
+}
+
 module.exports = {
     'OFFSET': raw_offset,
-    'IFERROR': iferror
+    'IFERROR': iferror,
+    'IF': _if,
+    'AND': and
 };
