@@ -928,6 +928,23 @@ describe('XLSX_CALC', function() {
         });
     });
     
+    describe('AND', () => {
+        it('evaluates false', () => {
+            workbook.Sheets.Sheet1 = {
+                A1: { f: 'IF(AND(1,0),"err","ok")' }
+            };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'ok');
+        });
+        it('evaluates true', () => {
+            workbook.Sheets.Sheet1 = {
+                A1: { f: 'IF(AND(1,1),"ok","err")' }
+            };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'ok');
+        });
+    });
+    
     // describe('HELLO', function() {
     //     it('says: Hello, World!', function() {
     //         workbook.Sheets.Sheet1.A1.f = 'HELLO("World")';

@@ -53,7 +53,7 @@ console.log(workbook.Sheets.Sheet1.A5.v);
 
 # How to contribute
 
-Read the <a href="https://github.com/fabiooshiro/xlsx-calc/blob/master/test/basic-test.js">basic-tests.js</a>.
+Read the <a href="https://github.com/fabiooshiro/xlsx-calc/blob/master/test/1-basic-test.js">basic-tests.js</a>.
 
 Run tests
 ```sh

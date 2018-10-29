@@ -28,6 +28,14 @@ class Calculator {
         }
     }
     
+    getVars() {
+        let vars = {};
+        for (let k in this.variables) {
+            vars[k] = this.variables[k].calc();
+        }
+        return vars;
+    }
+    
     setVarOfExpression(exp, var_name, value) {
         for (let i = 0; i < exp.args.length; i++) {
             let arg = exp.args[i];

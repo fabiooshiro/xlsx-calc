@@ -86,4 +86,37 @@ describe('trocar variavel', () => {
         calculator.execute();
         assert.equal(workbook.Sheets.Sheet1.A1.v, 7);
     });
+    it('cria um erro inteligivel quando a variavel nao for setada', () => {
+        workbook.Sheets.Sheet1.A1.f = '1+SUM([a2],([a3]+[a]))';
+        let calculator = XLSX_CALC.calculator(workbook);
+        calculator.setVar('[a]', 1);
+        try {
+            calculator.execute();
+            throw new Error('Where is the error?');
+        } catch(e) {
+            assert.equal(e.message, 'Undefined [a3]');
+        }
+    });
+    it('cria um erro inteligivel quando a variavel nao for setada e ela estiver com o sinal de menos na frente', () => {
+        workbook.Sheets.Sheet1.A1.f = '[a]-[a3]';
+        let calculator = XLSX_CALC.calculator(workbook);
+        calculator.setVar('[a]', 1);
+        try {
+            calculator.execute();
+            throw new Error('Where is the error?');
+        } catch(e) {
+            assert.equal(e.message, 'Undefined [a3]');
+        }
+    });
+    it('gets all variables setted', () => {
+        workbook.Sheets.Sheet1 = {A1: {f: '[a1]-(([a3]))'}};
+        let calculator = XLSX_CALC.calculator(workbook);
+        calculator.setVar('[a1]', 1);
+        calculator.setVar('[a3]', 3);
+        calculator.execute();
+        let vars = calculator.getVars();
+        assert.equal(workbook.Sheets.Sheet1.A1.v, -2);
+        assert.equal(vars['[a1]'], 1);
+        assert.equal(vars['[a3]'], 3);
+    });
 });

@@ -13,7 +13,6 @@ let formulas = {
     'SUM': sum,
     'MIN': min,
     'CONCATENATE': concatenate,
-    'IF': _if,
     'PMT': pmt,
     'COUNTA': counta,
     'IRR': irr,
@@ -33,8 +32,13 @@ let formulas = {
     'HLOOKUP': hlookup,
     'INDEX': index,
     'MATCH': match,
-    'SUMPRODUCT': sumproduct
+    'SUMPRODUCT': sumproduct,
+    'ISNUMBER': isnumber
 };
+
+function isnumber(x) {
+    return !isNaN(x);
+}
 
 function sumproduct() {
     var parseNumber = function (string) {
@@ -492,15 +496,6 @@ function pmt(rate_per_period, number_of_payments, present_value, future_value, t
         return -(future_value + present_value) / number_of_payments;
     }
     return 0;
-}
-
-function _if(condition, _then, _else) {
-    if (condition) {
-        return _then;
-    }
-    else {
-        return _else;
-    }
 }
 
 function concatenate() {
