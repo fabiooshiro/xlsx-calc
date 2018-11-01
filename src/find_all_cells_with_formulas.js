@@ -1,13 +1,13 @@
 "use strict";
 
 module.exports = function find_all_cells_with_formulas(wb, exec_formula) {
-    var formula_ref = {};
-    var cells = [];
-    for (var sheet_name in wb.Sheets) {
-        var sheet = wb.Sheets[sheet_name];
-        for (var cell_name in sheet) {
-            if (sheet[cell_name].f) {
-                var formula = formula_ref[sheet_name + '!' + cell_name] = {
+    let formula_ref = {};
+    let cells = [];
+    for (let sheet_name in wb.Sheets) {
+        let sheet = wb.Sheets[sheet_name];
+        for (let cell_name in sheet) {
+            if (sheet[cell_name] && sheet[cell_name].f) {
+                let formula = formula_ref[sheet_name + '!' + cell_name] = {
                     formula_ref: formula_ref,
                     wb: wb,
                     sheet: sheet,
