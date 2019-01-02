@@ -57,6 +57,14 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 6);
         });
+
+        it('should calc +A2+C5',function() {
+            workbook.Sheets.Sheet1.A2.v = 7;
+            workbook.Sheets.Sheet1.C5.v = 3;
+            workbook.Sheets.Sheet1.A1.f = '+A2+C5';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 10);
+        });
     });
     describe('minus', function() {
         it('should update the property A1.v with result of formula A2-C4', function() {
