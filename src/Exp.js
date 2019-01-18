@@ -120,6 +120,9 @@ module.exports = function Exp(formula) {
             return (+a) * (+b);
         });
         exec('+', args, function(a, b) {
+            if (a instanceof Date && typeof b === 'number') {
+                b = b * MS_PER_DAY;
+            }
             return (+a) + (+b);
         });
         exec('&', args, function(a, b) {

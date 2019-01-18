@@ -467,7 +467,7 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.A2 = { f: 'A1 + 5' };
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A2.t, 'n');
-            assert.equal(workbook.Sheets.Sheet1.A2.v, 1547078400005);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, Date.parse(new Date('2019-01-15')));
         });
         it('<, >, <>, = operators should work for dates', function () {
             workbook.Sheets.Sheet1.A1 = {
