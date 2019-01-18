@@ -469,7 +469,7 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A2.t, 'n');
             assert.equal(workbook.Sheets.Sheet1.A2.v, Date.parse(new Date('2019-01-15')));
         });
-        it('<, >, <>, = operators should work for dates', function () {
+        it('< operator should work for dates', function () {
             workbook.Sheets.Sheet1.A1 = {
                 t: 'd',
                 v: new Date('2019-01-10'),
@@ -486,34 +486,102 @@ describe('XLSX_CALC', function() {
                 w: '2019-01-10'
             };
             workbook.Sheets.Sheet1.A4 = { f: 'A1 < A2' };
-            workbook.Sheets.Sheet1.A5 = { f: 'A1 <= A2' };
-            workbook.Sheets.Sheet1.A6 = { f: 'A1 < A3' };
-            workbook.Sheets.Sheet1.A7 = { f: 'A1 <= A3' };
-            workbook.Sheets.Sheet1.A8 = { f: 'A2 < A3' };
-            workbook.Sheets.Sheet1.A9 = { f: 'A2 > A1' };
-            workbook.Sheets.Sheet1.A10 = { f: 'A2 >= A1' };
-            workbook.Sheets.Sheet1.A11 = { f: 'A3 > A1' };
-            workbook.Sheets.Sheet1.A12 = { f: 'A3 >= A1' };
-            workbook.Sheets.Sheet1.A13 = { f: 'A3 > A2' };
-            workbook.Sheets.Sheet1.A14 = { f: 'A1 <> A2' };
-            workbook.Sheets.Sheet1.A15 = { f: 'A1 <> A3' };
-            workbook.Sheets.Sheet1.A16 = { f: 'A1 = A2' };
-            workbook.Sheets.Sheet1.A17 = { f: 'A1 = A3' };
+            workbook.Sheets.Sheet1.A5 = { f: 'A1 < A3' };
+            workbook.Sheets.Sheet1.A6 = { f: 'A2 < A3' };
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A4.v, true);
-            assert.equal(workbook.Sheets.Sheet1.A5.v, true);
+            assert.equal(workbook.Sheets.Sheet1.A5.v, false);
             assert.equal(workbook.Sheets.Sheet1.A6.v, false);
-            assert.equal(workbook.Sheets.Sheet1.A7.v, true);
-            assert.equal(workbook.Sheets.Sheet1.A8.v, false);
-            assert.equal(workbook.Sheets.Sheet1.A9.v, true);
-            assert.equal(workbook.Sheets.Sheet1.A10.v, true);
-            assert.equal(workbook.Sheets.Sheet1.A11.v, false);
-            assert.equal(workbook.Sheets.Sheet1.A12.v, true);
-            assert.equal(workbook.Sheets.Sheet1.A13.v, false);
-            assert.equal(workbook.Sheets.Sheet1.A14.v, true);
-            assert.equal(workbook.Sheets.Sheet1.A15.v, false);
-            assert.equal(workbook.Sheets.Sheet1.A16.v, false);
-            assert.equal(workbook.Sheets.Sheet1.A17.v, true);
+        });
+        it('> operator should work for dates', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A2 = {
+                t: 'd',
+                v: new Date('2019-01-15'),
+                w: '2019-01-15'
+            };
+            workbook.Sheets.Sheet1.A3 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A4 = { f: 'A2 > A1' };
+            workbook.Sheets.Sheet1.A5 = { f: 'A3 > A1' };
+            workbook.Sheets.Sheet1.A6 = { f: 'A3 > A2' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A4.v, true);
+            assert.equal(workbook.Sheets.Sheet1.A5.v, false);
+            assert.equal(workbook.Sheets.Sheet1.A6.v, false);
+        });
+        it('<> operator should work for dates', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A2 = {
+                t: 'd',
+                v: new Date('2019-01-15'),
+                w: '2019-01-15'
+            };
+            workbook.Sheets.Sheet1.A3 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A4 = { f: 'A1 <> A2' };
+            workbook.Sheets.Sheet1.A5 = { f: 'A1 <> A3' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A4.v, true);
+            assert.equal(workbook.Sheets.Sheet1.A5.v, false);
+        });
+        it('= operator should work for dates', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A2 = {
+                t: 'd',
+                v: new Date('2019-01-15'),
+                w: '2019-01-15'
+            };
+            workbook.Sheets.Sheet1.A3 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A4 = { f: 'A1 = A2' };
+            workbook.Sheets.Sheet1.A5 = { f: 'A1 = A3' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A4.v, false);
+            assert.equal(workbook.Sheets.Sheet1.A5.v, true);
+        });
+        it('>= should compare with today', function () {
+            var today = new Date();
+            today.setHours(0,0,0,0);
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: today
+            };
+            workbook.Sheets.Sheet1.A2 = { f: 'A1 >= TODAY()'};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, true);
+        });
+        it('<= should compare with today', function () {
+            var today = new Date();
+            today.setHours(0,0,0,0);
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: today
+            };
+            workbook.Sheets.Sheet1.A2 = { f: 'A1 <= TODAY()'};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, true);
         });
         xit('MIN, MAX should work for dates', function () {
             workbook.Sheets.Sheet1.A1 = {
