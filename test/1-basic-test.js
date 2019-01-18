@@ -430,6 +430,16 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, true);
         });
+        it('evaluates undefined<>"" as false', function() {
+            workbook.Sheets.Sheet1.A2.f = 'A1<>""';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, false);
+        })
+        it('evaluates undefined="" as true', function() {
+            workbook.Sheets.Sheet1.A2.f = 'A1=""';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, true);
+        });
     });
     describe('dates', function () {
         it('dateA - dateB should calc day diff', function() {

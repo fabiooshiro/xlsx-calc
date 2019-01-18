@@ -50,6 +50,9 @@ module.exports = function Exp(formula) {
             formula.status = 'done';
         }
     }
+    function isEmpty(value) {
+        return value === undefined || value === null || value === "";
+    }
     
     function checkVariable(obj) {
         if (typeof obj.calc !== 'function') {
@@ -138,11 +141,17 @@ module.exports = function Exp(formula) {
             if (a instanceof Date && b instanceof Date) {
                 return a.getTime() !== b.getTime();
             }
+            if (isEmpty(a) && isEmpty(b)) {
+                return false;
+            }
             return a != b;
         });
         exec('=', args, function(a, b) {
             if (a instanceof Date && b instanceof Date) {
                 return a.getTime() === b.getTime();
+            }
+            if (isEmpty(a) && isEmpty(b)) {
+                return true;
             }
             return a == b;
         });
