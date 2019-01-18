@@ -4,6 +4,8 @@ const RawValue = require('./RawValue.js');
 const RefValue = require('./RefValue.js');
 const Range = require('./Range.js');
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
 var exp_id = 0;
 
 module.exports = function Exp(formula) {
@@ -77,13 +79,23 @@ module.exports = function Exp(formula) {
         for (var i = args.length; i--;) {
             if (args[i] === '-') {
                 checkVariable(args[i + 1]);
-                var r = -args[i + 1].calc();
-                if (typeof args[i - 1] !== 'string' && i > 0) {
+                var b = args[i + 1].calc();
+                if (i > 0 && typeof args[i - 1] !== 'string') {
                     args.splice(i, 1, '+');
-                    args.splice(i + 1, 1, new RawValue(r));
+                    if (b instanceof Date) {
+                        b = Date.parse(b);
+                        checkVariable(args[i - 1]);
+                        var a = args[i - 1].calc();
+                        if (a instanceof Date) {
+                            a = Date.parse(a) / MS_PER_DAY;
+                            b = b / MS_PER_DAY;
+                            args.splice(i - 1, 1, new RawValue(a));
+                        }
+                    }
+                    args.splice(i + 1, 1, new RawValue(-b));
                 }
                 else {
-                    args.splice(i, 2, new RawValue(r));
+                    args.splice(i, 2, new RawValue(-b));
                 }
             }
         }
@@ -123,9 +135,15 @@ module.exports = function Exp(formula) {
             return a <= b;
         });
         exec('<>', args, function(a, b) {
+            if (a instanceof Date && b instanceof Date) {
+                return a.getTime() !== b.getTime();
+            }
             return a != b;
         });
         exec('=', args, function(a, b) {
+            if (a instanceof Date && b instanceof Date) {
+                return a.getTime() === b.getTime();
+            }
             return a == b;
         });
         if (args.length == 1) {

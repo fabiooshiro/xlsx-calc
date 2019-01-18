@@ -431,6 +431,105 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, true);
         });
     });
+    describe('dates', function () {
+        it('dateA - dateB should calc day diff', function() {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A2 = {
+                t: 'd',
+                v: new Date('2019-01-15'),
+                w: '2019-01-15'
+            };
+            workbook.Sheets.Sheet1.A3 = { f: 'A2 - A1' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A3.v, 5);
+            assert.equal(workbook.Sheets.Sheet1.A3.t, 'n');
+        });
+        it('DateA + 5 should add 5 days to dateA', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A2 = { f: 'A1 + 5' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 'n');
+            assert.equal(workbook.Sheets.Sheet1.A2.v, 1547078400005);
+        });
+        it('<, >, <>, = operators should work for dates', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A2 = {
+                t: 'd',
+                v: new Date('2019-01-15'),
+                w: '2019-01-15'
+            };
+            workbook.Sheets.Sheet1.A3 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A4 = { f: 'A1 < A2' };
+            workbook.Sheets.Sheet1.A5 = { f: 'A1 <= A2' };
+            workbook.Sheets.Sheet1.A6 = { f: 'A1 < A3' };
+            workbook.Sheets.Sheet1.A7 = { f: 'A1 <= A3' };
+            workbook.Sheets.Sheet1.A8 = { f: 'A2 < A3' };
+            workbook.Sheets.Sheet1.A9 = { f: 'A2 > A1' };
+            workbook.Sheets.Sheet1.A10 = { f: 'A2 >= A1' };
+            workbook.Sheets.Sheet1.A11 = { f: 'A3 > A1' };
+            workbook.Sheets.Sheet1.A12 = { f: 'A3 >= A1' };
+            workbook.Sheets.Sheet1.A13 = { f: 'A3 > A2' };
+            workbook.Sheets.Sheet1.A14 = { f: 'A1 <> A2' };
+            workbook.Sheets.Sheet1.A15 = { f: 'A1 <> A3' };
+            workbook.Sheets.Sheet1.A16 = { f: 'A1 = A2' };
+            workbook.Sheets.Sheet1.A17 = { f: 'A1 = A3' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A4.v, true);
+            assert.equal(workbook.Sheets.Sheet1.A5.v, true);
+            assert.equal(workbook.Sheets.Sheet1.A6.v, false);
+            assert.equal(workbook.Sheets.Sheet1.A7.v, true);
+            assert.equal(workbook.Sheets.Sheet1.A8.v, false);
+            assert.equal(workbook.Sheets.Sheet1.A9.v, true);
+            assert.equal(workbook.Sheets.Sheet1.A10.v, true);
+            assert.equal(workbook.Sheets.Sheet1.A11.v, false);
+            assert.equal(workbook.Sheets.Sheet1.A12.v, true);
+            assert.equal(workbook.Sheets.Sheet1.A13.v, false);
+            assert.equal(workbook.Sheets.Sheet1.A14.v, true);
+            assert.equal(workbook.Sheets.Sheet1.A15.v, false);
+            assert.equal(workbook.Sheets.Sheet1.A16.v, false);
+            assert.equal(workbook.Sheets.Sheet1.A17.v, true);
+        });
+        xit('MIN, MAX should work for dates', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A2 = {
+                t: 'd',
+                v: new Date('2019-01-11'),
+                w: '2019-01-11'
+            };
+            workbook.Sheets.Sheet1.A3 = {
+                t: 'd',
+                v: new Date('2019-01-12'),
+                w: '2019-01-12'
+            };
+            workbook.Sheets.Sheet1.A4 = { f: 'MAX(A1:A3)' };
+            workbook.Sheets.Sheet1.A5 = { f: 'MIN(A1:A3)' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A4.v instanceof Date, true);
+            assert.equal(workbook.Sheets.Sheet1.A4.v.getTime(), 1547251200000);
+            assert.equal(workbook.Sheets.Sheet1.A5.v instanceof Date, true);
+            assert.equal(workbook.Sheets.Sheet1.A5.v.getTime(), 1547078400000);
+        });
+    });
     describe('IF', function() {
         it('should exec true', function() {
             workbook.Sheets.Sheet1.A1.f = 'IF(1<2,123,0)';
