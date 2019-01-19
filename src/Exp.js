@@ -59,11 +59,17 @@ module.exports = function Exp(formula) {
         for (var i = 0; i < args.length; i++) {
             if (args[i] === op) {
                 try {
-                    checkVariable(args[i - 1]);
-                    checkVariable(args[i + 1]);
-                    var r = fn(args[i - 1].calc(), args[i + 1].calc());
-                    args.splice(i - 1, 3, new RawValue(r));
-                    i--;
+                    if (i===0 && op==='+') {
+                        checkVariable(args[i + 1]);
+                        var r = args[i + 1].calc();
+                        args.splice(i, 2, new RawValue(r));
+                    } else {
+                        checkVariable(args[i - 1]);
+                        checkVariable(args[i + 1]);
+                        var r = fn(args[i - 1].calc(), args[i + 1].calc());
+                        args.splice(i - 1, 3, new RawValue(r));
+                        i--;
+                    }
                 }
                 catch (e) {
                     // console.log('[Exp.js] - ' + formula.name + ': evaluating ' + formula.cell.f + '\n' + e.message);
