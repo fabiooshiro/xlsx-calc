@@ -119,4 +119,28 @@ describe('trocar variavel', () => {
         assert.equal(vars['[a1]'], 1);
         assert.equal(vars['[a3]'], 3);
     });
+    
+    it('sets named cell', () => {
+        workbook.Workbook = {
+            Names: [{Name: 'XPTO', Ref: 'Sheet1!A2'}]
+        };
+        workbook.Sheets.Sheet1 = {
+            A1: { f: 'XPTO+B1' }, A2: { v: 3 }, B1: { v: 2 }
+        };
+        let calculator = XLSX_CALC.calculator(workbook);
+        calculator.execute();
+        assert.equal(workbook.Sheets.Sheet1.A1.v, 5);
+    });
+    
+    it('sets named cell range', () => {
+        workbook.Workbook = {
+            Names: [{Name: 'XPTO', Ref: 'Sheet1!A2:A3'}]
+        };
+        workbook.Sheets.Sheet1 = {
+            A1: { f: 'SUM(XPTO)' }, A2: { v: 3 }, A3: { v: 2 }
+        };
+        let calculator = XLSX_CALC.calculator(workbook);
+        calculator.execute();
+        assert.equal(workbook.Sheets.Sheet1.A1.v, 5);
+    });
 });

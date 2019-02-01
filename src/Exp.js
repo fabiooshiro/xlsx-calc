@@ -3,6 +3,7 @@
 const RawValue = require('./RawValue.js');
 const RefValue = require('./RefValue.js');
 const Range = require('./Range.js');
+const str_2_val = require('./str_2_val.js');
 
 var exp_id = 0;
 
@@ -141,34 +142,7 @@ module.exports = function Exp(formula) {
     var last_arg;
     self.push = function(buffer) {
         if (buffer) {
-            var v;
-            if (!isNaN(buffer)) {
-                v = new RawValue(+buffer);
-            }
-            else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
-                v = new Range(buffer.trim().replace(/\$/g, ''), formula);
-            }
-            else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[^!]+![A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
-                v = new Range(buffer.trim().replace(/\$/g, ''), formula);
-            }
-            else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+:[A-Z]+$/)) {
-                v = new Range(buffer.trim().replace(/\$/g, ''), formula);
-            }
-            else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[^!]+![A-Z]+:[A-Z]+$/)) {
-                v = new Range(buffer.trim().replace(/\$/g, ''), formula);
-            }
-            else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+$/)) {
-                v = new RefValue(buffer.trim().replace(/\$/g, ''), formula);
-            }
-            else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[^!]+![A-Z]+[0-9]+$/)) {
-                v = new RefValue(buffer.trim().replace(/\$/g, ''), formula);
-            }
-            else if (typeof buffer === 'string' && !isNaN(buffer.trim().replace(/%$/, ''))) {
-                v = new RawValue(+(buffer.trim().replace(/%$/, '')) / 100.0);
-            }
-            else {
-                v = buffer;
-            }
+            var v = str_2_val(buffer, formula);
             if (((v === '=') && (last_arg == '>' || last_arg == '<')) || (last_arg == '<' && v === '>')) {
                 self.args[self.args.length - 1] += v;
             }
