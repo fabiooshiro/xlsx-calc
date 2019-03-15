@@ -3,6 +3,7 @@
 const RawValue = require('./RawValue.js');
 const RefValue = require('./RefValue.js');
 const Range = require('./Range.js');
+const str_2_val = require('./str_2_val.js');
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -69,11 +70,17 @@ module.exports = function Exp(formula) {
         for (var i = 0; i < args.length; i++) {
             if (args[i] === op) {
                 try {
-                    checkVariable(args[i - 1]);
-                    checkVariable(args[i + 1]);
-                    var r = fn(args[i - 1].calc(), args[i + 1].calc());
-                    args.splice(i - 1, 3, new RawValue(r));
-                    i--;
+                    if (i===0 && op==='+') {
+                        checkVariable(args[i + 1]);
+                        var r = args[i + 1].calc();
+                        args.splice(i, 2, new RawValue(r));
+                    } else {
+                        checkVariable(args[i - 1]);
+                        checkVariable(args[i + 1]);
+                        var r = fn(args[i - 1].calc(), args[i + 1].calc());
+                        args.splice(i - 1, 3, new RawValue(r));
+                        i--;
+                    }
                 }
                 catch (e) {
                     // console.log('[Exp.js] - ' + formula.name + ': evaluating ' + formula.cell.f + '\n' + e.message);
@@ -176,34 +183,7 @@ module.exports = function Exp(formula) {
     var last_arg;
     self.push = function(buffer) {
         if (buffer) {
-            var v;
-            if (!isNaN(buffer)) {
-                v = new RawValue(+buffer);
-            }
-            else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
-                v = new Range(buffer.trim().replace(/\$/g, ''), formula);
-            }
-            else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[^!]+![A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
-                v = new Range(buffer.trim().replace(/\$/g, ''), formula);
-            }
-            else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+:[A-Z]+$/)) {
-                v = new Range(buffer.trim().replace(/\$/g, ''), formula);
-            }
-            else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[^!]+![A-Z]+:[A-Z]+$/)) {
-                v = new Range(buffer.trim().replace(/\$/g, ''), formula);
-            }
-            else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+$/)) {
-                v = new RefValue(buffer.trim().replace(/\$/g, ''), formula);
-            }
-            else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[^!]+![A-Z]+[0-9]+$/)) {
-                v = new RefValue(buffer.trim().replace(/\$/g, ''), formula);
-            }
-            else if (typeof buffer === 'string' && !isNaN(buffer.trim().replace(/%$/, ''))) {
-                v = new RawValue(+(buffer.trim().replace(/%$/, '')) / 100.0);
-            }
-            else {
-                v = buffer;
-            }
+            var v = str_2_val(buffer, formula);
             if (((v === '=') && (last_arg == '>' || last_arg == '<')) || (last_arg == '<' && v === '>')) {
                 self.args[self.args.length - 1] += v;
             }
