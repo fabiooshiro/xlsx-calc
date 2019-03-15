@@ -22,7 +22,13 @@ module.exports = function UserFnExecutor(user_function) {
                 && errorValues[e.message] !== undefined) {
                 // is_blank applied to an error cell doesn't propagate the error
                 result = 0;
-            } else {
+            }
+            else if (user_function.name === 'iserror'
+                && errorValues[e.message] !== undefined) {
+                // iserror applied to an error doesn't propagate the error and returns true
+                result = true;
+            }
+            else {
                 throw e;
             }
         }

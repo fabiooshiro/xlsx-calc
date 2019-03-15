@@ -959,6 +959,21 @@ describe('XLSX_CALC', function() {
             assert.deepEqual(workbook.Sheets.Sheet1.A1.v, ['A2',1,0]);
         });
     });
+
+    describe('ISERROR', function () {
+        it('returns true if in error', function () {
+            workbook.Sheets.Sheet1.A1 = { f: "0/0" };
+            workbook.Sheets.Sheet1.A2 = { f: "ISERROR(A1)" };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, true);
+        });
+        it('returns false if in not in error', function () {
+            workbook.Sheets.Sheet1.A1 = { f: "2*3" };
+            workbook.Sheets.Sheet1.A2 = { f: "ISERROR(A1)" };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, false);
+        });
+    });
     
     describe('IFERROR', function() {
         it('returns the string Error', function() {

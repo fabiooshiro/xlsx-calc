@@ -34,7 +34,8 @@ let formulas = {
     'MATCH': match,
     'SUMPRODUCT': sumproduct,
     'ISNUMBER': isnumber,
-    'TODAY': today
+    'TODAY': today,
+    'ISERROR': iserror
 };
 
 function today() {
@@ -632,6 +633,12 @@ function vlookup(key, matrix, return_index) {
         }
     }
     throw Error('#N/A');
+}
+
+function iserror() {
+    // if an error is catched before getting there, true will be returned from the catch block
+    // if we get here then it's not an error
+    return false;
 }
 
 module.exports = formulas;
