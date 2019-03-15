@@ -1000,6 +1000,17 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A2.v, 'Error');
             assert.equal(workbook.Sheets.Sheet1.A2.t, 's');
         });
+        it('returns the string Error when using an error cell in a formula', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'e',
+                w: '#N/A',
+                v: errorValues['#N/A']
+            };
+            workbook.Sheets.Sheet1.A2 = { f: "IFERROR(2*A1, \"Error\")" };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, 'Error');
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 's');
+        });
     });
 
     describe('HLOOKUP', function () {
