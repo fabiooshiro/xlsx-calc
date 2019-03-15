@@ -82,6 +82,35 @@ function sumproduct() {
     if (!consistentSizeRanges(arguments)) {
         throw Error('#VALUE!');
     }
+    // throw error if any of the cells passed in arguments is in error
+    for (var i = 0; i < arguments.length; i++) {
+        var row = arguments[i];
+        if (Array.isArray(row)) {
+            for (var j = 0; j < row.length; j++) {
+                var col = row[j];
+                if (Array.isArray(col)) {
+                    for (var k = 0; k < col.length; k++) {
+                        var cell = col[k];
+                        if (cell && typeof cell === 'object' && cell.t === 'e') {
+                            throw Error(cell.w);
+                        }
+                    }
+                }
+                else {
+                    var cell = col;
+                    if (cell && typeof cell === 'object' && cell.t === 'e') {
+                        throw Error(cell.w);
+                    }
+                }
+            }
+        }
+        else {
+            var cell = row;
+            if (cell && typeof cell === 'object' && cell.t === 'e') {
+                throw Error(cell.w);
+            }
+        }
+    }
 
     var arrays = arguments.length + 1;
     var result = 0;

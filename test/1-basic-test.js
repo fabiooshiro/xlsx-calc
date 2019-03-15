@@ -1140,6 +1140,48 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.C1.v, 54);
         });
+        it('should transmit error if any cell in range is in error', function () {
+            workbook.Sheets.Sheet1 = {
+                A1: { t: "e", v: 42, w: "#N/A" },
+                A2: { t: "n", v: 0.5 },
+                A3: { t: "n", v: 0 },
+                B1: { t: "n", v: 0.1, w: "10%" },
+                B2: { t: "n", v: 0.2, w: "20%" },
+                B3: { t: "n", v: 0, w: "0%" },
+                C1: { f: "SUMPRODUCT(A1:A3, B1:B3)" }
+            };
+            
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.t, "e");
+            assert.equal(workbook.Sheets.Sheet1.C1.v, 42);
+            assert.equal(workbook.Sheets.Sheet1.C1.w, "#N/A");
+        });
+        it('should transmit error if any cell in range is in error even in a range with empty cells', function () {
+            workbook.Sheets.Sheet1 = {
+                A16: { t: "e", v: 42, w: "#N/A" },
+                A17: { t: "n", v: 0.5, w: "0.5" },
+                A18: { t: "n", v: 0, w: " -    " },
+                A21: { t: "n", v: 1, w: "0.5" },
+                A22: { t: "n", v: 1, w: " 1.00    " },
+                A24: { t: "n", v: 1, w: "0.5" },
+                A26: { t: "n", v: 1, w: "1" },
+                A28: { t: "n", v: 1, w: "0" },
+                B16: { t: "n", v: 0.1, w: "10%" },
+                B17: { t: "n", v: 0.2, w: "20%" },
+                B18: { t: "n", v: 0, w: "0%" },
+                B21: { t: "n", v: 0.15, w: "15%" },
+                B22: { t: "n", v: 0, w: "0%" },
+                B24: { t: "n", v: 0.05, w: "5%" },
+                B26: { t: "n", v: 0.1, w: "10%" },
+                B28: { t: "n", v: 0.1, w: "10%" },
+                C1: { f: "SUMPRODUCT(A16:A29, B16:B29)" }
+            };
+            
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.t, "e");
+            assert.equal(workbook.Sheets.Sheet1.C1.v, 42);
+            assert.equal(workbook.Sheets.Sheet1.C1.w, "#N/A");
+        });
     });
     
     describe('AND', () => {
