@@ -543,11 +543,21 @@ function max() {
         if (Array.isArray(arg)) {
             var arr = arg;
             for (var j = arr.length; j--;) {
-                max = max == null || max < arr[j] ? arr[j] : max;
+                var col = arr[j];
+                if (Array.isArray(col)) {
+                    for (var k = col.length; k--;) {
+                        if (max == null || (col[k] != null && max < col[k])) {
+                            max = col[k];
+                        }
+                    }
+                }
+                else if (max == null || (col != null && max < col)) {
+                    max = col;
+                }
             }
         }
-        else if (!isNaN(arg)) {
-            max = max == null || max < arg ? arg : max;
+        else if (!isNaN(arg) && (max == null || (arg != null && max < arg))) {
+            max = arg;
         }
         else {
             console.log('WTF??', arg);
@@ -557,23 +567,33 @@ function max() {
 }
 
 function min() {
-    var result = null;
+    var min = null;
     for (var i = arguments.length; i--;) {
         var arg = arguments[i];
         if (Array.isArray(arg)) {
             var arr = arg;
             for (var j = arr.length; j--;) {
-                result = result == null || result > arr[j] ? arr[j] : result;
+                var col = arr[j];
+                if (Array.isArray(col)) {
+                    for (var k = col.length; k--;) {
+                        if (min == null || (col[k] != null && min > col[k])) {
+                            min = col[k];
+                        }
+                    }
+                }
+                else if (min == null || (col != null && min > col)) {
+                    min = col;
+                }
             }
         }
-        else if (!isNaN(arg)) {
-            result = result == null || result > arg ? arg : result;
+        else if (!isNaN(arg) && (min == null || (arg != null && min > arg))) {
+            min = arg;
         }
         else {
             console.log('WTF??', arg);
         }
     }
-    return result;
+    return min;
 }
 
 function vlookup(key, matrix, return_index) {

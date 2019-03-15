@@ -282,6 +282,11 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 3);
         });
+        it('finds the max in 2 dimensionnal range', function () {
+            workbook.Sheets.Sheet1.A1.f = 'MAX(A2:C5)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 7);
+        });
     });
     describe('MIN', function() {
         it('finds the min in range', function() {
@@ -293,6 +298,11 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.A1.f = 'MIN(C3:C5,-A2)';
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, -7);
+        });
+        it('finds the min in 2 dimensionnal range', function () {
+            workbook.Sheets.Sheet1.A1.f = 'MIN(A2:C5)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 1);
         });
     });
     describe('MAX and SUM', function() {
