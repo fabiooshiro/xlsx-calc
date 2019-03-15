@@ -47,7 +47,7 @@ module.exports = function RefValue(str_expression, formula) {
             if (formula_ref.status === 'new') {
                 formula.exec_formula(formula_ref);
                 if (ref_cell.t === 'e') {
-                    console.log('ref is an error with new formula', cell_name);
+                    console.log('ref is an error with new formula', cell_full_name);
                     throw new Error(ref_cell.w);
                 }
                 return ref_cell.v;

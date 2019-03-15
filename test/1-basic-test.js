@@ -386,6 +386,17 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 7);
         });
+        it('A1:A3 formula should return #VALUE! error', function () {
+            // workbook.Sheets.Sheet1.A1 = { t: "e", v: 42, w: "#N/A" };
+            workbook.Sheets.Sheet1.A1 = { t: 'n', v: 3 };
+            workbook.Sheets.Sheet1.A2 = { t: 'n', v: 1 };
+            workbook.Sheets.Sheet1.A3 = { t: 'n', v: 2 };
+            workbook.Sheets.Sheet1.B1 = { f: 'A1:A3' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.B1.t, 'e');
+            assert.equal(workbook.Sheets.Sheet1.B1.v, errorValues['#VALUE!']);
+            assert.equal(workbook.Sheets.Sheet1.B1.w, '#VALUE!');
+        });
     });
     describe('boolean', function() {
         it('evaluates 1<2 as true', function() {

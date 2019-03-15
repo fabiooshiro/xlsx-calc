@@ -18,6 +18,11 @@ module.exports = function Exp(formula) {
     
     function update_cell_value() {
         try {
+            if (Array.isArray(self.args) 
+                    && self.args.length === 1
+                    && self.args[0] instanceof Range) {
+                throw Error('#VALUE!');
+            }
             formula.cell.v = self.calc();
             if (typeof(formula.cell.v) === 'string') {
                 formula.cell.t = 's';
