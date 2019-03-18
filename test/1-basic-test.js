@@ -1056,6 +1056,21 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.D1.v, 7);
         });
+        it('returns #N/A error when used with an empty needle', function () {
+            workbook.Sheets.Sheet1 = {
+                A1: { v: "a" },
+                A2: { v: "b" },
+                A3: { v: "c" },
+                B1: { v: "1" },
+                B2: { v: "2" },
+                B3: { v: "3" },
+                C1: { f: 'HLOOKUP(C2, A1:B3, 2, FALSE)'}
+            };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.t, "e");
+            assert.equal(workbook.Sheets.Sheet1.C1.v, 42);
+            assert.equal(workbook.Sheets.Sheet1.C1.w, "#N/A");
+        });
     });
 
     describe('INDEX', function () {

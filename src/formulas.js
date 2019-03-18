@@ -238,7 +238,7 @@ function index(matrix, row_num, column_num) {
 // impl ported from https://github.com/FormulaPages/hlookup
 function hlookup(needle, table, index, exactmatch) {
     if (typeof needle === "undefined" || (0, is_blank)(needle)) {
-        return null;
+        throw Error('#N/A');
     }
 
     index = index || 0;
