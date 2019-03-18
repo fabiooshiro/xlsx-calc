@@ -35,7 +35,8 @@ let formulas = {
     'SUMPRODUCT': sumproduct,
     'ISNUMBER': isnumber,
     'TODAY': today,
-    'ISERROR': iserror
+    'ISERROR': iserror,
+    'TIME': time
 };
 
 function today() {
@@ -639,6 +640,11 @@ function iserror() {
     // if an error is catched before getting there, true will be returned from the catch block
     // if we get here then it's not an error
     return false;
+}
+
+function time(hours, minutes, seconds) {
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+    return ((hours * 60 + minutes) * 60 + seconds) * 1000 / MS_PER_DAY;
 }
 
 module.exports = formulas;

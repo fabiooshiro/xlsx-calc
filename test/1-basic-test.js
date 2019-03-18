@@ -628,6 +628,20 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A2.v, true);
         });
+        it('date + TIME(0, integer, 0) should return a date with increased minutes', function () {
+            workbook.Sheets.Sheet1 = {
+                A1: {
+                    t: "d",
+                    v: new Date('2019-02-18 08:00'),
+                    w: "2019-02-18 08:00"
+                },
+                A2: { v: "30" },
+                B1: { f: "A1+TIME(0,A2,0)"}
+            };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.B1.t, 'n');
+            assert.equal(workbook.Sheets.Sheet1.B1.v, Date.parse(new Date('2019-02-18 08:30')));
+        });
         xit('MIN, MAX should work for dates', function () {
             workbook.Sheets.Sheet1.A1 = {
                 t: 'd',
