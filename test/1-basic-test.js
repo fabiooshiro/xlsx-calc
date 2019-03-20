@@ -290,6 +290,11 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 3);
         });
+        it('finds the max in 2 dimensionnal range', function () {
+            workbook.Sheets.Sheet1.A1.f = 'MAX(A2:C5)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 7);
+        });
     });
     describe('MIN', function() {
         it('finds the min in range', function() {
@@ -301,6 +306,11 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.A1.f = 'MIN(C3:C5,-A2)';
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, -7);
+        });
+        it('finds the min in 2 dimensionnal range', function () {
+            workbook.Sheets.Sheet1.A1.f = 'MIN(A2:C5)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 1);
         });
     });
     describe('MAX and SUM', function() {
@@ -384,6 +394,33 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 7);
         });
+        it('A1:A3 formula should return #VALUE! error', function () {
+            // workbook.Sheets.Sheet1.A1 = { t: "e", v: 42, w: "#N/A" };
+            workbook.Sheets.Sheet1.A1 = { t: 'n', v: 3 };
+            workbook.Sheets.Sheet1.A2 = { t: 'n', v: 1 };
+            workbook.Sheets.Sheet1.A3 = { t: 'n', v: 2 };
+            workbook.Sheets.Sheet1.B1 = { f: 'A1:A3' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.B1.t, 'e');
+            assert.equal(workbook.Sheets.Sheet1.B1.v, errorValues['#VALUE!']);
+            assert.equal(workbook.Sheets.Sheet1.B1.w, '#VALUE!');
+        });
+        it('should preserve error state when a cell is in error', function () {
+            workbook.Sheets.Sheet1.A1 = { t: "e", v: 42, w: "#N/A" };
+            workbook.Sheets.Sheet1.A2 = { t: 'n', v: 1 };
+            workbook.Sheets.Sheet1.A3 = { t: 'n', v: 2 };
+            workbook.Sheets.Sheet1.B1 = { f: 'A1:A3' };
+            var exec_formula = require('../src/exec_formula.js'),
+            find_all_cells_with_formulas = require('../src/find_all_cells_with_formulas.js');
+            var formula = find_all_cells_with_formulas(workbook, exec_formula)[0];
+            var range = exec_formula.build_expression(formula).args[0].calc();
+            var expected = [
+                [{ t: "e", v: 42, w: "#N/A" }],
+                [1],
+                [2]
+            ];
+            assert.deepEqual(range, expected);
+        });
     });
     describe('boolean', function() {
         it('evaluates 1<2 as true', function() {
@@ -437,6 +474,197 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.A1.f = '2<>1';
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, true);
+        });
+        it('evaluates undefined<>"" as false', function() {
+            workbook.Sheets.Sheet1.A2.f = 'A1<>""';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, false);
+        })
+        it('evaluates undefined="" as true', function() {
+            workbook.Sheets.Sheet1.A2.f = 'A1=""';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, true);
+        });
+    });
+    describe('dates', function () {
+        it('dateA - dateB should calc day diff', function() {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A2 = {
+                t: 'd',
+                v: new Date('2019-01-15'),
+                w: '2019-01-15'
+            };
+            workbook.Sheets.Sheet1.A3 = { f: 'A2 - A1' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A3.v, 5);
+            assert.equal(workbook.Sheets.Sheet1.A3.t, 'n');
+        });
+        it('DateA + 5 should add 5 days to dateA', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A2 = { f: 'A1 + 5' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 'n');
+            assert.equal(workbook.Sheets.Sheet1.A2.v, Date.parse(new Date('2019-01-15')));
+        });
+        it('< operator should work for dates', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A2 = {
+                t: 'd',
+                v: new Date('2019-01-15'),
+                w: '2019-01-15'
+            };
+            workbook.Sheets.Sheet1.A3 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A4 = { f: 'A1 < A2' };
+            workbook.Sheets.Sheet1.A5 = { f: 'A1 < A3' };
+            workbook.Sheets.Sheet1.A6 = { f: 'A2 < A3' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A4.v, true);
+            assert.equal(workbook.Sheets.Sheet1.A5.v, false);
+            assert.equal(workbook.Sheets.Sheet1.A6.v, false);
+        });
+        it('> operator should work for dates', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A2 = {
+                t: 'd',
+                v: new Date('2019-01-15'),
+                w: '2019-01-15'
+            };
+            workbook.Sheets.Sheet1.A3 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A4 = { f: 'A2 > A1' };
+            workbook.Sheets.Sheet1.A5 = { f: 'A3 > A1' };
+            workbook.Sheets.Sheet1.A6 = { f: 'A3 > A2' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A4.v, true);
+            assert.equal(workbook.Sheets.Sheet1.A5.v, false);
+            assert.equal(workbook.Sheets.Sheet1.A6.v, false);
+        });
+        it('<> operator should work for dates', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A2 = {
+                t: 'd',
+                v: new Date('2019-01-15'),
+                w: '2019-01-15'
+            };
+            workbook.Sheets.Sheet1.A3 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A4 = { f: 'A1 <> A2' };
+            workbook.Sheets.Sheet1.A5 = { f: 'A1 <> A3' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A4.v, true);
+            assert.equal(workbook.Sheets.Sheet1.A5.v, false);
+        });
+        it('= operator should work for dates', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A2 = {
+                t: 'd',
+                v: new Date('2019-01-15'),
+                w: '2019-01-15'
+            };
+            workbook.Sheets.Sheet1.A3 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A4 = { f: 'A1 = A2' };
+            workbook.Sheets.Sheet1.A5 = { f: 'A1 = A3' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A4.v, false);
+            assert.equal(workbook.Sheets.Sheet1.A5.v, true);
+        });
+        it('>= should compare with today', function () {
+            var today = new Date();
+            today.setHours(0,0,0,0);
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: today
+            };
+            workbook.Sheets.Sheet1.A2 = { f: 'A1 >= TODAY()'};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, true);
+        });
+        it('<= should compare with today', function () {
+            var today = new Date();
+            today.setHours(0,0,0,0);
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: today
+            };
+            workbook.Sheets.Sheet1.A2 = { f: 'A1 <= TODAY()'};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, true);
+        });
+        it('date + TIME(0, integer, 0) should return a date with increased minutes', function () {
+            workbook.Sheets.Sheet1 = {
+                A1: {
+                    t: "d",
+                    v: new Date('2019-02-18 08:00'),
+                    w: "2019-02-18 08:00"
+                },
+                A2: { v: "30" },
+                B1: { f: "A1+TIME(0,A2,0)"}
+            };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.B1.t, 'n');
+            assert.equal(workbook.Sheets.Sheet1.B1.v, Date.parse(new Date('2019-02-18 08:30')));
+        });
+        xit('MIN, MAX should work for dates', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-01-10'),
+                w: '2019-01-10'
+            };
+            workbook.Sheets.Sheet1.A2 = {
+                t: 'd',
+                v: new Date('2019-01-11'),
+                w: '2019-01-11'
+            };
+            workbook.Sheets.Sheet1.A3 = {
+                t: 'd',
+                v: new Date('2019-01-12'),
+                w: '2019-01-12'
+            };
+            workbook.Sheets.Sheet1.A4 = { f: 'MAX(A1:A3)' };
+            workbook.Sheets.Sheet1.A5 = { f: 'MIN(A1:A3)' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A4.v instanceof Date, true);
+            assert.equal(workbook.Sheets.Sheet1.A4.v.getTime(), 1547251200000);
+            assert.equal(workbook.Sheets.Sheet1.A5.v instanceof Date, true);
+            assert.equal(workbook.Sheets.Sheet1.A5.v.getTime(), 1547078400000);
         });
     });
     describe('IF', function() {
@@ -753,6 +981,21 @@ describe('XLSX_CALC', function() {
             assert.deepEqual(workbook.Sheets.Sheet1.A1.v, ['A2',1,0]);
         });
     });
+
+    describe('ISERROR', function () {
+        it('returns true if in error', function () {
+            workbook.Sheets.Sheet1.A1 = { f: "0/0" };
+            workbook.Sheets.Sheet1.A2 = { f: "ISERROR(A1)" };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, true);
+        });
+        it('returns false if in not in error', function () {
+            workbook.Sheets.Sheet1.A1 = { f: "2*3" };
+            workbook.Sheets.Sheet1.A2 = { f: "ISERROR(A1)" };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, false);
+        });
+    });
     
     describe('IFERROR', function() {
         it('returns the string Error', function() {
@@ -794,6 +1037,17 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A2.v, 'Error');
             assert.equal(workbook.Sheets.Sheet1.A2.t, 's');
         });
+        it('returns the string Error when using an error cell in a formula', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'e',
+                w: '#N/A',
+                v: errorValues['#N/A']
+            };
+            workbook.Sheets.Sheet1.A2 = { f: "IFERROR(2*A1, \"Error\")" };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, 'Error');
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 's');
+        });
     });
 
     describe('HLOOKUP', function () {
@@ -815,6 +1069,21 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.D1 = { f: "HLOOKUP(\"Bearings\", A1:C4, 3, FALSE)" };
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.D1.v, 7);
+        });
+        it('returns #N/A error when used with an empty needle', function () {
+            workbook.Sheets.Sheet1 = {
+                A1: { v: "a" },
+                A2: { v: "b" },
+                A3: { v: "c" },
+                B1: { v: "1" },
+                B2: { v: "2" },
+                B3: { v: "3" },
+                C1: { f: 'HLOOKUP(C2, A1:B3, 2, FALSE)'}
+            };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.t, "e");
+            assert.equal(workbook.Sheets.Sheet1.C1.v, 42);
+            assert.equal(workbook.Sheets.Sheet1.C1.w, "#N/A");
         });
     });
 
@@ -933,6 +1202,48 @@ describe('XLSX_CALC', function() {
             
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.C1.v, 54);
+        });
+        it('should transmit error if any cell in range is in error', function () {
+            workbook.Sheets.Sheet1 = {
+                A1: { t: "e", v: 42, w: "#N/A" },
+                A2: { t: "n", v: 0.5 },
+                A3: { t: "n", v: 0 },
+                B1: { t: "n", v: 0.1, w: "10%" },
+                B2: { t: "n", v: 0.2, w: "20%" },
+                B3: { t: "n", v: 0, w: "0%" },
+                C1: { f: "SUMPRODUCT(A1:A3, B1:B3)" }
+            };
+            
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.t, "e");
+            assert.equal(workbook.Sheets.Sheet1.C1.v, 42);
+            assert.equal(workbook.Sheets.Sheet1.C1.w, "#N/A");
+        });
+        it('should transmit error if any cell in range is in error even in a range with empty cells', function () {
+            workbook.Sheets.Sheet1 = {
+                A16: { t: "e", v: 42, w: "#N/A" },
+                A17: { t: "n", v: 0.5, w: "0.5" },
+                A18: { t: "n", v: 0, w: " -    " },
+                A21: { t: "n", v: 1, w: "0.5" },
+                A22: { t: "n", v: 1, w: " 1.00    " },
+                A24: { t: "n", v: 1, w: "0.5" },
+                A26: { t: "n", v: 1, w: "1" },
+                A28: { t: "n", v: 1, w: "0" },
+                B16: { t: "n", v: 0.1, w: "10%" },
+                B17: { t: "n", v: 0.2, w: "20%" },
+                B18: { t: "n", v: 0, w: "0%" },
+                B21: { t: "n", v: 0.15, w: "15%" },
+                B22: { t: "n", v: 0, w: "0%" },
+                B24: { t: "n", v: 0.05, w: "5%" },
+                B26: { t: "n", v: 0.1, w: "10%" },
+                B28: { t: "n", v: 0.1, w: "10%" },
+                C1: { f: "SUMPRODUCT(A16:A29, B16:B29)" }
+            };
+            
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.t, "e");
+            assert.equal(workbook.Sheets.Sheet1.C1.v, 42);
+            assert.equal(workbook.Sheets.Sheet1.C1.w, "#N/A");
         });
     });
     

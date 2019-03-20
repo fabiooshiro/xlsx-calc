@@ -5,6 +5,8 @@ const RefValue = require('./RefValue.js');
 const Range = require('./Range.js');
 const str_2_val = require('./str_2_val.js');
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
 var exp_id = 0;
 
 module.exports = function Exp(formula) {
@@ -17,6 +19,11 @@ module.exports = function Exp(formula) {
     
     function update_cell_value() {
         try {
+            if (Array.isArray(self.args) 
+                    && self.args.length === 1
+                    && self.args[0] instanceof Range) {
+                throw Error('#VALUE!');
+            }
             formula.cell.v = self.calc();
             if (typeof(formula.cell.v) === 'string') {
                 formula.cell.t = 's';
@@ -48,6 +55,9 @@ module.exports = function Exp(formula) {
         finally {
             formula.status = 'done';
         }
+    }
+    function isEmpty(value) {
+        return value === undefined || value === null || value === "";
     }
     
     function checkVariable(obj) {
@@ -84,13 +94,23 @@ module.exports = function Exp(formula) {
         for (var i = args.length; i--;) {
             if (args[i] === '-') {
                 checkVariable(args[i + 1]);
-                var r = -args[i + 1].calc();
-                if (typeof args[i - 1] !== 'string' && i > 0) {
+                var b = args[i + 1].calc();
+                if (i > 0 && typeof args[i - 1] !== 'string') {
                     args.splice(i, 1, '+');
-                    args.splice(i + 1, 1, new RawValue(r));
+                    if (b instanceof Date) {
+                        b = Date.parse(b);
+                        checkVariable(args[i - 1]);
+                        var a = args[i - 1].calc();
+                        if (a instanceof Date) {
+                            a = Date.parse(a) / MS_PER_DAY;
+                            b = b / MS_PER_DAY;
+                            args.splice(i - 1, 1, new RawValue(a));
+                        }
+                    }
+                    args.splice(i + 1, 1, new RawValue(-b));
                 }
                 else {
-                    args.splice(i, 2, new RawValue(r));
+                    args.splice(i, 2, new RawValue(-b));
                 }
             }
         }
@@ -112,6 +132,9 @@ module.exports = function Exp(formula) {
             return (+a) * (+b);
         });
         exec('+', args, function(a, b) {
+            if (a instanceof Date && typeof b === 'number') {
+                b = b * MS_PER_DAY;
+            }
             return (+a) + (+b);
         });
         exec('&', args, function(a, b) {
@@ -130,9 +153,21 @@ module.exports = function Exp(formula) {
             return a <= b;
         });
         exec('<>', args, function(a, b) {
+            if (a instanceof Date && b instanceof Date) {
+                return a.getTime() !== b.getTime();
+            }
+            if (isEmpty(a) && isEmpty(b)) {
+                return false;
+            }
             return a != b;
         });
         exec('=', args, function(a, b) {
+            if (a instanceof Date && b instanceof Date) {
+                return a.getTime() === b.getTime();
+            }
+            if (isEmpty(a) && isEmpty(b)) {
+                return true;
+            }
             return a == b;
         });
         if (args.length == 1) {

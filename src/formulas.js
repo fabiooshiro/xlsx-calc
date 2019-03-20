@@ -33,8 +33,17 @@ let formulas = {
     'INDEX': index,
     'MATCH': match,
     'SUMPRODUCT': sumproduct,
-    'ISNUMBER': isnumber
+    'ISNUMBER': isnumber,
+    'TODAY': today,
+    'ISERROR': iserror,
+    'TIME': time
 };
+
+function today() {
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+}
 
 function isnumber(x) {
     return !isNaN(x);
@@ -74,6 +83,35 @@ function sumproduct() {
     }
     if (!consistentSizeRanges(arguments)) {
         throw Error('#VALUE!');
+    }
+    // throw error if any of the cells passed in arguments is in error
+    for (var i = 0; i < arguments.length; i++) {
+        var row = arguments[i];
+        if (Array.isArray(row)) {
+            for (var j = 0; j < row.length; j++) {
+                var col = row[j];
+                if (Array.isArray(col)) {
+                    for (var k = 0; k < col.length; k++) {
+                        var cell = col[k];
+                        if (cell && typeof cell === 'object' && cell.t === 'e') {
+                            throw Error(cell.w);
+                        }
+                    }
+                }
+                else {
+                    var cell = col;
+                    if (cell && typeof cell === 'object' && cell.t === 'e') {
+                        throw Error(cell.w);
+                    }
+                }
+            }
+        }
+        else {
+            var cell = row;
+            if (cell && typeof cell === 'object' && cell.t === 'e') {
+                throw Error(cell.w);
+            }
+        }
     }
 
     var arrays = arguments.length + 1;
@@ -201,7 +239,7 @@ function index(matrix, row_num, column_num) {
 // impl ported from https://github.com/FormulaPages/hlookup
 function hlookup(needle, table, index, exactmatch) {
     if (typeof needle === "undefined" || (0, is_blank)(needle)) {
-        return null;
+        throw Error('#N/A');
     }
 
     index = index || 0;
@@ -536,11 +574,21 @@ function max() {
         if (Array.isArray(arg)) {
             var arr = arg;
             for (var j = arr.length; j--;) {
-                max = max == null || max < arr[j] ? arr[j] : max;
+                var col = arr[j];
+                if (Array.isArray(col)) {
+                    for (var k = col.length; k--;) {
+                        if (max == null || (col[k] != null && max < col[k])) {
+                            max = col[k];
+                        }
+                    }
+                }
+                else if (max == null || (col != null && max < col)) {
+                    max = col;
+                }
             }
         }
-        else if (!isNaN(arg)) {
-            max = max == null || max < arg ? arg : max;
+        else if (!isNaN(arg) && (max == null || (arg != null && max < arg))) {
+            max = arg;
         }
         else {
             console.log('WTF??', arg);
@@ -550,23 +598,33 @@ function max() {
 }
 
 function min() {
-    var result = null;
+    var min = null;
     for (var i = arguments.length; i--;) {
         var arg = arguments[i];
         if (Array.isArray(arg)) {
             var arr = arg;
             for (var j = arr.length; j--;) {
-                result = result == null || result > arr[j] ? arr[j] : result;
+                var col = arr[j];
+                if (Array.isArray(col)) {
+                    for (var k = col.length; k--;) {
+                        if (min == null || (col[k] != null && min > col[k])) {
+                            min = col[k];
+                        }
+                    }
+                }
+                else if (min == null || (col != null && min > col)) {
+                    min = col;
+                }
             }
         }
-        else if (!isNaN(arg)) {
-            result = result == null || result > arg ? arg : result;
+        else if (!isNaN(arg) && (min == null || (arg != null && min > arg))) {
+            min = arg;
         }
         else {
             console.log('WTF??', arg);
         }
     }
-    return result;
+    return min;
 }
 
 function vlookup(key, matrix, return_index) {
@@ -576,6 +634,17 @@ function vlookup(key, matrix, return_index) {
         }
     }
     throw Error('#N/A');
+}
+
+function iserror() {
+    // if an error is catched before getting there, true will be returned from the catch block
+    // if we get here then it's not an error
+    return false;
+}
+
+function time(hours, minutes, seconds) {
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+    return ((hours * 60 + minutes) * 60 + seconds) * 1000 / MS_PER_DAY;
 }
 
 module.exports = formulas;

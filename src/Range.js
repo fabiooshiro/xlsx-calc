@@ -42,10 +42,20 @@ module.exports = function Range(str_expression, formula) {
                     else if (formula.formula_ref[cell_full_name].status === 'working') {
                         throw new Error('Circular ref');
                     }
-                    row.push(sheet[cell_name].v);
+                    if (sheet[cell_name].t === 'e') {
+                        row.push(sheet[cell_name]);
+                    }
+                    else {
+                        row.push(sheet[cell_name].v);
+                    }
                 }
                 else if (sheet[cell_name]) {
-                    row.push(sheet[cell_name].v);
+                    if (sheet[cell_name].t === 'e') {
+                        row.push(sheet[cell_name]);
+                    }
+                    else {
+                        row.push(sheet[cell_name].v);
+                    }
                 }
                 else {
                     row.push(null);
