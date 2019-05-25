@@ -52,4 +52,12 @@ describe('XLSX with XLSX_CALC', function() {
         assert_values(original_sheet, workbook.Sheets.OffSet);
     });
 
+    it('handles the sheet name', function() {
+        var workbook = XLSX.readFile('test/tias.xlsx');
+        erase_values_that_contains_formula(workbook.Sheets);
+        var original_sheet = XLSX.readFile('test/tias.xlsx').Sheets.Sheet2;
+        XLSX_CALC(workbook);
+        assert_values(original_sheet, workbook.Sheets.Sheet2);
+    });
+
 });
