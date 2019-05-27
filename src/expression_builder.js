@@ -92,12 +92,12 @@ module.exports = function expression_builder(formula, opts) {
         }
     }
 
-    function add_operation() {
+    function add_operation(char) {
         if (!was_string) {
             exp_obj.push(buffer);
         }
         was_string = false;
-        exp_obj.push(str_formula[i]);
+        exp_obj.push(char);
         buffer = '';
     }
 
@@ -113,7 +113,7 @@ module.exports = function expression_builder(formula, opts) {
         } else if (char === ')') {
             end_parentheses();
         } else if (common_operations[char]) {
-            add_operation();
+            add_operation(char);
         } else if (char === ',' && fn_stack[fn_stack.length - 1].special) {
             was_string = false;
             fn_stack[fn_stack.length - 1].exp.push(buffer);

@@ -1,27 +1,10 @@
 "use strict";
 
-const Exp = require('./Exp.js');
-const RawValue = require('./RawValue.js');
-const UserFnExecutor = require('./UserFnExecutor.js');
-const UserRawFnExecutor = require('./UserRawFnExecutor.js');
-
 var xlsx_Fx = {};
 var xlsx_raw_Fx = {};
 
 import_functions(require('./formulas.js'));
 import_raw_functions(require('./formulas-raw.js'));
-
-const common_operations = {
-    '*': 'multiply',
-    '+': 'plus',
-    '-': 'minus',
-    '/': 'divide',
-    '^': 'power',
-    '&': 'concat',
-    '<': 'lt',
-    '>': 'gt',
-    '=': 'eq'
-};
 
 function import_raw_functions(functions, opts) {
     for (var key in functions) {
