@@ -7,6 +7,9 @@ module.exports = function str_2_val(buffer, formula) {
     if (!isNaN(buffer)) {
         v = new RawValue(+buffer);
     }
+    else if (buffer === 'TRUE') {
+        v = new RawValue(1);
+    }
     else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
         v = new Range(buffer.trim().replace(/\$/g, ''), formula);
     }

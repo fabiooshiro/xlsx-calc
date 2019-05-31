@@ -30,6 +30,13 @@ describe('Bugs', function() {
             }
         };
     });
+    it('should understand TRUE', function() {
+        workbook.Sheets.Sheet1.A1.f = '=IF(L4=TRUE,L464,0)';
+        workbook.Sheets.Sheet1.L464 = { v: 24 };
+        workbook.Sheets.Sheet1.L4 = { v: 1 };
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.A1.v, 24);
+    });
     it('should consider the end of string', function() {
         workbook.Sheets.Sheet1.A1.f = 'IF($C$3<=0,"Tempo de Investimento Invalido",IF($C$3<=24,"x","y"))';
         workbook.Sheets.Sheet1.C3 = { v: 24 };
