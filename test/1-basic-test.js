@@ -667,6 +667,69 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A5.v.getTime(), 1547078400000);
         });
     });
+    describe('DAY', function () {
+        it('should return day of date value', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-05-01'),
+                w: '2019-05-01'
+            };
+            workbook.Sheets.Sheet1.A2 = { f: 'DAY(A1)' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, 1);
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 'n');
+        });
+        it('should throw #VALUE error if applied to an invalid date', function () {
+            workbook.Sheets.Sheet1.A1 = { v: 'AAA' };
+            workbook.Sheets.Sheet1.A2 = { f: 'DAY(A1)' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 'e');
+            assert.equal(workbook.Sheets.Sheet1.A2.w, '#VALUE!');
+            assert.equal(workbook.Sheets.Sheet1.A2.v, errorValues['#VALUE!']);
+        });
+    });
+    describe('MONTH', function () {
+        it('should return month of date value', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-05-01'),
+                w: '2019-05-01'
+            };
+            workbook.Sheets.Sheet1.A2 = { f: 'MONTH(A1)' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, 5);
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 'n');
+        });
+        it('should throw #VALUE error if applied to an invalid date', function () {
+            workbook.Sheets.Sheet1.A1 = { v: 'AAA' };
+            workbook.Sheets.Sheet1.A2 = { f: 'MONTH(A1)' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 'e');
+            assert.equal(workbook.Sheets.Sheet1.A2.w, '#VALUE!');
+            assert.equal(workbook.Sheets.Sheet1.A2.v, errorValues['#VALUE!']);
+        });
+    });
+    describe('YEAR', function () {
+        it('should return year of date value', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-05-01'),
+                w: '2019-05-01'
+            };
+            workbook.Sheets.Sheet1.A2 = { f: 'YEAR(A1)' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, 2019);
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 'n');
+        });
+        it('should throw #VALUE error if applied to an invalid date', function () {
+            workbook.Sheets.Sheet1.A1 = { v: 'AAA' };
+            workbook.Sheets.Sheet1.A2 = { f: 'YEAR(A1)' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 'e');
+            assert.equal(workbook.Sheets.Sheet1.A2.w, '#VALUE!');
+            assert.equal(workbook.Sheets.Sheet1.A2.v, errorValues['#VALUE!']);
+        });
+    });
     describe('IF', function() {
         it('should exec true', function() {
             workbook.Sheets.Sheet1.A1.f = 'IF(1<2,123,0)';
