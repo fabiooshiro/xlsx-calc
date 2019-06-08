@@ -36,7 +36,10 @@ let formulas = {
     'ISNUMBER': isnumber,
     'TODAY': today,
     'ISERROR': iserror,
-    'TIME': time
+    'TIME': time,
+    'DAY': day,
+    'MONTH': month,
+    'YEAR': year
 };
 
 function today() {
@@ -645,6 +648,39 @@ function iserror() {
 function time(hours, minutes, seconds) {
     const MS_PER_DAY = 24 * 60 * 60 * 1000;
     return ((hours * 60 + minutes) * 60 + seconds) * 1000 / MS_PER_DAY;
+}
+
+function day(date) {
+    if (!date.getDate) {
+        throw Error('#VALUE!');
+    }
+    var day = date.getDate();
+    if (isNaN(day)) {
+        throw Error('#VALUE!');
+    }
+    return day;
+}
+
+function month(date) {
+    if (!date.getMonth) {
+        throw Error('#VALUE!');
+    }
+    var month = date.getMonth();
+    if (isNaN(month)) {
+        throw Error('#VALUE!');
+    }
+    return month + 1;
+}
+
+function year(date) {
+    if (!date.getFullYear) {
+        throw Error('#VALUE!');
+    }
+    var year = date.getFullYear();
+    if (isNaN(year)) {
+        throw Error('#VALUE!');
+    }
+    return year;
 }
 
 module.exports = formulas;
