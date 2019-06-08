@@ -167,7 +167,7 @@ module.exports = function Exp(formula) {
             if (isEmpty(a) && isEmpty(b)) {
                 return true;
             }
-            if ((a === undefined && b === 0) || (a === 0 && b === undefined)) {
+            if ((a == null && b === 0) || (a === 0 && b == null)) {
                 return true;
             }
             return a == b;

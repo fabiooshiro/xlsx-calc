@@ -101,7 +101,7 @@ describe('Bugs', function() {
         assert.equal(sheet.B3.v, "I told you 10 times.");
     });
     
-    it('undefined is equal 0 in excel', () => {
+    it('null is equal 0 in excel', () => {
         let workbook = {
             Sheets: {
                 Sample: {
