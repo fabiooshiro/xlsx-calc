@@ -101,6 +101,20 @@ describe('Bugs', function() {
         assert.equal(sheet.B3.v, "I told you 10 times.");
     });
     
+    it('undefined is equal 0 in excel', () => {
+        let workbook = {
+            Sheets: {
+                Sample: {
+                    A1: {  },
+                    A2: { f: 'IF(A1=0,"OK","Not Ok")' },
+                }
+            }
+        };
+        XLSX_CALC(workbook);
+        let sheet = workbook.Sheets.Sample;
+        assert.equal(sheet.A2.v, "OK");
+    });
+    
     describe('"ref is an error with new formula" error thrown when executing a formula containing a number division by a blank cell', () => {
         it('should not run that division', () => {
             let workbook = {
@@ -128,6 +142,7 @@ describe('Bugs', function() {
             let sheet = workbook.Sheets.Sample;
             assert.equal(sheet.A2.v, "Number cannot be 0");
         });
+        
     });
     
 });
