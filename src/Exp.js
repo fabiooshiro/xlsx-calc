@@ -170,6 +170,9 @@ module.exports = function Exp(formula) {
             if ((a == null && b === 0) || (a === 0 && b == null)) {
                 return true;
             }
+            if (typeof a === 'string' && typeof b === 'string' && a.toLowerCase() === b.toLowerCase()) {
+                return true;
+            }
             return a == b;
         });
         if (args.length == 1) {

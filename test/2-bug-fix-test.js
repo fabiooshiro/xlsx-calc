@@ -101,7 +101,7 @@ describe('Bugs', function() {
         assert.equal(sheet.B3.v, "I told you 10 times.");
     });
     
-    it('null is equal 0 in excel', () => {
+    it('fixes null is equal 0 in excel', () => {
         let workbook = {
             Sheets: {
                 Sample: {
@@ -113,6 +113,19 @@ describe('Bugs', function() {
         XLSX_CALC(workbook);
         let sheet = workbook.Sheets.Sample;
         assert.equal(sheet.A2.v, "OK");
+    });
+    
+    it('fixes Excel string comparison is case insensitive', () => {
+        let workbook = {
+            Sheets: {
+                Sample: {
+                    A1: { f: 'IF("a"="A","OK","Not Ok")' },
+                }
+            }
+        };
+        XLSX_CALC(workbook);
+        let sheet = workbook.Sheets.Sample;
+        assert.equal(sheet.A1.v, "OK");
     });
     
     describe('"ref is an error with new formula" error thrown when executing a formula containing a number division by a blank cell', () => {
