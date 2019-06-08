@@ -1327,6 +1327,19 @@ describe('XLSX_CALC', function() {
         });
     });
     
+    describe('localizeFunctions', () => {
+        it('makes an alias to CONCATENATE', () => {
+            workbook.Sheets.Sheet1 = {
+                A1: { f: 'CONCAT("Hello"," ","world")' }
+            };
+            XLSX_CALC.localizeFunctions({
+                CONCAT: 'CONCATENATE'
+            });
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'Hello world');
+        });
+    });
+    
     // describe('HELLO', function() {
     //     it('says: Hello, World!', function() {
     //         workbook.Sheets.Sheet1.A1.f = 'HELLO("World")';

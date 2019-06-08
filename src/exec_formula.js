@@ -1,7 +1,9 @@
 "use strict";
 
-var xlsx_Fx = {};
-var xlsx_raw_Fx = {};
+const expression_builder = require('./expression_builder.js');
+
+let xlsx_Fx = {};
+let xlsx_raw_Fx = {};
 
 import_functions(require('./formulas.js'));
 import_raw_functions(require('./formulas-raw.js'));
@@ -41,7 +43,6 @@ function my_assign(dest, source) {
     return obj;
 }
 
-const expression_builder = require('./expression_builder.js');
 function build_expression(formula) {
     return expression_builder(formula, {xlsx_Fx: xlsx_Fx, xlsx_raw_Fx: xlsx_raw_Fx});
 }
@@ -57,6 +58,18 @@ exec_formula.set_fx = function set_fx(name, fn) {
 
 exec_formula.exec_fx = function exec_fx(name, args) {
     return xlsx_Fx[name].apply(this, args);
+};
+
+exec_formula.localizeFunctions = function(dic) {
+    for (let newName in dic) {
+        let oldName = dic[newName];
+        if (xlsx_Fx[oldName]) {
+            xlsx_Fx[newName] = xlsx_Fx[oldName];
+        }
+        if (xlsx_raw_Fx[oldName]) {
+            xlsx_raw_Fx[newName] = xlsx_raw_Fx[oldName];
+        }
+    }
 };
 
 exec_formula.import_functions = import_functions;
