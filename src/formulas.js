@@ -163,7 +163,7 @@ function match_less_than_or_equal(matrix, lookupValue) {
             }
         }
     }
-    if (!index ) {
+    if (!index) {
         throw Error('#N/A');
     }
     return index;
@@ -220,7 +220,7 @@ function match_greater_than_or_equal(matrix, lookupValue) {
             }
         }
     }
-    if (!index ) {
+    if (!index) {
         throw Error('#N/A');
     }
     return index;
