@@ -147,6 +147,85 @@ function sumproduct() {
     return result;
 }
 
+function match_less_than_or_equal(matrix, lookupValue) {
+    var index;
+    var indexValue;
+    for (var idx = 0; idx < matrix.length; idx++) {
+        if (matrix[idx] === lookupValue) {
+            return idx + 1;
+        } else if (matrix[idx] < lookupValue) {
+            if (!indexValue) {
+                index = idx + 1;
+                indexValue = matrix[idx];
+            } else if (matrix[idx] > indexValue) {
+                index = idx + 1;
+                indexValue = matrix[idx];
+            }
+        }
+    }
+    if (!index ) {
+        throw Error('#N/A');
+    }
+    return index;
+}
+
+function match_exactly_string(matrix, lookupValue) {
+    for (var idx = 0; idx < matrix.length; idx++) {
+        lookupValue = lookupValue.replace(/\?/g, '.');
+        if (Array.isArray(matrix[idx])) {
+            if (matrix[idx].length === 1
+                && typeof matrix[idx][0] === 'string') {
+                    if (matrix[idx][0].toLowerCase() === lookupValue.toLowerCase()) {
+                        return idx + 1;
+                    }
+                } 
+        } else if (typeof matrix[idx] === 'string') {
+            if (matrix[idx].toLowerCase() === lookupValue.toLowerCase()) {
+                return idx + 1;
+            }
+        }
+       
+    }
+    throw Error('#N/A');
+}
+
+function match_exactly_non_string(matrix, lookupValue) {
+    for (var idx = 0; idx < matrix.length; idx++) {
+        if (Array.isArray(matrix[idx])) {
+            if (matrix[idx].length === 1) {
+                if (matrix[idx][0] === lookupValue) {
+                    return idx + 1;
+                }
+            }
+        } else if (matrix[idx] === lookupValue) {
+            return idx + 1;
+        }
+    }
+    throw Error('#N/A');
+}
+
+function match_greater_than_or_equal(matrix, lookupValue) {
+    var index;
+    var indexValue;
+    for (var idx = 0; idx < matrix.length; idx++) {
+        if (matrix[idx] === lookupValue) {
+            return idx + 1;
+        } else if (matrix[idx] > lookupValue) {
+            if (!indexValue) {
+                index = idx + 1;
+                indexValue = matrix[idx];
+            } else if (matrix[idx] < indexValue) {
+                index = idx + 1;
+                indexValue = matrix[idx];
+            }
+        }
+    }
+    if (!index ) {
+        throw Error('#N/A');
+    }
+    return index;
+}
+
 function match(lookupValue, matrix, matchType) {
     if (Array.isArray(matrix) 
         && matrix.length === 1
@@ -156,71 +235,25 @@ function match(lookupValue, matrix, matchType) {
     if (!lookupValue && !matrix) {
         throw Error('#N/A');
     }
-    
     if (arguments.length === 2) {
         matchType = 1;
     }
     if (!(matrix instanceof Array)) {
         throw Error('#N/A');
     }
-
-    if (matchType !== -1 && matchType !== 0 && matchType !== 1) {
-        throw Error('#N/A');
-    }
-    var index;
-    var indexValue;
-    for (var idx = 0; idx < matrix.length; idx++) {
-        if (matchType === 1) {
-            if (matrix[idx] === lookupValue) {
-                return idx + 1;
-            } else if (matrix[idx] < lookupValue) {
-                if (!indexValue) {
-                    index = idx + 1;
-                    indexValue = matrix[idx];
-                } else if (matrix[idx] > indexValue) {
-                    index = idx + 1;
-                    indexValue = matrix[idx];
-                }
-            }
-        } else if (matchType === 0) {
-            if (typeof lookupValue === 'string') {
-                lookupValue = lookupValue.replace(/\?/g, '.');
-
-                if (Array.isArray(matrix[idx])) {
-                    if (matrix[idx].length === 1
-                        && typeof matrix[idx][0] === 'string') {
-                            if (matrix[idx][0].toLowerCase() === lookupValue.toLowerCase()) {
-                                return idx + 1;
-                            }
-                        } 
-                } else if (typeof matrix[idx] === 'string') {
-                    if (matrix[idx].toLowerCase() === lookupValue.toLowerCase()) {
-                        return idx + 1;
-                    }
-                }
-            } else {
-                if (matrix[idx] === lookupValue) {
-                    return idx + 1;
-                }
-            }
-        } else if (matchType === -1) {
-            if (matrix[idx] === lookupValue) {
-                return idx + 1;
-            } else if (matrix[idx] > lookupValue) {
-                if (!indexValue) {
-                    index = idx + 1;
-                    indexValue = matrix[idx];
-                } else if (matrix[idx] < indexValue) {
-                    index = idx + 1;
-                    indexValue = matrix[idx];
-                }
-            }
+    if (matchType === 0) {
+        if (typeof lookupValue === 'string') {
+            return match_exactly_string(matrix, lookupValue);
+        } else {
+            return match_exactly_non_string(matrix, lookupValue);
         }
-    }
-    if (!index ) {
+    } else if (matchType === 1) {
+        return match_less_than_or_equal(matrix, lookupValue);
+    } else if (matchType === -1) {
+        return match_greater_than_or_equal(matrix, lookupValue);
+    } else {
         throw Error('#N/A');
     }
-    return index;
 }
 
 function index(matrix, row_num, column_num) {
