@@ -30,6 +30,13 @@ describe('Bugs', function() {
             }
         };
     });
+    it('should understand TRUE', function() {
+        workbook.Sheets.Sheet1.A1.f = '=IF(L4=TRUE,L464,0)';
+        workbook.Sheets.Sheet1.L464 = { v: 24 };
+        workbook.Sheets.Sheet1.L4 = { v: 1 };
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.A1.v, 24);
+    });
     it('should consider the end of string', function() {
         workbook.Sheets.Sheet1.A1.f = 'IF($C$3<=0,"Tempo de Investimento Invalido",IF($C$3<=24,"x","y"))';
         workbook.Sheets.Sheet1.C3 = { v: 24 };
@@ -94,6 +101,33 @@ describe('Bugs', function() {
         assert.equal(sheet.B3.v, "I told you 10 times.");
     });
     
+    it('fixes null is equal 0 in excel', () => {
+        let workbook = {
+            Sheets: {
+                Sample: {
+                    A1: {  },
+                    A2: { f: 'IF(A1=0,"OK","Not Ok")' },
+                }
+            }
+        };
+        XLSX_CALC(workbook);
+        let sheet = workbook.Sheets.Sample;
+        assert.equal(sheet.A2.v, "OK");
+    });
+    
+    it('fixes Excel string comparison is case insensitive', () => {
+        let workbook = {
+            Sheets: {
+                Sample: {
+                    A1: { f: 'IF("a"="A","OK","Not Ok")' },
+                }
+            }
+        };
+        XLSX_CALC(workbook);
+        let sheet = workbook.Sheets.Sample;
+        assert.equal(sheet.A1.v, "OK");
+    });
+    
     describe('"ref is an error with new formula" error thrown when executing a formula containing a number division by a blank cell', () => {
         it('should not run that division', () => {
             let workbook = {
@@ -121,6 +155,7 @@ describe('Bugs', function() {
             let sheet = workbook.Sheets.Sample;
             assert.equal(sheet.A2.v, "Number cannot be 0");
         });
+        
     });
     
 });

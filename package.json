@@ -1,6 +1,6 @@
 {
   "name": "xlsx-calc",
-  "version": "0.5.10",
+  "version": "0.6.0",
   "description": "A simple xlsx formula calculator.",
   "main": "lib/xlsx-calc.js",
   "repository": "git@github.com:fabiooshiro/xlsx-calc.git",
@@ -17,6 +17,7 @@
     "grunt-contrib-jshint": "^0.11.3",
     "grunt-contrib-uglify": "^0.9.2",
     "mocha": "^5.2.0",
+    "nyc": "^14.1.1",
     "webpack": "^4.6.0",
     "webpack-cli": "^2.1.2",
     "xlsx": "^0.8.0"

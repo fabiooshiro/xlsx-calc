@@ -1,7 +1,6 @@
 "use strict";
 
 const RawValue = require('./RawValue.js');
-const RefValue = require('./RefValue.js');
 const Range = require('./Range.js');
 const str_2_val = require('./str_2_val.js');
 
@@ -72,12 +71,12 @@ module.exports = function Exp(formula) {
                 try {
                     if (i===0 && op==='+') {
                         checkVariable(args[i + 1]);
-                        var r = args[i + 1].calc();
+                        let r = args[i + 1].calc();
                         args.splice(i, 2, new RawValue(r));
                     } else {
                         checkVariable(args[i - 1]);
                         checkVariable(args[i + 1]);
-                        var r = fn(args[i - 1].calc(), args[i + 1].calc());
+                        let r = fn(args[i - 1].calc(), args[i + 1].calc());
                         args.splice(i - 1, 3, new RawValue(r));
                         i--;
                     }
@@ -166,6 +165,12 @@ module.exports = function Exp(formula) {
                 return a.getTime() === b.getTime();
             }
             if (isEmpty(a) && isEmpty(b)) {
+                return true;
+            }
+            if ((a == null && b === 0) || (a === 0 && b == null)) {
+                return true;
+            }
+            if (typeof a === 'string' && typeof b === 'string' && a.toLowerCase() === b.toLowerCase()) {
                 return true;
             }
             return a == b;
