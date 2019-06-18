@@ -39,7 +39,9 @@ let formulas = {
     'TIME': time,
     'DAY': day,
     'MONTH': month,
-    'YEAR': year
+    'YEAR': year,
+    'RIGHT': right,
+    'LEFT': left
 };
 
 function today() {
@@ -714,6 +716,34 @@ function year(date) {
         throw Error('#VALUE!');
     }
     return year;
+}
+
+function right(text, number) {
+    number = (number === undefined) ? 1 : parseFloat(number);
+
+    if (isNaN(number)) {
+        throw Error('#VALUE!');
+    }
+    if (text === undefined || text === null) {
+        text = '';
+    } else {
+        text = '' + text;
+    }
+    return text.substring(text.length - number);   
+}
+
+function left(text, number) {
+    number = (number === undefined) ? 1 : parseFloat(number);
+
+    if (isNaN(number)) {
+        throw Error('#VALUE!');
+    }
+    if (text === undefined || text === null) {
+        text = '';
+    } else {
+        text = '' + text;
+    }
+    return text.substring(0, number);   
 }
 
 module.exports = formulas;
