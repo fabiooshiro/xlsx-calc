@@ -772,7 +772,7 @@ describe('XLSX_CALC', function() {
     });
 
     describe('LEFT', function () {
-        it('should return n last characters of a string value', function () {
+        it('should return n first characters of a string value', function () {
             workbook.Sheets.Sheet1.A1.v = 'test value';
             workbook.Sheets.Sheet1.A1.t = 'n';
             workbook.Sheets.Sheet1.A2.f = 'LEFT(A1, 2)';
@@ -780,7 +780,7 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A2.v, 'te');
             assert.equal(workbook.Sheets.Sheet1.A2.t, 's');
         });
-        it('should return n last characters of a numeric value', function () {
+        it('should return n first characters of a numeric value', function () {
             workbook.Sheets.Sheet1.A1.v = 2019;
             workbook.Sheets.Sheet1.A1.t = 'n';
             workbook.Sheets.Sheet1.A2.f = 'LEFT(A1, 2)';
