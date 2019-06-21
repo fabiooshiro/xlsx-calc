@@ -730,6 +730,87 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A2.v, errorValues['#VALUE!']);
         });
     });
+
+    describe('RIGHT', function () {
+        it('should return n last characters of a string value', function () {
+            workbook.Sheets.Sheet1.A1.v = 'test value';
+            workbook.Sheets.Sheet1.A1.t = 'n';
+            workbook.Sheets.Sheet1.A2.f = 'RIGHT(A1, 2)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, 'ue');
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 's');
+        });
+        it('should return n last characters of a numeric value', function () {
+            workbook.Sheets.Sheet1.A1.v = 2019;
+            workbook.Sheets.Sheet1.A1.t = 'n';
+            workbook.Sheets.Sheet1.A2.f = 'RIGHT(A1, 2)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, '19');
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 's');
+        });
+        it('should work in combination with YEAR formula', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-05-01'),
+                w: '2019-05-01'
+            };
+            workbook.Sheets.Sheet1.B1 = { f: 'YEAR(A1)' };
+            workbook.Sheets.Sheet1.C1 = { f: 'RIGHT(B1, 2)' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.v, '19');
+            assert.equal(workbook.Sheets.Sheet1.C1.t, 's');
+        });
+        it('should throw a #VALUE! error when used with an incorrect nb_car parameter', function () {
+            workbook.Sheets.Sheet1.A1.v = 'test value';
+            workbook.Sheets.Sheet1.A1.t = 'n';
+            workbook.Sheets.Sheet1.A2.f = 'RIGHT(A1, "tutu")';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 'e');
+            assert.equal(workbook.Sheets.Sheet1.A2.w, '#VALUE!');
+            assert.equal(workbook.Sheets.Sheet1.A2.v, errorValues['#VALUE!']);
+        });
+    });
+
+    describe('LEFT', function () {
+        it('should return n first characters of a string value', function () {
+            workbook.Sheets.Sheet1.A1.v = 'test value';
+            workbook.Sheets.Sheet1.A1.t = 'n';
+            workbook.Sheets.Sheet1.A2.f = 'LEFT(A1, 2)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, 'te');
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 's');
+        });
+        it('should return n first characters of a numeric value', function () {
+            workbook.Sheets.Sheet1.A1.v = 2019;
+            workbook.Sheets.Sheet1.A1.t = 'n';
+            workbook.Sheets.Sheet1.A2.f = 'LEFT(A1, 2)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.v, '20');
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 's');
+        });
+        it('should work in combination with YEAR formula', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-05-01'),
+                w: '2019-05-01'
+            };
+            workbook.Sheets.Sheet1.B1 = { f: 'YEAR(A1)' };
+            workbook.Sheets.Sheet1.C1 = { f: 'LEFT(B1, 2)' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.v, '20');
+            assert.equal(workbook.Sheets.Sheet1.C1.t, 's');
+        });
+        it('should throw a #VALUE! error when used with an incorrect nb_car parameter', function () {
+            workbook.Sheets.Sheet1.A1.v = 'test value';
+            workbook.Sheets.Sheet1.A1.t = 'n';
+            workbook.Sheets.Sheet1.A2.f = 'LEFT(A1, "tutu")';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A2.t, 'e');
+            assert.equal(workbook.Sheets.Sheet1.A2.w, '#VALUE!');
+            assert.equal(workbook.Sheets.Sheet1.A2.v, errorValues['#VALUE!']);
+        });
+    });
+    
     describe('IF', function() {
         it('should exec true', function() {
             workbook.Sheets.Sheet1.A1.f = 'IF(1<2,123,0)';
