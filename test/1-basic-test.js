@@ -810,7 +810,7 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A2.v, errorValues['#VALUE!']);
         });
     });
-    
+
     describe('IF', function() {
         it('should exec true', function() {
             workbook.Sheets.Sheet1.A1.f = 'IF(1<2,123,0)';
@@ -912,7 +912,7 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, -122.6510706427692);
         });
-        
+
     });
     describe('COUNTA', function() {
         it('counts non empty cells', function() {
@@ -999,14 +999,14 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.A4 = {v: 0.03};
             workbook.Sheets.Sheet1.A5 = {v: 0.02};
             workbook.Sheets.Sheet1.A6 = {v: 0.02};
-            
+
             workbook.Sheets.Sheet1.B1 = {v: 0.1};
             workbook.Sheets.Sheet1.B2 = {v: 0.5};
             workbook.Sheets.Sheet1.B3 = {v: 0.2};
             workbook.Sheets.Sheet1.B4 = {v: 0.3};
             workbook.Sheets.Sheet1.B5 = {v: 0.2};
             workbook.Sheets.Sheet1.B6 = {v: 0.2};
-            
+
             workbook.Sheets.Sheet1.A7 = {f: 'COVARIANCE.P(A1:A6,B1:B6)'};
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A7.v.toFixed(8), 0.00158333);
@@ -1091,7 +1091,7 @@ describe('XLSX_CALC', function() {
         it('should set t = "s" for string values', function() {
             workbook.Sheets.Sheet1.A1 = { v: " some string " };
             workbook.Sheets.Sheet1.A2 = { f: "TRIM(A1)" };
-            
+
             /* calculate */
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A2.t, 's');
@@ -1100,7 +1100,7 @@ describe('XLSX_CALC', function() {
         it('should set t = "n" for numeric values', function() {
             workbook.Sheets.Sheet1.A1 = { v: " some string " };
             workbook.Sheets.Sheet1.A2 = { f: "LEN(TRIM(A1))" };
-            
+
             /* calculate */
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A2.t, 'n');
@@ -1140,7 +1140,7 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A2.v, false);
         });
     });
-    
+
     describe('IFERROR', function() {
         it('returns the string Error', function() {
             workbook.Sheets.Sheet1.A1 = { f: "IFERROR(A2,\"Error\")"};
@@ -1261,7 +1261,7 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.D1 = { v: 'Lime' };
             workbook.Sheets.Sheet1.E1 = { v: 'Carambola' };
             workbook.Sheets.Sheet1.F1 = { v: 'Grape' };
-            
+
             workbook.Sheets.Sheet1.B2 = { v: 'Carambola' };
             workbook.Sheets.Sheet1.B3 = { f: "MATCH(B2, A1:A4, 0)" };
             workbook.Sheets.Sheet1.B4 = { f: "MATCH(B2, A1:F1, 0)" };
@@ -1273,7 +1273,7 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.B3 = { v: 'Carambola' };
             workbook.Sheets.Sheet1.A3 = { f: "MATCH(B3, A1:B2, 0)" };
             XLSX_CALC(workbook);
-            
+
             assert.equal(workbook.Sheets.Sheet1.A3.t, 'e');
             assert.equal(workbook.Sheets.Sheet1.A3.w, '#N/A');
             assert.equal(workbook.Sheets.Sheet1.A3.v, errorValues['#N/A']);
@@ -1312,7 +1312,7 @@ describe('XLSX_CALC', function() {
                 D4: { v: 6 },
                 C1: { f: "SUMPRODUCT(A2:A4, D2:D4)" }
             };
-            
+
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.C1.v, 54);
         });
@@ -1343,7 +1343,7 @@ describe('XLSX_CALC', function() {
                 D3: { v: 6 },
                 C1: { f: "SUMPRODUCT(A1:A3, D1:D3)" }
             };
-            
+
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.C1.v, 54);
         });
@@ -1357,7 +1357,7 @@ describe('XLSX_CALC', function() {
                 B3: { t: "n", v: 0, w: "0%" },
                 C1: { f: "SUMPRODUCT(A1:A3, B1:B3)" }
             };
-            
+
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.C1.t, "e");
             assert.equal(workbook.Sheets.Sheet1.C1.v, 42);
@@ -1383,14 +1383,14 @@ describe('XLSX_CALC', function() {
                 B28: { t: "n", v: 0.1, w: "10%" },
                 C1: { f: "SUMPRODUCT(A16:A29, B16:B29)" }
             };
-            
+
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.C1.t, "e");
             assert.equal(workbook.Sheets.Sheet1.C1.v, 42);
             assert.equal(workbook.Sheets.Sheet1.C1.w, "#N/A");
         });
     });
-    
+
     describe('AND', () => {
         it('evaluates false', () => {
             workbook.Sheets.Sheet1 = {
@@ -1407,7 +1407,7 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 'ok');
         });
     });
-    
+
     describe('localizeFunctions', () => {
         it('makes an alias to CONCATENATE', () => {
             workbook.Sheets.Sheet1 = {
@@ -1420,7 +1420,7 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.v, 'Hello world');
         });
     });
-    
+
     // describe('HELLO', function() {
     //     it('says: Hello, World!', function() {
     //         workbook.Sheets.Sheet1.A1.f = 'HELLO("World")';
