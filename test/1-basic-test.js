@@ -1421,6 +1421,16 @@ describe('XLSX_CALC', function() {
         });
     });
 
+    describe('IFS', () => {
+        it("for every pair of values, returns the first value that resolves to true", () => {
+            workbook.Sheets.Sheet1 = {
+                A1: { f: 'IFS(0, "a", 0, "b", 1, "c")' }
+            };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'c');
+        })
+    })
+
     // describe('HELLO', function() {
     //     it('says: Hello, World!', function() {
     //         workbook.Sheets.Sheet1.A1.f = 'HELLO("World")';
