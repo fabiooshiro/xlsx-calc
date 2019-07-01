@@ -74,33 +74,33 @@ describe('Bugs', function() {
         XLSX_CALC(workbook);
         assert.equal(workbook.Sheets['A'].A1.v, 2000);
     });
-    
+
     it('some bug?', () => {
         let workbook = {
             Sheets: {
                 Sample: {
                     A1: { f: 'CONCATENATE("I"," told"," you ","10"," times",".")' },
                     A2: { f: 'CONCATENATE("I"," told"," you ","10"," times",".","")' },
-        
+
                     B1: { f: 'CONCATENATE("I"," told"," you ",SUM(1,2,3,4)," times",".","")' },
                     B2: { f: 'CONCATENATE("I"," told"," you ",SUM(1,2,3,SUM(4))," times",".","")' },
                     B3: { f: 'CONCATENATE("I"," told"," you ",SUM(1,2,3,SUM(4),0)," times",".","")' }
                 }
             }
         };
-        
+
         XLSX_CALC(workbook);
-        
+
         let sheet = workbook.Sheets.Sample;
-        
+
         assert.equal(sheet.A1.v, "I told you 10 times.");
         assert.equal(sheet.A2.v, "I told you 10 times.");
-        
+
         assert.equal(sheet.B1.v, "I told you 10 times.");
         assert.equal(sheet.B2.v, "I told you 10 times.");
         assert.equal(sheet.B3.v, "I told you 10 times.");
     });
-    
+
     it('fixes null is equal 0 in excel', () => {
         let workbook = {
             Sheets: {
@@ -114,7 +114,7 @@ describe('Bugs', function() {
         let sheet = workbook.Sheets.Sample;
         assert.equal(sheet.A2.v, "OK");
     });
-    
+
     it('fixes Excel string comparison is case insensitive', () => {
         let workbook = {
             Sheets: {
@@ -127,7 +127,21 @@ describe('Bugs', function() {
         let sheet = workbook.Sheets.Sample;
         assert.equal(sheet.A1.v, "OK");
     });
-    
+
+    it("fixes reference%", () => {
+        workbook.Sheets.Sheet1.A1.f = 'B3%';
+        workbook.Sheets.Sheet1.B3 = { v: 20 };
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.A1.v, 0.2);
+    })
+
+    it("fixes 20%", () => {
+        workbook.Sheets.Sheet1.A1.f = '20%';
+        workbook.Sheets.Sheet1.B3 = { v: 20 };
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.A1.v, 0.2);
+    })
+
     describe('"ref is an error with new formula" error thrown when executing a formula containing a number division by a blank cell', () => {
         it('should not run that division', () => {
             let workbook = {
@@ -155,7 +169,7 @@ describe('Bugs', function() {
             let sheet = workbook.Sheets.Sample;
             assert.equal(sheet.A2.v, "Number cannot be 0");
         });
-        
+
     });
-    
+
 });
