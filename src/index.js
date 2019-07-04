@@ -26,5 +26,6 @@ mymodule.import_raw_functions = exec_formula.import_raw_functions;
 mymodule.xlsx_Fx = exec_formula.xlsx_Fx;
 mymodule.localizeFunctions = exec_formula.localizeFunctions;
 
+mymodule.XLSX_CALC = mymodule
 
 module.exports = mymodule;
