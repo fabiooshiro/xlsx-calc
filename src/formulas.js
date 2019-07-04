@@ -41,7 +41,8 @@ let formulas = {
     'MONTH': month,
     'YEAR': year,
     'RIGHT': right,
-    'LEFT': left
+    'LEFT': left,
+    'IFS': ifs
 };
 
 function today() {
@@ -130,7 +131,7 @@ function sumproduct() {
             product = 1;
             for (k = 1; k < arrays; k++) {
                 _i = parseNumber(arguments[k - 1][i]);
-                
+
                 product *= _i;
             }
             result += product;
@@ -139,7 +140,7 @@ function sumproduct() {
                 product = 1;
                 for (k = 1; k < arrays; k++) {
                     _ij = parseNumber(arguments[k - 1][i][j]);
-                    
+
                     product *= _ij;
                 }
                 result += product;
@@ -180,13 +181,13 @@ function match_exactly_string(matrix, lookupValue) {
                     if (matrix[idx][0].toLowerCase() === lookupValue.toLowerCase()) {
                         return idx + 1;
                     }
-                } 
+                }
         } else if (typeof matrix[idx] === 'string') {
             if (matrix[idx].toLowerCase() === lookupValue.toLowerCase()) {
                 return idx + 1;
             }
         }
-       
+
     }
     throw Error('#N/A');
 }
@@ -229,7 +230,7 @@ function match_greater_than_or_equal(matrix, lookupValue) {
 }
 
 function match(lookupValue, matrix, matchType) {
-    if (Array.isArray(matrix) 
+    if (Array.isArray(matrix)
         && matrix.length === 1
         && Array.isArray(matrix[0])) {
         matrix = matrix[0];
@@ -729,7 +730,7 @@ function right(text, number) {
     } else {
         text = '' + text;
     }
-    return text.substring(text.length - number);   
+    return text.substring(text.length - number);
 }
 
 function left(text, number) {
@@ -743,7 +744,18 @@ function left(text, number) {
     } else {
         text = '' + text;
     }
-    return text.substring(0, number);   
+    return text.substring(0, number);
+}
+
+function ifs(/*_cond1, _val1, _cond2, _val2, _cond3, _val3, ... */) {
+    for (var i = 0; i + 1 < arguments.length; i+=2) {
+        var cond = arguments[i];
+        var val = arguments[i+1];
+        if (cond) {
+            return val;
+        }
+    }
+    throw Error('#N/A');
 }
 
 module.exports = formulas;
