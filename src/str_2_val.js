@@ -1,38 +1,42 @@
 const RawValue = require('./RawValue.js');
 const RefValue = require('./RefValue.js');
+const LazyValue = require('./LazyValue.js');
 const Range = require('./Range.js');
 
 module.exports = function str_2_val(buffer, formula) {
-    var v;
     if (!isNaN(buffer)) {
-        v = new RawValue(+buffer);
+        return new RawValue(+buffer);
     }
-    else if (buffer === 'TRUE') {
-        v = new RawValue(1);
+    if (buffer === 'TRUE') {
+        return new RawValue(1);
     }
-    else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
-        v = new Range(buffer.trim().replace(/\$/g, ''), formula);
+    if (typeof buffer !== 'string') {
+        return buffer;
     }
-    else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[^!]+![A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
-        v = new Range(buffer.trim().replace(/\$/g, ''), formula);
+
+    buffer = buffer.trim().replace(/\$/g, '')
+
+    if (buffer.match(/^[A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
+        return new Range(buffer, formula);
     }
-    else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+:[A-Z]+$/)) {
-        v = new Range(buffer.trim().replace(/\$/g, ''), formula);
+    if (buffer.match(/^[^!]+![A-Z]+[0-9]+:[A-Z]+[0-9]+$/)) {
+        return new Range(buffer, formula);
     }
-    else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[^!]+![A-Z]+:[A-Z]+$/)) {
-        v = new Range(buffer.trim().replace(/\$/g, ''), formula);
+    if (buffer.match(/^[A-Z]+:[A-Z]+$/)) {
+        return new Range(buffer, formula);
     }
-    else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[A-Z]+[0-9]+$/)) {
-        v = new RefValue(buffer.trim().replace(/\$/g, ''), formula);
+    if (buffer.match(/^[^!]+![A-Z]+:[A-Z]+$/)) {
+        return new Range(buffer, formula);
     }
-    else if (typeof buffer === 'string' && buffer.trim().replace(/\$/g, '').match(/^[^!]+![A-Z]+[0-9]+$/)) {
-        v = new RefValue(buffer.trim().replace(/\$/g, ''), formula);
+    if (buffer.match(/^[A-Z]+[0-9]+$/)) {
+        return new RefValue(buffer, formula);
     }
-    else if (typeof buffer === 'string' && !isNaN(buffer.trim().replace(/%$/, ''))) {
-        v = new RawValue(+(buffer.trim().replace(/%$/, '')) / 100.0);
+    if (buffer.match(/^[^!]+![A-Z]+[0-9]+$/)) {
+        return new RefValue(buffer, formula);
     }
-    else {
-        v = buffer;
+    if (buffer.match(/%$/)) {
+        var inner = str_2_val(buffer.substr(0, buffer.length-1), formula)
+        return new LazyValue(() => inner.calc() / 100)
     }
-    return v;
+    return buffer;
 };
