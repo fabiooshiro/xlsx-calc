@@ -1,16 +1,21 @@
 var assert = require('assert');
 var XLSX = require('xlsx');
-var XLSX_CALC = require("../lib/xlsx-calc");
-// var XLSX_CALC = require("../src/index");
+//var XLSX_CALC = require("../lib/xlsx-calc");
+var XLSX_CALC = require("../src/index");
 
 describe('XLSX with XLSX_CALC', function() {
 
     function assert_values(sheet_expected, sheet_calculated) {
         for (var prop in sheet_expected) {
             if(prop.match(/[A-Z]+[0-9]+/)) {
-                assert.equal(sheet_calculated[prop].v, sheet_expected[prop].v, "Error: " + prop + ' f="' + sheet_expected[prop].f +'"\nexpected ' + sheet_expected[prop].v + " got " + sheet_calculated[prop].v);
-                assert.equal(sheet_calculated[prop].w, sheet_expected[prop].w, "Error: " + prop + ' f="' + sheet_expected[prop].f +'"');
                 assert.equal(sheet_calculated[prop].t, sheet_expected[prop].t, "Error: " + prop + ' f="' + sheet_expected[prop].f +'"');
+                if (sheet_calculated[prop].t === 'e') return;
+                if (typeof sheet_calculated[prop].v === 'number' && typeof sheet_expected[prop].v === 'number') {
+                    assert.equal(sheet_calculated[prop].v.toFixed(10), sheet_expected[prop].v.toFixed(10), "Error: " + prop + ' f="' + sheet_expected[prop].f +'"\nexpected ' + sheet_expected[prop].v + " got " + sheet_calculated[prop].v);
+                } else {
+                    assert.equal(sheet_calculated[prop].v, sheet_expected[prop].v, "Error: " + prop + ' f="' + sheet_expected[prop].f +'"\nexpected ' + sheet_expected[prop].v + " got " + sheet_calculated[prop].v);
+                }
+                assert.equal(sheet_calculated[prop].w, sheet_expected[prop].w, "Error: " + prop + ' f="' + sheet_expected[prop].f +'"');
             }
         }
     }
@@ -60,5 +65,16 @@ describe('XLSX with XLSX_CALC', function() {
         XLSX_CALC(workbook);
         assert_values(original_sheet, workbook.Sheets.Sheet2);
     });
+
+    // it('fixes the fund.xlsx problem', function() {
+    //     var workbook = XLSX.readFile('test/fund-2.xlsx');
+    //     var formulajs = require('formulajs');
+    //     XLSX_CALC.import_functions(formulajs);
+
+    //     erase_values_that_contains_formula(workbook.Sheets);
+    //     var original_sheet = XLSX.readFile('test/fund-2.xlsx').Sheets['Fund Economics'];
+    //     XLSX_CALC(workbook);
+    //     assert_values(original_sheet, workbook.Sheets['Fund Economics']);
+    // });
 
 });

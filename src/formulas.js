@@ -282,14 +282,23 @@ function hlookup(needle, table, index, exactmatch) {
     }
 
     index = index || 0;
-    let row = table[0];
-
-    for (let i = 0; i < row.length; i++) {
-        if (exactmatch && row[i] === needle || row[i].toLowerCase().indexOf(needle.toLowerCase()) !== -1) {
-            return index < table.length + 1 ? table[index - 1][i] : table[0][i];
+    let row = table[0], i, searchingFor;
+    
+    if (typeof needle === 'string') {
+        searchingFor = needle.toLowerCase();
+        for (i = 0; i < row.length; i++) {
+            if (exactmatch && row[i] === searchingFor || row[i].toLowerCase().indexOf(searchingFor) !== -1) {
+                return index < table.length + 1 ? table[index - 1][i] : table[0][i];
+            }
+        }
+    } else {
+        searchingFor = needle;
+        for (i = 0; i < row.length; i++) {
+            if (exactmatch && row[i] === searchingFor || row[i] === searchingFor) {
+                return index < table.length + 1 ? table[index - 1][i] : table[0][i];
+            }
         }
     }
-
     throw Error('#N/A');
 }
 
