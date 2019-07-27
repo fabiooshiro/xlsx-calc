@@ -46,7 +46,11 @@ function _if(condition, _then, _else) {
         return _then.calc();
     }
     else {
-        return _else.calc();
+        if (typeof _else === 'undefined') {
+            return false;
+        } else {
+            return _else.calc();
+        }
     }
 }
 

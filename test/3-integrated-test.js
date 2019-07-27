@@ -1,6 +1,7 @@
 var assert = require('assert');
 var XLSX = require('xlsx');
 var XLSX_CALC = require("../lib/xlsx-calc");
+// var XLSX_CALC = require("../src/index");
 
 describe('XLSX with XLSX_CALC', function() {
 
