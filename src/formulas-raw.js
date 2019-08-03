@@ -44,10 +44,10 @@ function iferror(cell_ref, onerrorvalue) {
 function _if(condition, _then, _else) {
     if (condition.calc()) {
         // console.log(condition.formula.name)
-        if (condition.formula.name === 'P40') {
-            console.log('P40 =', _then.calc());
-            console.log(' -->', _then.args[1].calc());
-        }
+        // if (condition.formula.name === 'P40') {
+        //     console.log('P40 =', _then.calc());
+        //     console.log(' -->', _then.args[1].calc());
+        // }
         return _then.calc();
     }
     else {
@@ -66,9 +66,17 @@ function and() {
     return true;
 }
 
+function _or() {
+    for (var i = 0; i < arguments.length; i++) {
+        if(arguments[i].calc()) return true;
+    }
+    return false;
+}
+
 module.exports = {
     'OFFSET': raw_offset,
     'IFERROR': iferror,
     'IF': _if,
-    'AND': and
+    'AND': and,
+    'OR': _or
 };

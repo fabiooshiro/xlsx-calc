@@ -1428,8 +1428,32 @@ describe('XLSX_CALC', function() {
             };
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 'c');
-        })
-    })
+        });
+    });
+
+    describe.only('OR', () => {
+        it('evaluates an OR(0,0) as false', () => {
+            workbook.Sheets.Sheet1 = {
+                A1: { f: 'OR(0,0)' }
+            };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, false);
+        });
+        it('evaluates an OR(1,0) as true', () => {
+            workbook.Sheets.Sheet1 = {
+                A1: { f: 'OR(1,0)' }
+            };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, true);
+        });
+        it('evaluates an OR(0,1) as true', () => {
+            workbook.Sheets.Sheet1 = {
+                A1: { f: 'OR(0,1)' }
+            };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, true);
+        });
+    });
 
     // describe('HELLO', function() {
     //     it('says: Hello, World!', function() {
