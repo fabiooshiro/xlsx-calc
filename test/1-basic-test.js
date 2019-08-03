@@ -1431,7 +1431,7 @@ describe('XLSX_CALC', function() {
         });
     });
 
-    describe.only('OR', () => {
+    describe('OR', () => {
         it('evaluates an OR(0,0) as false', () => {
             workbook.Sheets.Sheet1 = {
                 A1: { f: 'OR(0,0)' }
