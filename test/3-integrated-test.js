@@ -1,7 +1,7 @@
 var assert = require('assert');
 var XLSX = require('xlsx');
-//var XLSX_CALC = require("../lib/xlsx-calc");
-var XLSX_CALC = require("../src/index");
+var XLSX_CALC = require("../lib/xlsx-calc");
+// var XLSX_CALC = require("../src/index");
 
 describe('XLSX with XLSX_CALC', function() {
 
@@ -64,6 +64,25 @@ describe('XLSX with XLSX_CALC', function() {
         var original_sheet = XLSX.readFile('test/tias.xlsx').Sheets.Sheet2;
         XLSX_CALC(workbook);
         assert_values(original_sheet, workbook.Sheets.Sheet2);
+    });
+
+    it('handles transpose', function() {
+        var workbook = XLSX.readFile('test/transpose.xlsx');
+        var sheet1 = workbook.Sheets.Sheet1; 
+        //console.log(workbook.Sheets.Sheet1);
+        sheet1.G13.v = null;
+        XLSX_CALC(workbook);
+        assert.equal(sheet1.F13.v, 1);
+        assert.equal(sheet1.G13.v, 4);
+        assert.equal(sheet1.H13.v, 7);
+
+        assert.equal(sheet1.F14.v, 2);
+        assert.equal(sheet1.G14.v, 5);
+        assert.equal(sheet1.H14.v, 8);
+
+        assert.equal(sheet1.F15.v, 3);
+        assert.equal(sheet1.G15.v, 6);
+        assert.equal(sheet1.H15.v, 9);
     });
 
     // it('fixes the fund.xlsx problem', function() {

@@ -73,10 +73,38 @@ function _or() {
     return false;
 }
 
+function transpose(expressionWithRange) {
+    let range = expressionWithRange.args[0];
+    // console.log(expressionWithRange.args[0])
+    // console.log(expressionWithRange.formula.wb.Sheets.Sheet1)
+    // console.log(range.calc())
+    let matrix = range.calc();
+    let cellName = expressionWithRange.formula.name;
+    let colRow = cellName.match(/([A-Z]+)([0-9]+)/);
+    let sheet = expressionWithRange.formula.sheet;
+    // console.log(colRow[1], colRow[2]);
+    // console.log(col_str_2_int(colRow[1]));
+    let colNumber = col_str_2_int(colRow[1]);
+    let rowNumber = +colRow[2];
+    for (let i = 0; i < matrix.length; i++) {
+        let matrixRow = matrix[i];
+        for (let j = 0; j < matrixRow.length; j++) {
+            let destinationColumn = colNumber + i;
+            let destinationRow = rowNumber + j;
+            let value = matrixRow[j];
+            // console.log(int_2_col_str(destinationColumn), destinationRow, value);
+            sheet[int_2_col_str(destinationColumn) + destinationRow].v = value;
+        }
+    }
+    // console.log(expressionWithRange.formula.name)
+    return matrix[0][0];
+}
+
 module.exports = {
     'OFFSET': raw_offset,
     'IFERROR': iferror,
     'IF': _if,
     'AND': and,
-    'OR': _or
+    'OR': _or,
+    'TRANSPOSE': transpose
 };
