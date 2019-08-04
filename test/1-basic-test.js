@@ -39,6 +39,20 @@ describe('XLSX_CALC', function() {
             }
         };
     });
+
+    describe('ROUND', () => {
+        it('should round to 1', () => {
+            workbook.Sheets.Sheet1.A1.f = 'ROUND(1.2)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 1);
+        });
+        it('should round to 1.2', () => {
+            workbook.Sheets.Sheet1.A1.f = 'ROUND(1.23,1)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 1.2);
+        });
+    });
+
     describe('plus', function() {
         it('should calc A2+C5', function() {
             workbook.Sheets.Sheet1.A2.v = 7;
