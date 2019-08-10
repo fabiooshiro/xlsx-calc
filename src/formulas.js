@@ -45,8 +45,13 @@ let formulas = {
     'IFS': ifs,
     'ROUND': round,
     'CORREL': correl, // missing test
-    'SUMIF': sumif, // missing test
+    'SUMIF': sumif, // missing test,
+    'CHOOSE': choose
 };
+
+function choose(option) {
+    return arguments[option];
+}
 
 function sumif(){
 
