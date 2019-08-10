@@ -44,8 +44,27 @@ let formulas = {
     'LEFT': left,
     'IFS': ifs,
     'ROUND': round,
-    'CORREL': correl // missing test
+    'CORREL': correl, // missing test
+    'SUMIF': sumif, // missing test
 };
+
+function sumif(){
+
+    let elementToSum = arguments[1];
+    let sumResult = 0;
+
+    [].slice.call(arguments)[0][0].forEach((elt,key) =>{
+
+        if (elt!==null){
+            if( elt.replace(/\'/g, "") === elementToSum){
+                if (!isNaN([].slice.call(arguments)[2][0][key])){
+                    sumResult += [].slice.call(arguments)[2][0][key]
+                } 
+            }
+        }
+    });
+    return sumResult
+}
 
 function correl(a,b){
 
