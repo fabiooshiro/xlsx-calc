@@ -64,7 +64,7 @@ function sumif(){
             if( elt.replace(/\'/g, "") === elementToSum){
                 if (!isNaN([].slice.call(arguments)[2][0][key])){
                     sumResult += [].slice.call(arguments)[2][0][key]
-                } 
+                }
             }
         }
     });
@@ -343,7 +343,7 @@ function hlookup(needle, table, index, exactmatch) {
 
     index = index || 0;
     let row = table[0], i, searchingFor;
-    
+
     if (typeof needle === 'string') {
         searchingFor = needle.toLowerCase();
         for (i = 0; i < row.length; i++) {
@@ -698,9 +698,6 @@ function max() {
         else if (!isNaN(arg) && (max == null || (arg != null && max < arg))) {
             max = arg;
         }
-        else {
-            console.log('WTF??', arg);
-        }
     }
     return max;
 }
@@ -727,9 +724,6 @@ function min() {
         }
         else if (!isNaN(arg) && (min == null || (arg != null && min > arg))) {
             min = arg;
-        }
-        else {
-            console.log('WTF??', arg);
         }
     }
     return min;
