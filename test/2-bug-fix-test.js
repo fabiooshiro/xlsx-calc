@@ -1,6 +1,6 @@
 "use strict";
 
-var XLSX_CALC = require('../lib/xlsx-calc');
+const XLSX_CALC = require("../src");
 var XLSX = require('xlsx');
 var assert = require('assert');
 

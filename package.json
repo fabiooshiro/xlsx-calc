@@ -7,6 +7,7 @@
   "author": "Sr Oshiro <fabio.oshiro@gmail.com>",
   "scripts": {
     "test": "mocha",
+    "watch": "mocha --watch --reporter=min",
     "dev": "webpack --mode=development -w",
     "test-w": "mocha -w --check-leaks --sort",
     "build": "webpack --mode=production && sh deprecated-clones.sh"

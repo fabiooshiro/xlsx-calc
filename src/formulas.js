@@ -371,6 +371,7 @@ function trim(a) {
 }
 
 function is_blank(a) {
+    console.log(a)
     return !a;
 }
 

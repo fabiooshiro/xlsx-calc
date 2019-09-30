@@ -1,6 +1,6 @@
 "use strict";
 
-const XLSX_CALC = require("../lib/xlsx-calc");
+const XLSX_CALC = require("../src");
 const assert = require('assert');
 const errorValues = {
     '#NULL!': 0x00,
