@@ -1,7 +1,6 @@
 var assert = require('assert');
 var XLSX = require('xlsx');
-var XLSX_CALC = require("../lib/xlsx-calc");
-// var XLSX_CALC = require("../src/index");
+const XLSX_CALC = require("../src");
 
 describe('XLSX with XLSX_CALC', function() {
 
@@ -25,7 +24,7 @@ describe('XLSX with XLSX_CALC', function() {
             for (var prop in sheets[sheet]) {
                 if(prop.match(/[A-Z]+[0-9]+/) && sheets[sheet][prop].f) {
                     sheets[sheet][prop].v = null;
-                }       
+                }
             }
         }
     }
@@ -49,7 +48,7 @@ describe('XLSX with XLSX_CALC', function() {
         XLSX_CALC(workbook);
         assert_values(original_sheet, workbook.Sheets.Sheet1);
     });
-    
+
     it('recalc the workbook Sheet OffSet', function() {
         var workbook = XLSX.readFile('test/testcase.xlsx');
         erase_values_that_contains_formula(workbook.Sheets);
@@ -68,7 +67,7 @@ describe('XLSX with XLSX_CALC', function() {
 
     it('handles transpose', function() {
         var workbook = XLSX.readFile('test/transpose.xlsx');
-        var sheet1 = workbook.Sheets.Sheet1; 
+        var sheet1 = workbook.Sheets.Sheet1;
         //console.log(workbook.Sheets.Sheet1);
         sheet1.G13.v = null;
         XLSX_CALC(workbook);

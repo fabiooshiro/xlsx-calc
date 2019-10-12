@@ -1,6 +1,6 @@
 "use strict";
 
-const XLSX_CALC = require("../lib/xlsx-calc");
+const XLSX_CALC = require("../src");
 const assert = require('assert');
 
 describe('trocar variavel', () => {
@@ -17,7 +17,7 @@ describe('trocar variavel', () => {
                     }
                 }
             }
-        }; 
+        };
     });
     it('troca o valor da variavel', () => {
         let calculator = XLSX_CALC.calculator(workbook);
@@ -119,7 +119,7 @@ describe('trocar variavel', () => {
         assert.equal(vars['[a1]'], 1);
         assert.equal(vars['[a3]'], 3);
     });
-    
+
     it('sets named cell', () => {
         workbook.Workbook = {
             Names: [{Name: 'XPTO', Ref: 'Sheet1!A2'}]
@@ -131,7 +131,7 @@ describe('trocar variavel', () => {
         calculator.execute();
         assert.equal(workbook.Sheets.Sheet1.A1.v, 5);
     });
-    
+
     it('sets named cell range', () => {
         workbook.Workbook = {
             Names: [{Name: 'XPTO', Ref: 'Sheet1!A2:A3'}]
