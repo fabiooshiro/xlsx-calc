@@ -3,3 +3,4 @@
 coverage
 *.xlsx#
 /test/fund*.xlsx
+/.npmrc

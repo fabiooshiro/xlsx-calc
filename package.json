@@ -1,6 +1,6 @@
 {
   "name": "xlsx-calc",
-  "version": "0.6.2",
+  "version": "0.6.4",
   "description": "A simple xlsx formula calculator.",
   "main": "src/index.js",
   "repository": "git@github.com:fabiooshiro/xlsx-calc.git",
