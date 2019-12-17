@@ -2,3 +2,5 @@
 .nyc_output
 coverage
 *.xlsx#
+/test/fund*.xlsx
+/.npmrc

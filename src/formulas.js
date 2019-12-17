@@ -41,8 +41,69 @@ let formulas = {
     'MONTH': month,
     'YEAR': year,
     'RIGHT': right,
-    'LEFT': left
+    'LEFT': left,
+    'IFS': ifs,
+    'ROUND': round,
+    'CORREL': correl, // missing test
+    'SUMIF': sumif, // missing test,
+    'CHOOSE': choose
 };
+
+function choose(option) {
+    return arguments[option];
+}
+
+function sumif(){
+
+    let elementToSum = arguments[1];
+    let sumResult = 0;
+
+    [].slice.call(arguments)[0][0].forEach((elt,key) =>{
+
+        if (elt!==null){
+            if( elt.replace(/\'/g, "") === elementToSum){
+                if (!isNaN([].slice.call(arguments)[2][0][key])){
+                    sumResult += [].slice.call(arguments)[2][0][key]
+                }
+            }
+        }
+    });
+    return sumResult
+}
+
+function correl(a,b){
+
+    a = getArrayOfNumbers(a);
+    b = getArrayOfNumbers(b);
+
+    if (a.length !== b.length) {
+        return 'N/D';
+    }
+    var inv_n = 1.0 / (a.length-1);
+    var avg_a = sum.apply(this, a) / a.length;
+    var avg_b = sum.apply(this, b) / b.length;
+    var s = 0.0;
+    var sa = 0;
+    var sb=0;
+    for (var i = 0; i < a.length; i++) {
+        s += (a[i] - avg_a) * (b[i] - avg_b);
+
+        sa+=Math.pow(a[i],2);
+        sb+=Math.pow(b[i],2);
+    }
+
+    sa=Math.sqrt(sa/inv_n);
+    sb=Math.sqrt(sb/inv_n);
+
+    return s / (inv_n*sa*sb);
+}
+
+function round(value, decimalPlaces) {
+    if (arguments.length === 0) throw new Error("Err:511");
+    if (arguments.length === 1) return Math.round(value);
+    let roundMeasure = Math.pow(10, decimalPlaces);
+    return Math.round(roundMeasure*value)/roundMeasure
+}
 
 function today() {
     var today = new Date();
@@ -130,7 +191,7 @@ function sumproduct() {
             product = 1;
             for (k = 1; k < arrays; k++) {
                 _i = parseNumber(arguments[k - 1][i]);
-                
+
                 product *= _i;
             }
             result += product;
@@ -139,7 +200,7 @@ function sumproduct() {
                 product = 1;
                 for (k = 1; k < arrays; k++) {
                     _ij = parseNumber(arguments[k - 1][i][j]);
-                    
+
                     product *= _ij;
                 }
                 result += product;
@@ -180,13 +241,13 @@ function match_exactly_string(matrix, lookupValue) {
                     if (matrix[idx][0].toLowerCase() === lookupValue.toLowerCase()) {
                         return idx + 1;
                     }
-                } 
+                }
         } else if (typeof matrix[idx] === 'string') {
             if (matrix[idx].toLowerCase() === lookupValue.toLowerCase()) {
                 return idx + 1;
             }
         }
-       
+
     }
     throw Error('#N/A');
 }
@@ -229,7 +290,7 @@ function match_greater_than_or_equal(matrix, lookupValue) {
 }
 
 function match(lookupValue, matrix, matchType) {
-    if (Array.isArray(matrix) 
+    if (Array.isArray(matrix)
         && matrix.length === 1
         && Array.isArray(matrix[0])) {
         matrix = matrix[0];
@@ -281,14 +342,23 @@ function hlookup(needle, table, index, exactmatch) {
     }
 
     index = index || 0;
-    let row = table[0];
+    let row = table[0], i, searchingFor;
 
-    for (let i = 0; i < row.length; i++) {
-        if (exactmatch && row[i] === needle || row[i].toLowerCase().indexOf(needle.toLowerCase()) !== -1) {
-            return index < table.length + 1 ? table[index - 1][i] : table[0][i];
+    if (typeof needle === 'string') {
+        searchingFor = needle.toLowerCase();
+        for (i = 0; i < row.length; i++) {
+            if (exactmatch && row[i] === searchingFor || row[i].toLowerCase().indexOf(searchingFor) !== -1) {
+                return index < table.length + 1 ? table[index - 1][i] : table[0][i];
+            }
+        }
+    } else {
+        searchingFor = needle;
+        for (i = 0; i < row.length; i++) {
+            if (exactmatch && row[i] === searchingFor || row[i] === searchingFor) {
+                return index < table.length + 1 ? table[index - 1][i] : table[0][i];
+            }
         }
     }
-
     throw Error('#N/A');
 }
 
@@ -301,6 +371,7 @@ function trim(a) {
 }
 
 function is_blank(a) {
+    console.log(a)
     return !a;
 }
 
@@ -628,9 +699,6 @@ function max() {
         else if (!isNaN(arg) && (max == null || (arg != null && max < arg))) {
             max = arg;
         }
-        else {
-            console.log('WTF??', arg);
-        }
     }
     return max;
 }
@@ -657,9 +725,6 @@ function min() {
         }
         else if (!isNaN(arg) && (min == null || (arg != null && min > arg))) {
             min = arg;
-        }
-        else {
-            console.log('WTF??', arg);
         }
     }
     return min;
@@ -729,7 +794,7 @@ function right(text, number) {
     } else {
         text = '' + text;
     }
-    return text.substring(text.length - number);   
+    return text.substring(text.length - number);
 }
 
 function left(text, number) {
@@ -743,7 +808,18 @@ function left(text, number) {
     } else {
         text = '' + text;
     }
-    return text.substring(0, number);   
+    return text.substring(0, number);
+}
+
+function ifs(/*_cond1, _val1, _cond2, _val2, _cond3, _val3, ... */) {
+    for (var i = 0; i + 1 < arguments.length; i+=2) {
+        var cond = arguments[i];
+        var val = arguments[i+1];
+        if (cond) {
+            return val;
+        }
+    }
+    throw Error('#N/A');
 }
 
 module.exports = formulas;

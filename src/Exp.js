@@ -109,6 +109,9 @@ module.exports = function Exp(formula) {
                     args.splice(i + 1, 1, new RawValue(-b));
                 }
                 else {
+                    if (typeof b === 'string') {
+                        throw new Error('#VALUE!');
+                    }
                     args.splice(i, 2, new RawValue(-b));
                 }
             }
