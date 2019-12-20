@@ -824,7 +824,7 @@ function ifs(/*_cond1, _val1, _cond2, _val2, _cond3, _val3, ... */) {
 }
 
 function substitute(text, old_text, new_text, occurrence) {
-    if(occurrence === 0) {
+    if(occurrence <= 0) {
       throw Error('#VALUE!');
     }  
     if (!text || !old_text || (!new_text && new_text !== '')) {

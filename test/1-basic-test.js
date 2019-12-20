@@ -688,6 +688,12 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A1.w, '#VALUE!');
             assert.equal(workbook.Sheets.Sheet1.A1.v, errorValues['#VALUE!']);
         });
+        it('should throw #VALUE if occurence value is negative', function() {
+            workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("a","b","c",-5)' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.w, '#VALUE!');
+            assert.equal(workbook.Sheets.Sheet1.A1.v, errorValues['#VALUE!']);
+        });
         it('should transform Jim to James', function() {
             workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("Jim Alateras","im","ames")' };
             XLSX_CALC(workbook);
