@@ -823,6 +823,10 @@ function ifs(/*_cond1, _val1, _cond2, _val2, _cond3, _val3, ... */) {
     throw Error('#N/A');
 }
 
+function escapeRegExp(str) {
+    return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+}
+
 function substitute(text, old_text, new_text, occurrence) {
     if(occurrence <= 0) {
       throw Error('#VALUE!');
@@ -830,7 +834,7 @@ function substitute(text, old_text, new_text, occurrence) {
     if (!text || !old_text || (!new_text && new_text !== '')) {
       return text;
     } else if (occurrence === undefined) {
-      return text.replace(new RegExp(old_text, 'g'), new_text);
+      return text.replace(new RegExp(escapeRegExp(old_text), 'g'), new_text);
     } else {
       var index = 0;
       var i = 0;

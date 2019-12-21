@@ -697,27 +697,32 @@ describe('XLSX_CALC', function() {
         it('should transform Jim to James', function() {
             workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("Jim Alateras","im","ames")' };
             XLSX_CALC(workbook);
-            assert.equal(workbook.Sheets.Sheet1.A1.v, 'James Alateras');            
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'James Alateras');
         });
         it('should transform nothing', function() {
             workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("Jim Alateras","","ames")' };
             XLSX_CALC(workbook);
-            assert.equal(workbook.Sheets.Sheet1.A1.v, 'Jim Alateras');            
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'Jim Alateras');
         });
         it('should equals empty string', function() {
             workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("","im","ames")' };
             XLSX_CALC(workbook);
-            assert.equal(workbook.Sheets.Sheet1.A1.v, '');            
+            assert.equal(workbook.Sheets.Sheet1.A1.v, '');
         });
         it('should equal Quarter 2, 2008', function() {
             workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("Quarter 1, 2008","1","2", 1)' };
             XLSX_CALC(workbook);
-            assert.equal(workbook.Sheets.Sheet1.A1.v, 'Quarter 2, 2008');            
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'Quarter 2, 2008');
         });
         it('should equal 07792 526879', function() {
             workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("t:07792 526879","t:","")' };
             XLSX_CALC(workbook);
-            assert.equal(workbook.Sheets.Sheet1.A1.v, '07792 526879');            
+            assert.equal(workbook.Sheets.Sheet1.A1.v, '07792 526879');
+        });
+        it('should handle especial chars like dot', function() { 
+            workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("my text","...","")' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'my text');
         });
     });
     describe('DAY', function () {
