@@ -681,6 +681,45 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.A5.v.getTime(), 1547078400000);
         });
     });
+    describe('SUBSTITUTE', function() {
+        it('should throw #VALUE if occurence value is 0', function() {
+            workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("a","b","c",0)' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.w, '#VALUE!');
+            assert.equal(workbook.Sheets.Sheet1.A1.v, errorValues['#VALUE!']);
+        });
+        it('should throw #VALUE if occurence value is negative', function() {
+            workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("a","b","c",-5)' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.w, '#VALUE!');
+            assert.equal(workbook.Sheets.Sheet1.A1.v, errorValues['#VALUE!']);
+        });
+        it('should transform Jim to James', function() {
+            workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("Jim Alateras","im","ames")' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'James Alateras');            
+        });
+        it('should transform nothing', function() {
+            workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("Jim Alateras","","ames")' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'Jim Alateras');            
+        });
+        it('should equals empty string', function() {
+            workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("","im","ames")' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, '');            
+        });
+        it('should equal Quarter 2, 2008', function() {
+            workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("Quarter 1, 2008","1","2", 1)' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 'Quarter 2, 2008');            
+        });
+        it('should equal 07792 526879', function() {
+            workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("t:07792 526879","t:","")' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, '07792 526879');            
+        });
+    });
     describe('DAY', function () {
         xit('should return day of date value', function () {
             workbook.Sheets.Sheet1.A1 = {
