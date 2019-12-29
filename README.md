@@ -142,6 +142,14 @@ Create a pull request
 
 Thx!
 
+# Contributors
+
+<a href="https://github.com/fabiooshiro/xlsx-calc/graphs/contributors">
+  <img src="https://contributors-img.firebaseapp.com/image?repo=fabiooshiro/xlsx-calc" />
+</a>
+
+Made with [contributors-img](https://contributors-img.firebaseapp.com).
+
 # MIT LICENSE
 
 Copyright 2017, fabiooshiro
