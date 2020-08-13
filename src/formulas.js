@@ -268,19 +268,40 @@ function match_exactly_non_string(matrix, lookupValue) {
     throw Error('#N/A');
 }
 
+// +---------------------+
+// | THE IMPLEMENTATIONS |
+// +---------------------+
+
+
 function match_greater_than_or_equal(matrix, lookupValue) {
     var index;
     var indexValue;
     for (var idx = 0; idx < matrix.length; idx++) {
-        if (matrix[idx] === lookupValue) {
-            return idx + 1;
-        } else if (matrix[idx] > lookupValue) {
-            if (!indexValue) {
-                index = idx + 1;
-                indexValue = matrix[idx];
-            } else if (matrix[idx] < indexValue) {
-                index = idx + 1;
-                indexValue = matrix[idx];
+        if (Array.isArray(matrix[idx]) && matrix[idx].length > 0) {
+            // For array in column
+            if (matrix[idx][0] === lookupValue) {
+                return idx + 1;
+            } else if (matrix[idx][0] > lookupValue) {
+                if (!indexValue) {
+                    index = idx + 1;
+                    indexValue = matrix[idx][0];
+                } else if (matrix[idx][0] < indexValue) {
+                    index = idx + 1;
+                    indexValue = matrix[idx][0];
+                }
+            }
+        } else {
+            // For array in row
+            if (matrix[idx] === lookupValue) {
+                return idx + 1;
+            } else if (matrix[idx] > lookupValue) {
+                if (!indexValue) {
+                    index = idx + 1;
+                    indexValue = matrix[idx];
+                } else if (matrix[idx] < indexValue) {
+                    index = idx + 1;
+                    indexValue = matrix[idx];
+                }
             }
         }
     }
