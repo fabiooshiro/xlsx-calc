@@ -1307,6 +1307,48 @@ describe('XLSX_CALC', function() {
         });
     });
 
+    describe('MATCH_GREATER_THAN_OR_EQUAL', function () {
+        it('return position of element in range (row or column)', function () {
+            workbook.Sheets.Sheet1.A1 = { v: 100 };
+            workbook.Sheets.Sheet1.A2 = { v: 80 };
+            workbook.Sheets.Sheet1.A3 = { v: 60 };
+            workbook.Sheets.Sheet1.A4 = { v: 0 };
+
+            workbook.Sheets.Sheet1.B1 = { v: 100 };
+            workbook.Sheets.Sheet1.C1 = { v: 80 };
+            workbook.Sheets.Sheet1.D1 = { v: 60 };
+            workbook.Sheets.Sheet1.E1 = { v: 0 };
+
+            workbook.Sheets.Sheet1.B2 = { v: 80 };
+            workbook.Sheets.Sheet1.B3 = { v: 15 };
+            workbook.Sheets.Sheet1.C2 = { v: 75 };
+            workbook.Sheets.Sheet1.C3 = { v: 20 };
+            workbook.Sheets.Sheet1.D2 = { v: 100 };
+            workbook.Sheets.Sheet1.D3 = { v: 12 };
+            workbook.Sheets.Sheet1.B4 = { f: 'MATCH(B2, A1:A4, -1)' };
+            workbook.Sheets.Sheet1.B5 = { f: 'MATCH(B3, B1:F1, -1)' };
+            workbook.Sheets.Sheet1.C4 = { f: 'MATCH(C2, B1:F1, -1)' };
+            workbook.Sheets.Sheet1.C5 = { f: 'MATCH(C3, B1:F1, -1)' };
+            workbook.Sheets.Sheet1.D4 = { f: 'MATCH(D2, B1:F1, -1)' };
+            workbook.Sheets.Sheet1.D5 = { f: 'MATCH(D3, B1:F1, -1)' };
+            workbook.Sheets.Sheet1.C6 = { f: 'MATCH(C2, A1:A4, -1)' };
+            workbook.Sheets.Sheet1.C7 = { f: 'MATCH(C3, A1:A4, -1)' };
+            workbook.Sheets.Sheet1.D6 = { f: 'MATCH(D2, A1:A4, -1)' };
+            workbook.Sheets.Sheet1.D7 = { f: 'MATCH(D3, A1:A4, -1)' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.B4.v, 2);
+            assert.equal(workbook.Sheets.Sheet1.B5.v, 3);
+            assert.equal(workbook.Sheets.Sheet1.C4.v, 2);
+            assert.equal(workbook.Sheets.Sheet1.C5.v, 3);
+            assert.equal(workbook.Sheets.Sheet1.D4.v, 1);
+            assert.equal(workbook.Sheets.Sheet1.D5.v, 3);
+            assert.equal(workbook.Sheets.Sheet1.C6.v, 2);
+            assert.equal(workbook.Sheets.Sheet1.C7.v, 3);
+            assert.equal(workbook.Sheets.Sheet1.D6.v, 1);
+            assert.equal(workbook.Sheets.Sheet1.D7.v, 3);
+        });
+    });
+
     describe('MATCH', function () {
         it('returns position of element in range (row or column)', function () {
             workbook.Sheets.Sheet1.A1 = { v: 'Apple' };
