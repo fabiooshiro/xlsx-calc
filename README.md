@@ -30,13 +30,13 @@ XLSX_CALC(workbook);
 
 ## formulajs integration
 
-`npm install --save formulajs`
+`npm install --save @formulajs/formulajs`
 
 ```js
 var XLSX_CALC = require('xlsx-calc');
 
 // load your calc functions lib
-var formulajs = require('formulajs');
+var formulajs = require('@formulajs/formulajs');
 
 // import your calc functions lib
 XLSX_CALC.import_functions(formulajs);
