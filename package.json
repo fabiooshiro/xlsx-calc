@@ -12,16 +12,15 @@
     "test-w": "mocha -w --check-leaks --sort",
     "build": "webpack --mode=production && sh deprecated-clones.sh"
   },
-  "dependencies": {
-    "formulajs": "^1.0.8",
-    "xlsx": "^0.8.8"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "formulajs": "^1.0.8",
     "mocha": "^5.2.0",
     "nyc": "^14.1.1",
     "pre-commit": "^1.2.2",
-    "webpack": "^4.41.0",
-    "webpack-cli": "^3.3.9"
+    "webpack": "^4.46.0",
+    "webpack-cli": "^3.3.12",
+    "xlsx": "^0.16.9"
   },
   "tonicExampleFilename": "example_tonic.js",
   "pre-commit": [

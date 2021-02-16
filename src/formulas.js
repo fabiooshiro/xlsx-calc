@@ -6,6 +6,7 @@
 let formulas = {
     'FLOOR': Math.floor,
     '_xlfn.FLOOR.MATH': Math.floor,
+    'FLOOR.MATH': Math.floor,
     'ABS': Math.abs,
     'SQRT': Math.sqrt,
     'VLOOKUP': vlookup,
