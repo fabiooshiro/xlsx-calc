@@ -5,8 +5,6 @@
 (_/\_)\____/(____/(_/\_)   \___)\_/\_/\____/ \___)</pre>
 <div style="clear: both"></div>
 
-![alt text](https://travis-ci.org/fabiooshiro/xlsx-calc.svg?branch=master "Build status")
-
 # Installation
 With [npm](https://www.npmjs.org/package/xlsx-calc):
 ```sh
