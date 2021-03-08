@@ -15,7 +15,7 @@ function raw_offset(cell_ref, rows, columns, height, width) {
         var col = col_str_2_int(parsed_ref.cell_name) + columns.calc();
         var col_str = int_2_col_str(col);
         var row = +parsed_ref.cell_name.replace(/^[A-Z]+/g, '') + rows.calc();
-        var cell_name = col_str + row;
+        var cell_name = parsed_ref.sheet_name + '!' + col_str + row;
         if (height === 1 && width === 1) {
             return new RefValue(cell_name, ref_value.formula).calc();
         }
@@ -23,7 +23,7 @@ function raw_offset(cell_ref, rows, columns, height, width) {
             var end_range_col = int_2_col_str(col + width - 1);
             var end_range_row = row + height - 1;
             var end_range = end_range_col + end_range_row;
-            var str_expression = parsed_ref.sheet_name + '!' + cell_name + ':' + end_range;
+            var str_expression = cell_name + ':' + end_range;
             return new Range(str_expression, ref_value.formula).calc();
         }
     }
