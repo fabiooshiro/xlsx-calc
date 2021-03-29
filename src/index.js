@@ -6,10 +6,17 @@ const exec_formula = require('./exec_formula.js');
 const find_all_cells_with_formulas = require('./find_all_cells_with_formulas.js');
 const Calculator = require('./Calculator.js');
 
-var mymodule = function(workbook) {
+var mymodule = function(workbook, consoleError = false) {
     var formulas = find_all_cells_with_formulas(workbook, exec_formula);
     for (var i = formulas.length - 1; i >= 0; i--) {
-        exec_formula(formulas[i]);
+        try {
+            exec_formula(formulas[i]);
+        } catch (e) {
+            if (consoleError) {
+                console.error(e)
+            }
+        }
+
     }
 };
 
