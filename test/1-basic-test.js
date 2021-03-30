@@ -719,7 +719,7 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, '07792 526879');
         });
-        it('should handle especial chars like dot', function() { 
+        it('should handle especial chars like dot', function() {
             workbook.Sheets.Sheet1.A1 = { f: 'SUBSTITUTE("my text","...","")' };
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, 'my text');
@@ -1562,6 +1562,14 @@ describe('XLSX_CALC', function() {
             };
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.v, "b");
+        });
+    });
+
+    describe('CEILING', () => {
+        it('should ceiling to 150', () => {
+            workbook.Sheets.Sheet1.A1.f = 'CEILING(141,10)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 150);
         });
     });
 

@@ -49,6 +49,7 @@ let formulas = {
     'SUMIF': sumif, // missing test,
     'CHOOSE': choose,
     'SUBSTITUTE': substitute,
+    'CEILING': ceiling,
 };
 
 function choose(option) {
@@ -852,7 +853,7 @@ function escapeRegExp(str) {
 function substitute(text, old_text, new_text, occurrence) {
     if(occurrence <= 0) {
       throw Error('#VALUE!');
-    }  
+    }
     if (!text || !old_text || (!new_text && new_text !== '')) {
       return text;
     } else if (occurrence === undefined) {
@@ -869,5 +870,9 @@ function substitute(text, old_text, new_text, occurrence) {
       }
     }
   };
+
+function ceiling(number, significance) {
+    return Math.ceil(number / significance) * significance
+}
 
 module.exports = formulas;
