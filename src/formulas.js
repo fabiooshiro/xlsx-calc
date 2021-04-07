@@ -62,8 +62,10 @@ function sumif(){
     let sumResult = 0;
 
     [].slice.call(arguments)[0][0].forEach((elt,key) =>{
-
+        
         if (elt!==null){
+            //if the element is not a string but a number, number has no replace function, so converting to string.
+            elt = elt.toString();
             if( elt.replace(/\'/g, "") === elementToSum){
                 if (!isNaN([].slice.call(arguments)[2][0][key])){
                     sumResult += [].slice.call(arguments)[2][0][key]
