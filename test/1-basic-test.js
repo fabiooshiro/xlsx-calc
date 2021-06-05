@@ -887,6 +887,11 @@ describe('XLSX_CALC', function() {
         XLSX_CALC(workbook);
         assert.equal(workbook.Sheets.Sheet1.A1.v, 1979);
     });
+    it('calcs form with space after parentheses', function() {
+        workbook.Sheets.Sheet1.A1.f = '(1) * 2';
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.A1.v, 2);
+    });
     it('calcs ref with $', function() {
         workbook.Sheets.Sheet1.A1.f = '$A$2 ';
         workbook.Sheets.Sheet1.A2.v = 1979;
