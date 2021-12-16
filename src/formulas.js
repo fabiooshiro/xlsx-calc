@@ -756,11 +756,18 @@ function min() {
     return min;
 }
 
-function vlookup(key, matrix, return_index) {
+function vlookup(key, matrix, return_index, range_lookup=true) {
+    var val = null;
     for (var i = 0; i < matrix.length; i++) {
-        if (matrix[i][0] == key) {
+        if (matrix[i][0] < key) {
+            val = matrix[i][return_index - 1];
+        }
+        else if (matrix[i][0] == key) {
             return matrix[i][return_index - 1];
         }
+    }
+    if (range_lookup && val) {
+        return val;
     }
     throw Error('#N/A');
 }

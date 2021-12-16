@@ -1294,6 +1294,73 @@ describe('XLSX_CALC', function() {
         });
     });
 
+    describe('VLOOKUP', function() {
+        it('exact match', function() {
+            workbook.Sheets.Sheet1 = {
+                A1: { v: 'A' },
+                A2: { v: 'B' },
+                A3: { v: 'C' },
+                A4: { v: 'D' },
+                A5: { v: 'E' },
+                B1: { v: 1996 },
+                B2: { v: 1997 },
+                B3: { v: 1999 },
+                B4: { v: 1995 },
+                B5: { v: 1992 },
+                C1: { v: 5 },
+                C2: { v: 4 },
+                C3: { v: 1 },
+                C4: { v: 2 },
+                C5: { v: 3 },
+                D1: { v: 'D' },
+                D2: { f: 'VLOOKUP("D", A1:C5, 2, FALSE)' },
+            }
+            XLSX_CALC(workbook)
+            assert.equal(workbook.Sheets.Sheet1.D2.v, 1995)
+        })
+        it('approximate match', function() {
+            workbook.Sheets.Sheet1 = {
+                A1: { v: 171900 },
+                A2: { v: 93500 },
+                A3: { v: 151200 },
+                A4: { v: 119850 },
+                A5: { v: 89450 },
+                A6: { v: 124500 },
+                A7: { v: 131100 },
+                A8: { v: 201500 },
+                B1: { f: 'VLOOKUP(A1, C1:D6, 2, TRUE)' },
+                B2: { f: 'VLOOKUP(A2, C1:D6, 2, TRUE)' },
+                B3: { f: 'VLOOKUP(A3, C1:D6, 2, TRUE)' },
+                B4: { f: 'VLOOKUP(A4, C1:D6, 2, TRUE)' },
+                B5: { f: 'VLOOKUP(A5, C1:D6, 2, TRUE)' },
+                B6: { f: 'VLOOKUP(A6, C1:D6, 2, TRUE)' },
+                B7: { f: 'VLOOKUP(A7, C1:D6, 2, TRUE)' },
+                B8: { f: 'VLOOKUP(A8, C1:D6, 2, TRUE)' },
+                C1: { v: 50000 },
+                C2: { v: 75000 },
+                C3: { v: 100000 },
+                C4: { v: 125000 },
+                C5: { v: 175000 },
+                C6: { v: 200000 },
+                D1: { v: 1 },
+                D2: { v: 2 },
+                D3: { v: 3 },
+                D4: { v: 4 },
+                D5: { v: 5 },
+                D6: { v: 6 },
+            }
+            XLSX_CALC(workbook)
+            assert.equal(workbook.Sheets.Sheet1.B1.v, 4)
+            assert.equal(workbook.Sheets.Sheet1.B2.v, 2)
+            assert.equal(workbook.Sheets.Sheet1.B3.v, 4)
+            assert.equal(workbook.Sheets.Sheet1.B4.v, 3)
+            assert.equal(workbook.Sheets.Sheet1.B5.v, 2)
+            assert.equal(workbook.Sheets.Sheet1.B6.v, 3)
+            assert.equal(workbook.Sheets.Sheet1.B7.v, 4)
+            assert.equal(workbook.Sheets.Sheet1.B8.v, 6)
+        })
+    })
+    
     describe('INDEX', function () {
         it('returns the value of an element in a matrix, selected by the row and column number indexes', function () {
             workbook.Sheets.Sheet1.A1 = { v: 'Data' };
