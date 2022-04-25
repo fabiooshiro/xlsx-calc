@@ -143,4 +143,23 @@ describe('trocar variavel', () => {
         calculator.execute();
         assert.equal(workbook.Sheets.Sheet1.A1.v, 5);
     });
+
+    it('calculates cells that need to be calculated themselves', () => {
+        workbook.Sheets.Sheet1.A1.f = '1+1';
+        workbook.Sheets.Sheet1.B1.f = 'A1+1';
+
+        let calculator = XLSX_CALC.calculator(workbook);
+        calculator.execute();
+        assert.equal(workbook.Sheets.Sheet1.B1.v, 3);
+    })
+
+    it('throws a circular dependency error when multiple cells depend on each other', () => {
+        workbook.Sheets.Sheet1.A1.f = '1+B1';
+        workbook.Sheets.Sheet1.B1.f = 'A1+1';
+
+        let calculator = XLSX_CALC.calculator(workbook);
+        assert.throws(function () {
+            calculator.execute();
+        }, /Circular ref/);
+    });
 });

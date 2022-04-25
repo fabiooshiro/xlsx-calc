@@ -53,7 +53,11 @@ module.exports = function RefValue(str_expression, formula) {
                 return ref_cell.v;
             }
             else if (formula_ref.status === 'working') {
-                throw new Error('Circular ref');
+                if (ref_cell.f.includes(formula.name)) {
+                    throw new Error('Circular ref');
+                }
+                formula.exec_formula(formula_ref);
+                return this.calc();
             }
             else if (formula_ref.status === 'done') {
                 if (ref_cell.t === 'e') {
