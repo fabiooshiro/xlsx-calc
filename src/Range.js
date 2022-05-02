@@ -35,12 +35,15 @@ module.exports = function Range(str_expression, formula) {
             for (var j = min_col; j <= max_col; j++) {
                 var cell_name = int_2_col_str(j) + i;
                 var cell_full_name = sheet_name + '!' + cell_name;
-                if (formula.formula_ref[cell_full_name]) {
-                    if (formula.formula_ref[cell_full_name].status === 'new') {
-                        formula.exec_formula(formula.formula_ref[cell_full_name]);
-                    }
-                    else if (formula.formula_ref[cell_full_name].status === 'working') {
-                        throw new Error('Circular ref');
+                var formula_ref = formula.formula_ref[cell_full_name];
+                if (formula_ref) {
+                    if (formula_ref.status === 'new') {
+                        formula.exec_formula(formula_ref);
+                    } else if (formula_ref.status === 'working') {
+                        if (formula_ref.cell.f.includes(formula.name)) {
+                            throw new Error('Circular ref');
+                        }
+                        formula.exec_formula(formula_ref);
                     }
                     if (sheet[cell_name].t === 'e') {
                         row.push(sheet[cell_name]);

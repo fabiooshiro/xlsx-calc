@@ -162,4 +162,33 @@ describe('trocar variavel', () => {
             calculator.execute();
         }, /Circular ref/);
     });
+
+    it('calculates formulas in named cells', () => {
+        workbook.Workbook = {
+            Names: [{ Name: 'XPTO', Ref: 'Sheet1!A2:A3' }],
+        };
+        workbook.Sheets.Sheet1 = {
+            A1: { f: 'SUM(XPTO)' },
+            A2: { f: '2+1' },
+            A3: { f: 'A2+1' },
+        };
+        let calculator = XLSX_CALC.calculator(workbook);
+        calculator.execute();
+        assert.equal(workbook.Sheets.Sheet1.A1.v, 7);
+    });
+
+    it('throws a circular dependency error when multiple cells depend on each other in a range', () => {
+        workbook.Workbook = {
+            Names: [{ Name: 'XPTO', Ref: 'Sheet1!A2:A3' }],
+        };
+        workbook.Sheets.Sheet1 = {
+            A1: { f: 'SUM(XPTO)' },
+            A2: { f: 'A3+1' },
+            A3: { f: 'A2+1' },
+        };
+        let calculator = XLSX_CALC.calculator(workbook);
+        assert.throws(function () {
+            calculator.execute();
+        }, /Circular ref/);
+    });
 });
