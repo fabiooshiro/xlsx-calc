@@ -64,6 +64,10 @@ module.exports = function Exp(formula) {
             throw new Error('Undefined ' + obj);
         }
     }
+
+    function getCurrentCellIndex() {
+        return +self.formula.name.replace(/[^0-9]/g, '');
+    }
     
     function exec(op, args, fn) {
         for (var i = 0; i < args.length; i++) {
@@ -76,7 +80,17 @@ module.exports = function Exp(formula) {
                     } else {
                         checkVariable(args[i - 1]);
                         checkVariable(args[i + 1]);
-                        let r = fn(args[i - 1].calc(), args[i + 1].calc());
+
+                        let a = args[i - 1].calc();
+                        let b = args[i + 1].calc();
+                        if (Array.isArray(a)) {
+                            a = a[getCurrentCellIndex() - 1][0];
+                        }
+                        if (Array.isArray(b)) {
+                            b = b[getCurrentCellIndex() - 1][0];
+                        }
+
+                        let r = fn(a, b);
                         args.splice(i - 1, 3, new RawValue(r));
                         i--;
                     }

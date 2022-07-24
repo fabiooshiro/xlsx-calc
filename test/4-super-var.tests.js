@@ -165,16 +165,18 @@ describe('trocar variavel', () => {
 
     it('calculates formulas in named cells', () => {
         workbook.Workbook = {
-            Names: [{ Name: 'XPTO', Ref: 'Sheet1!A2:A3' }],
+            Names: [{ Name: 'XPTO', Ref: 'Sheet1!A1:A2' }],
         };
         workbook.Sheets.Sheet1 = {
-            A1: { f: 'SUM(XPTO)' },
-            A2: { f: '2+1' },
-            A3: { f: 'A2+1' },
+            A1: { f: '2+1' },
+            A2: { f: 'A1+1' },   // 4
+            B2: { f: 'XPTO+1' }, // 4+1
+            A3: { f: 'SUM(XPTO)' },
         };
         let calculator = XLSX_CALC.calculator(workbook);
         calculator.execute();
-        assert.equal(workbook.Sheets.Sheet1.A1.v, 7);
+        assert.equal(workbook.Sheets.Sheet1.A3.v, 7);
+        assert.equal(workbook.Sheets.Sheet1.B2.v, 5);
     });
 
     it('throws a circular dependency error when multiple cells depend on each other in a range', () => {
