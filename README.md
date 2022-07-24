@@ -10,6 +10,10 @@ With [npm](https://www.npmjs.org/package/xlsx-calc):
 ```sh
 npm install xlsx-calc
 ```
+OR
+```sh
+yarn add xlsx-calc
+```
 
 # How to use
 
