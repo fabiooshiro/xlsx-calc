@@ -12,7 +12,7 @@ var mymodule = function(workbook, options) {
       try {
         exec_formula(formulas[i]);
       } catch (error) {
-        if (!options.continue_after_error) {
+        if (!options || !options.continue_after_error) {
           throw error
         }
         if (options.log_error) {
