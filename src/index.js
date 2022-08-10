@@ -9,7 +9,11 @@ const Calculator = require('./Calculator.js');
 var mymodule = function(workbook) {
     var formulas = find_all_cells_with_formulas(workbook, exec_formula);
     for (var i = formulas.length - 1; i >= 0; i--) {
-        exec_formula(formulas[i]);
+        try {
+          exec_formula(formulas[i]);
+        } catch (error) {
+          console.log('error executing formula', 'sheet', formulas[i].sheet_name, 'cell', formulas[i].name, error)
+        }
     }
 };
 
