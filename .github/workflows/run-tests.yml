@@ -6,15 +6,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - run: yarn
-      - run: yarn test
+      - name: Run tests
+        uses: actions/checkout@v3
+        uses: actions/setup-node@v3
+          with:
+            node-version: 16
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-  
+        run: yarn
+        run: yarn test
+
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -27,26 +28,13 @@ jobs:
     needs: release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          registry-url: https://registry.npmjs.org/
-      - run: yarn
-      - run: npm publish --access public
+      - name: Publish npm
+        uses: actions/checkout@v3
+        uses: actions/setup-node@v3
+          with:
+            node-version: 16
+            registry-url: https://registry.npmjs.org/
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
-  publish-gpr:
-    needs: release
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          registry-url: https://npm.pkg.github.com/
-      - run: yarn
-      - run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: yarn
+        run: npm publish --access public
