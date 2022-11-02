@@ -134,10 +134,10 @@ module.exports = function Exp(formula) {
 
     self.calc = function() {
         let args = self.args.concat();
-        exec_minus(args);
         exec('^', args, function(a, b) {
             return Math.pow(+a, +b);
         });
+        exec_minus(args);
         exec('/', args, function(a, b) {
             if (b == 0) {
                 throw Error('#DIV/0!');

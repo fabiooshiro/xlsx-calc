@@ -47,6 +47,11 @@ describe('Bugs', function() {
         XLSX_CALC(workbook);
         assert.equal(workbook.Sheets.Sheet1.A2.v, true);
     });
+    it('should calc 6^4-4^4 = 1040', function() {
+        workbook.Sheets.Sheet1.A2.f = '6^4-4^4';
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.A2.v, 1040);
+    });
     it('should consider the end of string', function() {
         workbook.Sheets.Sheet1.A1.f = 'IF($C$3<=0,"Tempo de Investimento Invalido",IF($C$3<=24,"x","y"))';
         workbook.Sheets.Sheet1.C3 = { v: 24 };
