@@ -28,6 +28,9 @@ workbook.Sheets['Sheet1'].A1.v = 42;
 // recalc the workbook
 var XLSX_CALC = require('xlsx-calc');
 XLSX_CALC(workbook);
+
+// recalc options for ignoring erroneous formulas
+XLSX_CALC(workbook, { continue_after_error: true, log_error: true })
 ```
 
 ## formulajs integration
