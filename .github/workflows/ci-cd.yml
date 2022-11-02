@@ -26,6 +26,7 @@ jobs:
   publish-npm:
     needs: release
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
     env:
       NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
     steps:
