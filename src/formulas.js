@@ -478,7 +478,11 @@ function EXP(n) {
 }
 
 function avg() {
-    return sum.apply(this, arguments) / counta.apply(this, arguments);
+    var aux = counta.apply(this, arguments);
+    if (aux == 0) {
+        throw Error('#DIV/0!');
+    }
+    return sum.apply(this, arguments) / aux;
 }
 
 function stDeviation() {

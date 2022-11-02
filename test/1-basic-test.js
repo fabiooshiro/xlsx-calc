@@ -15,8 +15,8 @@ const errorValues = {
 
 describe('XLSX_CALC', function() {
     let workbook;
-    beforeEach(function() {
-        workbook = {
+    function create_workbook() {
+        return {
             Sheets: {
                 Sheet1: {
                     A1: {},
@@ -38,6 +38,9 @@ describe('XLSX_CALC', function() {
                 }
             }
         };
+    }
+    beforeEach(function() {
+        workbook = create_workbook();
     });
 
     describe('ROUND', () => {
@@ -1022,6 +1025,14 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.A7 = {f: 'AVERAGE(A1:A6)'};
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A7.v, 0.25);
+        });
+        it('should calc AVERAGE of empty cells as div by zero', function() {
+            workbook.Sheets.Sheet1 = {};
+            workbook.Sheets.Sheet1.B1 = {f: 'AVERAGE(A1:A6)'};
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.B1.v, errorValues["#DIV/0!"]);
+            assert.equal(workbook.Sheets.Sheet1.B1.w, '#DIV/0!');
+            assert.equal(workbook.Sheets.Sheet1.B1.t, 'e');
         });
     });
     describe('IRR', function() {
