@@ -190,7 +190,7 @@ module.exports = function Exp(formula) {
             if (typeof a === 'string' && typeof b === 'string' && a.toLowerCase() === b.toLowerCase()) {
                 return true;
             }
-            return a == b;
+            return a === b;
         });
         if (args.length == 1) {
             if (typeof(args[0].calc) !== 'function') {

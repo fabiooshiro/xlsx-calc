@@ -37,6 +37,16 @@ describe('Bugs', function() {
         XLSX_CALC(workbook);
         assert.equal(workbook.Sheets.Sheet1.A1.v, 24);
     });
+    it('should calc 0="" as false', function() {
+        workbook.Sheets.Sheet1.A1.f = '0=""';
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.A1.v, false);
+    });
+    it('should calc 0<>"" as true', function() {
+        workbook.Sheets.Sheet1.A2.f = '0<>""';
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.A2.v, true);
+    });
     it('should consider the end of string', function() {
         workbook.Sheets.Sheet1.A1.f = 'IF($C$3<=0,"Tempo de Investimento Invalido",IF($C$3<=24,"x","y"))';
         workbook.Sheets.Sheet1.C3 = { v: 24 };
