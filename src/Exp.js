@@ -175,7 +175,7 @@ module.exports = function Exp(formula) {
             if (isEmpty(a) && isEmpty(b)) {
                 return false;
             }
-            return a != b;
+            return a !== b;
         });
         exec('=', args, function(a, b) {
             if (a instanceof Date && b instanceof Date) {

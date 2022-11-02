@@ -499,6 +499,11 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A2.v, true);
         });
+        it('evaluates 0<>"" as true', function() {
+            workbook.Sheets.Sheet1.A1.f = '0<>""';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, true);
+        });
     });
     describe('dates', function () {
         it('dateA - dateB should calc day diff', function() {
