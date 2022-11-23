@@ -36,7 +36,7 @@ function iferror(cell_ref, onerrorvalue) {
             return onerrorvalue.calc();
         }
         return value;
-    } catch(e) {
+    } catch (e) {
         return onerrorvalue.calc();
     }
 }
@@ -61,14 +61,14 @@ function _if(condition, _then, _else) {
 
 function and() {
     for (var i = 0; i < arguments.length; i++) {
-        if(!arguments[i].calc()) return false;
+        if (!arguments[i].calc()) return false;
     }
     return true;
 }
 
 function _or() {
     for (var i = 0; i < arguments.length; i++) {
-        if(arguments[i].calc()) return true;
+        if (arguments[i].calc()) return true;
     }
     return false;
 }
@@ -100,11 +100,43 @@ function transpose(expressionWithRange) {
     return matrix[0][0];
 }
 
+function filter(range, condition) {
+    let data = range.calc();
+    let conditions = condition.calc();
+    let cellName = range.formula.name;
+    let colAndRow = cellName.match(/([A-Z]+)([0-9]+)/);
+    let sheet = range.formula.sheet;
+    let colNumber = col_str_2_int(colAndRow[1]);
+    let rowNumber = +colAndRow[2];
+
+    let returnValue = sheet[cellName].v;
+    for (let i = 0; i < conditions[0].length; i++) {
+        if (conditions[0][i]) {
+            for (let row = 0; row < data.length; row++) {
+                let destinationColumn = colNumber + i;
+                let destinationRow = rowNumber + row;
+                let destinationCellName = int_2_col_str(destinationColumn) + destinationRow;
+                console.log({ destinationCellName, row, i, v: data[row][i] })
+                if (sheet[destinationCellName]) {
+                    sheet[destinationCellName].v = data[row][i];
+                    if (destinationCellName === cellName) {
+                        returnValue = data[row][i];
+                    }
+                } else {
+                    sheet[destinationCellName] = { v: data[row][i] };
+                }
+            }
+        }
+    }
+    return returnValue;
+}
+
 module.exports = {
     'OFFSET': raw_offset,
     'IFERROR': iferror,
     'IF': _if,
     'AND': and,
     'OR': _or,
-    'TRANSPOSE': transpose
+    'TRANSPOSE': transpose,
+    'FILTER': filter
 };
