@@ -32,4 +32,26 @@ describe.only('raw formulas', () => {
         assert.equal(workbook.Sheets.Sheet1.E4.v, 'aaa');
         assert.equal(workbook.Sheets.Sheet1.E5.v, 'aaaa');
     })
+    it('set the matrix into cells', () => {
+        const matrix = [
+            ['aa', 'bb', 'cc'],
+            ['aaa', 'bbb', 'ccc'],
+            ['aaaa', 'bbbb', 'cccc']
+        ];
+        const filter = {
+            SET_MATRIX: () => matrix,
+        }
+        XLSX_CALC.import_functions(filter)
+        let workbook = { Sheets: { Sheet1: { E3: { f: "SET_MATRIX()" } } } };
+        XLSX_CALC(workbook);
+        assert.equal(workbook.Sheets.Sheet1.E3.v, 'aa');
+        assert.equal(workbook.Sheets.Sheet1.E4.v, 'aaa');
+        assert.equal(workbook.Sheets.Sheet1.E5.v, 'aaaa');
+        assert.equal(workbook.Sheets.Sheet1.F3.v, 'bb');
+        assert.equal(workbook.Sheets.Sheet1.F4.v, 'bbb');
+        assert.equal(workbook.Sheets.Sheet1.F5.v, 'bbbb');
+        assert.equal(workbook.Sheets.Sheet1.G3.v, 'cc');
+        assert.equal(workbook.Sheets.Sheet1.G4.v, 'ccc');
+        assert.equal(workbook.Sheets.Sheet1.G5.v, 'cccc');
+    })
 })
