@@ -116,7 +116,7 @@ function filter(range, condition) {
                 let destinationColumn = colNumber + i;
                 let destinationRow = rowNumber + row;
                 let destinationCellName = int_2_col_str(destinationColumn) + destinationRow;
-                console.log({ destinationCellName, row, i, v: data[row][i] })
+
                 if (sheet[destinationCellName]) {
                     sheet[destinationCellName].v = data[row][i];
                     if (destinationCellName === cellName) {
