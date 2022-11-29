@@ -3,7 +3,7 @@
 const XLSX_CALC = require("../src");
 const assert = require('assert');
 
-describe.only('raw formulas', () => {
+describe('raw formulas', () => {
 
     it('should filter', () => {
         let workbook = {

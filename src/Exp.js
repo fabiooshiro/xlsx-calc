@@ -3,6 +3,7 @@
 const RawValue = require('./RawValue.js');
 const Range = require('./Range.js');
 const str_2_val = require('./str_2_val.js');
+const dynamicArrayFormulas = require('./dynamic_array_formulas.js');
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -26,7 +27,7 @@ module.exports = function Exp(formula) {
             formula.cell.v = self.calc();
             formula.cell.t = getCellType(formula.cell.v);
 
-            if (Array.isArray(formula.cell.v)) {
+            if (Array.isArray(formula.cell.v && formula.cell.name && formula.cell.f && formula.cell.f.match(new RegExp(dynamicArrayFormulas.join('|'), 'i')))) {
                 const array = formula.cell.v;
                 if (!validateResultMatrix(array)) {
                     throw new Error('#N/A');
