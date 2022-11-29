@@ -3,6 +3,7 @@
 const RawValue = require('./RawValue.js');
 const Range = require('./Range.js');
 const str_2_val = require('./str_2_val.js');
+const dynamicArrayFormulas = require('./dynamic_array_formulas.js');
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -24,11 +25,43 @@ module.exports = function Exp(formula) {
                 throw Error('#VALUE!');
             }
             formula.cell.v = self.calc();
-            if (typeof(formula.cell.v) === 'string') {
-                formula.cell.t = 's';
-            }
-            else if (typeof(formula.cell.v) === 'number') {
-                formula.cell.t = 'n';
+            formula.cell.t = getCellType(formula.cell.v);
+
+            if (Array.isArray(formula.cell.v && formula.cell.name && formula.cell.f && formula.cell.f.match(new RegExp(dynamicArrayFormulas.join('|'), 'i')))) {
+                const array = formula.cell.v;
+                if (!validateResultMatrix(array)) {
+                    throw new Error('#N/A');
+                }
+
+                const existingCell = formula.cell.name;
+                const existingCellLetter = existingCell.match(/[A-Z]+/)[0];
+                const existingCellNumber = existingCell.match(/[0-9]+/)[0];
+
+                for (let i = 0; i < array.length; i++) {
+                    const newCellNumber = parseInt(existingCellNumber) + i;
+
+                    for (let j = 0; j < array[i].length; j++) {
+                        const newCellValue = array[i][j];
+                        let newCellType = getCellType(newCellValue);
+
+                        // original cell
+                        if (i === 0 && j === 0) {
+                            formula.cell.v = newCellValue;
+                            if (newCellType) formula.cell.t = newCellType;
+                        } 
+                        // other cells
+                        else {
+                            const newLetterIndex = existingCellLetter.charCodeAt(0) - 65 + j;
+                            const newCellLetter = getCellLetter(newLetterIndex);
+
+                            const newCell = newCellLetter + newCellNumber;
+                            formula.sheet[newCell] = {
+                                v: newCellValue,
+                                t: newCellType,
+                            };
+                        }
+                    }
+                }
             }
         }
         catch (e) {
@@ -55,6 +88,40 @@ module.exports = function Exp(formula) {
             formula.status = 'done';
         }
     }
+
+    function getCellLetter(columnIndex) {
+        let newCellLetter = '';
+        while (newLetterIndex >= 0) {
+            newCellLetter = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[newLetterIndex % 26] + newCellLetter;
+            newLetterIndex = Math.floor(newLetterIndex / 26) - 1;
+        }
+    }
+
+    function getCellType(cellValue) {
+        if (typeof(cellValue) === 'string') {
+            return 's';
+        }
+        else if (typeof(cellValue) === 'number') {
+            return 'n';
+        }
+    }
+
+    function validateResultMatrix(result) {
+        // array must be greater than 0 and be symmetrical
+        if (Array.isArray(result)) {
+            for (let i = 0; i < result.length; i++) {
+                if (!(result[i] instanceof Array)) {
+                    return false;
+                }
+                if (result[i].length !== result[0].length) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     function isEmpty(value) {
         return value === undefined || value === null || value === "";
     }
