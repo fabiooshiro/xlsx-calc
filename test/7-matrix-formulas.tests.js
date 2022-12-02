@@ -3,7 +3,7 @@
 const XLSX_CALC = require("../src");
 const assert = require('assert');
 
-describe('raw formulas', () => {
+describe('matrix formulas', () => {
 
     it('should filter', () => {
         let workbook = {
@@ -36,6 +36,9 @@ describe('raw formulas', () => {
         assert.equal(workbook.Sheets.Sheet1.F3.v, 'bb');
         assert.equal(workbook.Sheets.Sheet1.F4.v, 'bbb');
         assert.equal(workbook.Sheets.Sheet1.F5.v, 'bbbb');
+        assert.equal(workbook.Sheets.Sheet1.G3.v, undefined);
+        assert.equal(workbook.Sheets.Sheet1.G4.v, undefined);
+        assert.equal(workbook.Sheets.Sheet1.G5.v, undefined);
     });
 
     it('should filter with no match', () => {

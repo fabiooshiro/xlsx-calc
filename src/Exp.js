@@ -3,11 +3,15 @@
 const RawValue = require('./RawValue.js');
 const Range = require('./Range.js');
 const str_2_val = require('./str_2_val.js');
-const dynamicArrayFormulas = require('./dynamic_array_formulas.js');
-
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const col_str_2_int = require('./col_str_2_int.js');
+const int_2_col_str = require('./int_2_col_str.js');
 
 var exp_id = 0;
+
+function isMatrix(obj) {
+    return Array.isArray(obj) && (obj.length === 0 || Array.isArray(obj[0]));
+}
 
 module.exports = function Exp(formula) {
     var self = this;
@@ -27,38 +31,29 @@ module.exports = function Exp(formula) {
             formula.cell.v = self.calc();
             formula.cell.t = getCellType(formula.cell.v);
 
-            if (Array.isArray(formula.cell.v && formula.cell.name && formula.cell.f && formula.cell.f.match(new RegExp(dynamicArrayFormulas.join('|'), 'i')))) {
+            if (isMatrix(formula.cell.v)) {
                 const array = formula.cell.v;
-                if (!validateResultMatrix(array)) {
-                    throw new Error('#N/A');
-                }
-
-                const existingCell = formula.cell.name;
-                const existingCellLetter = existingCell.match(/[A-Z]+/)[0];
-                const existingCellNumber = existingCell.match(/[0-9]+/)[0];
-
+                formula.cell.v = undefined;
+                let cellName = formula.name;
+                let colAndRow = cellName.match(/([A-Z]+)([0-9]+)/);
+                let colNumber = col_str_2_int(colAndRow[1]);
+                let rowNumber = +colAndRow[2];
                 for (let i = 0; i < array.length; i++) {
-                    const newCellNumber = parseInt(existingCellNumber) + i;
-
+                    const newCellNumber = rowNumber + i;
                     for (let j = 0; j < array[i].length; j++) {
+                        let destinationColumn = j + colNumber;
                         const newCellValue = array[i][j];
                         let newCellType = getCellType(newCellValue);
-
-                        // original cell
-                        if (i === 0 && j === 0) {
-                            formula.cell.v = newCellValue;
+                        let destinationCellName = int_2_col_str(destinationColumn) + newCellNumber;
+                        let cell = formula.sheet[destinationCellName];
+                        if (cell) {
+                            cell.v = newCellValue;
                             if (newCellType) formula.cell.t = newCellType;
-                        } 
-                        // other cells
-                        else {
-                            const newLetterIndex = existingCellLetter.charCodeAt(0) - 65 + j;
-                            const newCellLetter = getCellLetter(newLetterIndex);
-
-                            const newCell = newCellLetter + newCellNumber;
-                            formula.sheet[newCell] = {
+                        } else {
+                            formula.sheet[destinationCellName] = {
                                 v: newCellValue,
                                 t: newCellType,
-                            };
+                            }
                         }
                     }
                 }
@@ -89,14 +84,6 @@ module.exports = function Exp(formula) {
         }
     }
 
-    function getCellLetter(columnIndex) {
-        let newCellLetter = '';
-        while (newLetterIndex >= 0) {
-            newCellLetter = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[newLetterIndex % 26] + newCellLetter;
-            newLetterIndex = Math.floor(newLetterIndex / 26) - 1;
-        }
-    }
-
     function getCellType(cellValue) {
         if (typeof(cellValue) === 'string') {
             return 's';
@@ -104,22 +91,6 @@ module.exports = function Exp(formula) {
         else if (typeof(cellValue) === 'number') {
             return 'n';
         }
-    }
-
-    function validateResultMatrix(result) {
-        // array must be greater than 0 and be symmetrical
-        if (Array.isArray(result)) {
-            for (let i = 0; i < result.length; i++) {
-                if (!(result[i] instanceof Array)) {
-                    return false;
-                }
-                if (result[i].length !== result[0].length) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     function isEmpty(value) {

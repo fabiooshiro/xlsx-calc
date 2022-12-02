@@ -50,6 +50,7 @@ let formulas = {
     'CHOOSE': choose,
     'SUBSTITUTE': substitute,
     'CEILING': ceiling,
+    'FILTER': filter,
 };
 
 function choose(option) {
@@ -886,6 +887,21 @@ function substitute(text, old_text, new_text, occurrence) {
 
 function ceiling(number, significance) {
     return Math.ceil(number / significance) * significance
+}
+
+function filter(range, conditions) {
+    let matrix = [];
+    for (let row = 0; row < range.length; row++) {
+        matrix[row] = [];
+        for (let i = 0; i < range[row].length; i++) {
+            if (conditions[0][i]) {
+                matrix[row][i] = range[row][i];
+            } else {
+                matrix[row][i] = undefined;
+            }
+        }
+    }
+    return matrix;
 }
 
 module.exports = formulas;
