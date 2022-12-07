@@ -821,6 +821,23 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A1.w, "#VALUE!");
         });
+
+        it('should return days between two values', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-05-01'),
+                w: '2019-05-01'
+            };
+            workbook.Sheets.Sheet1.A2 = {
+                t: 'd',
+                v: new Date('2019-06-01'),
+                w: '2019-06-01'
+            };
+            workbook.Sheets.Sheet1.A3 = { f: 'DATEDIF(A1,A2,"D")' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A3.v, 31);
+            assert.equal(workbook.Sheets.Sheet1.A3.t, 'n');
+        });
     });
 
     describe('RIGHT', function () {
