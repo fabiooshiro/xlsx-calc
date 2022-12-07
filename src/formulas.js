@@ -50,6 +50,7 @@ let formulas = {
     'CHOOSE': choose,
     'SUBSTITUTE': substitute,
     'CEILING': ceiling,
+    'DATEDIF': datediff,
 };
 
 function choose(option) {
@@ -818,6 +819,27 @@ function year(date) {
         throw Error('#VALUE!');
     }
     return year;
+}
+
+function datediff(date1, date2, unit) {
+    date1 = new Date(date1);
+    date2 = new Date(date2);
+
+    if (!date1 || !date2 || date1 == 'Invalid Date' || date2 == 'Invalid Date') {
+        throw Error('#VALUE!');
+    }
+
+    unit = unit.replace(/[^DMY]/ig, "");
+
+    switch(unit) {
+        case "M":
+            return date2.getMonth() - date1.getMonth() + (12 * (date2.getFullYear() - date1.getFullYear()))
+        case "Y":
+            return  Math.abs(date2.getUTCFullYear() - date1.getUTCFullYear());
+        case "D": default: 
+            var timeDiff = Math.abs(date2 - date1);
+            return Math.ceil(timeDiff / (1000 * 3600 * 24));
+    }
 }
 
 function right(text, number) {

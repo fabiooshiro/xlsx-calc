@@ -797,6 +797,32 @@ describe('XLSX_CALC', function() {
         });
     });
 
+    describe('DATEDIF', function () {
+        it('calcs DATEDIF("2000/1/1", "2001/1/1", "D")', function() {
+            workbook.Sheets.Sheet1.A1.f = `DATEDIF('2000-01-01', '2001-01-01', 'D')`;
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 366);
+        });
+
+        it('calcs DATEDIF("2000/1/1", "2001/1/1", "M")', function() {
+            workbook.Sheets.Sheet1.A1.f = `DATEDIF('2000-01-01', '2001-01-01', 'M')`;
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 12);
+        });
+
+        it('calcs DATEDIF("2000/1/1", "2001/1/1", "Y")', function() {
+            workbook.Sheets.Sheet1.A1.f = `DATEDIF('2000-01-01', '2001-01-01', 'Y')`;
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 1);
+        });
+
+        it('should throw #VALUE error if applied to an invalid date', function () {
+            workbook.Sheets.Sheet1.A1.f = `DATEDIF('NOT A DAY', '2001-01-01', 'Y')`;
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.w, "#VALUE!");
+        });
+    });
+
     describe('RIGHT', function () {
         it('should return n last characters of a string value', function () {
             workbook.Sheets.Sheet1.A1.v = 'test value';
