@@ -797,6 +797,86 @@ describe('XLSX_CALC', function() {
         });
     });
 
+    describe('DATEDIF', function () {
+        it('calcs DATEDIF("2000/1/1", "2001/1/1", "D")', function() {
+            workbook.Sheets.Sheet1.A1.f = `DATEDIF('2000-01-01', '2001-01-01', 'D')`;
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 366);
+        });
+
+        it('calcs DATEDIF("2000/1/1", "2001/1/1", "M")', function() {
+            workbook.Sheets.Sheet1.A1.f = `DATEDIF('2000-01-01', '2001-01-01', 'M')`;
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 12);
+        });
+
+        it('calcs DATEDIF("2000/1/1", "2001/1/1", "Y")', function() {
+            workbook.Sheets.Sheet1.A1.f = `DATEDIF('2000-01-01', '2001-01-01', 'Y')`;
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 1);
+        });
+
+        it('should throw #VALUE error if applied to an invalid date', function () {
+            workbook.Sheets.Sheet1.A1.f = `DATEDIF('NOT A DAY', '2001-01-01', 'Y')`;
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.w, "#VALUE!");
+        });
+
+        it('should return days between two values', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-05-01'),
+                w: '2019-05-01'
+            };
+            workbook.Sheets.Sheet1.A2 = {
+                t: 'd',
+                v: new Date('2019-06-01'),
+                w: '2019-06-01'
+            };
+            workbook.Sheets.Sheet1.A3 = { f: 'DATEDIF(A1,A2,"D")' };
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A3.v, 31);
+            assert.equal(workbook.Sheets.Sheet1.A3.t, 'n');
+        });
+    });
+
+    describe('EOMONTH', function () {
+        it('calcs EOMONTH("2000/1/1", 0)', function() {
+            workbook.Sheets.Sheet1.A1.f = `EOMONTH("2000/1/1", 0)`;
+            XLSX_CALC(workbook);
+            assert.deepEqual(workbook.Sheets.Sheet1.A1.v, new Date("2000-01-31"));
+        });
+
+        it('calcs EOMONTH("2000/1/1", 1)', function() {
+            workbook.Sheets.Sheet1.A1.f = `EOMONTH("2000/1/1", 1)`;
+            XLSX_CALC(workbook);
+            assert.deepEqual(workbook.Sheets.Sheet1.A1.v, new Date("2000-02-29"));
+        });
+
+        it('calcs EOMONTH("2000/12/1", 1)', function() {
+            workbook.Sheets.Sheet1.A1.f = `EOMONTH("2000/12/1", 10)`;
+            XLSX_CALC(workbook);
+            assert.deepEqual(workbook.Sheets.Sheet1.A1.v, new Date("2001-10-31"));
+        });
+
+        it('should throw #VALUE error if applied to an invalid date', function () {
+            workbook.Sheets.Sheet1.A1.f = `EOMONTH('NOT A DAY', 0)`;
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.w, "#VALUE!");
+        });
+
+        it('should return end of a month', function () {
+            workbook.Sheets.Sheet1.A1 = {
+                t: 'd',
+                v: new Date('2019-05-01'),
+                w: '2019-05-01'
+            };
+            workbook.Sheets.Sheet1.A3 = { f: 'EOMONTH(A1,1)' };
+            XLSX_CALC(workbook);
+            assert.deepEqual(workbook.Sheets.Sheet1.A3.v, new Date('2019-06-30'));
+        });
+    });
+
     describe('RIGHT', function () {
         it('should return n last characters of a string value', function () {
             workbook.Sheets.Sheet1.A1.v = 'test value';
