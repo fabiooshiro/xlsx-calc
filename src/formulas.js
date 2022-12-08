@@ -793,7 +793,7 @@ function day(date) {
     if (!date.getDate) {
         throw Error('#VALUE!');
     }
-    var day = date.getDate();
+    var day = date.getUTCDate();
     if (isNaN(day)) {
         throw Error('#VALUE!');
     }
@@ -804,7 +804,7 @@ function month(date) {
     if (!date.getMonth) {
         throw Error('#VALUE!');
     }
-    var month = date.getMonth();
+    var month = date.getUTCMonth();
     if (isNaN(month)) {
         throw Error('#VALUE!');
     }
@@ -815,7 +815,7 @@ function year(date) {
     if (!date.getFullYear) {
         throw Error('#VALUE!');
     }
-    var year = date.getFullYear();
+    var year = date.getUTCFullYear();
     if (isNaN(year)) {
         throw Error('#VALUE!');
     }
