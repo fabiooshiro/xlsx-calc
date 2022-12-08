@@ -51,6 +51,7 @@ let formulas = {
     'SUBSTITUTE': substitute,
     'CEILING': ceiling,
     'DATEDIF': datediff,
+    'EOMONTH': eomonth,
 };
 
 function choose(option) {
@@ -840,6 +841,19 @@ function datediff(date1, date2, unit) {
             var timeDiff = Math.abs(date2 - date1);
             return Math.ceil(timeDiff / (1000 * 3600 * 24));
     }
+}
+
+function eomonth(date, months) {
+    date = new Date(date);
+    if (!date || date == 'Invalid Date') {
+        throw Error('#VALUE!');
+    }
+    months = months || 0;
+    var endofmonth = new Date(date.getUTCFullYear(), date.getUTCMonth()+months+1, 0);
+    endofmonth.setUTCHours(0);
+    endofmonth.setUTCMinutes(0);
+    endofmonth.setUTCSeconds(0);   
+    return endofmonth;
 }
 
 function right(text, number) {
