@@ -50,6 +50,8 @@ let formulas = {
     'CHOOSE': choose,
     'SUBSTITUTE': substitute,
     'CEILING': ceiling,
+    'DATEDIF': datediff,
+    'EOMONTH': eomonth,
 };
 
 function choose(option) {
@@ -791,7 +793,7 @@ function day(date) {
     if (!date.getDate) {
         throw Error('#VALUE!');
     }
-    var day = date.getDate();
+    var day = date.getUTCDate();
     if (isNaN(day)) {
         throw Error('#VALUE!');
     }
@@ -802,7 +804,7 @@ function month(date) {
     if (!date.getMonth) {
         throw Error('#VALUE!');
     }
-    var month = date.getMonth();
+    var month = date.getUTCMonth();
     if (isNaN(month)) {
         throw Error('#VALUE!');
     }
@@ -813,11 +815,45 @@ function year(date) {
     if (!date.getFullYear) {
         throw Error('#VALUE!');
     }
-    var year = date.getFullYear();
+    var year = date.getUTCFullYear();
     if (isNaN(year)) {
         throw Error('#VALUE!');
     }
     return year;
+}
+
+function datediff(date1, date2, unit) {
+    date1 = new Date(date1);
+    date2 = new Date(date2);
+
+    if (!date1 || !date2 || date1 == 'Invalid Date' || date2 == 'Invalid Date') {
+        throw Error('#VALUE!');
+    }
+
+    unit = unit.replace(/[^DMY]/ig, "");
+
+    switch(unit) {
+        case "M":
+            return date2.getMonth() - date1.getMonth() + (12 * (date2.getFullYear() - date1.getFullYear()))
+        case "Y":
+            return  Math.abs(date2.getUTCFullYear() - date1.getUTCFullYear());
+        case "D": default: 
+            var timeDiff = Math.abs(date2 - date1);
+            return Math.ceil(timeDiff / (1000 * 3600 * 24));
+    }
+}
+
+function eomonth(date, months) {
+    date = new Date(date);
+    if (!date || date == 'Invalid Date') {
+        throw Error('#VALUE!');
+    }
+    months = months || 0;
+    var endofmonth = new Date(date.getUTCFullYear(), date.getUTCMonth()+months+1, 0);
+    endofmonth.setUTCHours(0);
+    endofmonth.setUTCMinutes(0);
+    endofmonth.setUTCSeconds(0);   
+    return endofmonth;
 }
 
 function right(text, number) {
