@@ -1,3 +1,5 @@
+const error = require('./errors')
+
 function parseBool(bool) {
     if (typeof bool === 'boolean') {
         return bool

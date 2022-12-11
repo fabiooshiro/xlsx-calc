@@ -982,7 +982,7 @@ function ceiling(number, significance) {
     for (let i = 0; i < arrayHeight; i++) {
         const row = []
         for (let j = 0; j < arrayWidth; j++) {
-            const value = include[i]?.[j] ?? include[0]?.[j] ?? include[i]?.[0]
+            const value = getMatrixValueForFilter(include, i, j) || getMatrixValueForFilter(include, 0, j) || getMatrixValueForFilter(include, i, 0)
             const bool = utils.parseBool(value)
             if (bool === true) row.push(array[i][j])
             else if (bool instanceof Error) return utils.addEmptyValuesToArray([[bool]], arrayWidth, arrayHeight)
@@ -999,6 +999,15 @@ function ceiling(number, significance) {
     }
 
     return utils.addEmptyValuesToArray(result, arrayWidth, arrayHeight)
+}
+
+function getMatrixValueForFilter(matrix, i, j) {
+    if (matrix[i]) {
+        if (matrix[i][j] === false) {
+            return 'FALSE'
+        }
+        return matrix[i][j]
+    }
 }
 
 function throwErrors(someFormula) {
