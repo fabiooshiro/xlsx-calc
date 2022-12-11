@@ -2,16 +2,13 @@
   "name": "xlsx-calc",
   "version": "0.8.1",
   "description": "A simple xlsx formula calculator.",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "repository": "git@github.com:fabiooshiro/xlsx-calc.git",
   "author": "Sr Oshiro <fabio.oshiro@gmail.com>",
   "scripts": {
     "test": "ts-mocha -p ./tsconfig.json test/*-test.ts",
     "test:watch": "ts-mocha test/*-test.ts -w --watch-files '**/*.ts'",
-    "watch": "mocha --watch --reporter=min",
-    "dev": "webpack --mode=development -w",
-    "test-w": "mocha -w --check-leaks --sort",
-    "build": "webpack --mode=production && sh deprecated-clones.sh"
+    "build": "tsc"
   },
   "dependencies": {},
   "devDependencies": {

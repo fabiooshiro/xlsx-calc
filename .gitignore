@@ -4,3 +4,5 @@ coverage
 *.xlsx#
 /test/fund*.xlsx
 yarn-error.log
+/dist
+/lib
