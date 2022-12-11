@@ -6,7 +6,7 @@ const str_2_val = require('./str_2_val.js');
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const col_str_2_int = require('./col_str_2_int.js');
 const int_2_col_str = require('./int_2_col_str.js');
-
+const { getErrorValueByMessage } = require('./errors')
 var exp_id = 0;
 
 function isMatrix(obj) {
@@ -26,61 +26,63 @@ module.exports = function Exp(formula) {
             if (Array.isArray(self.args) 
                     && self.args.length === 1
                     && self.args[0] instanceof Range) {
-                throw Error('#VALUE!');
+                throw new Error('#VALUE!');
             }
             formula.cell.v = self.calc();
             formula.cell.t = getCellType(formula.cell.v);
-
             if (isMatrix(formula.cell.v)) {
                 const array = formula.cell.v;
                 formula.cell.v = undefined;
-                let cellName = formula.name;
-                let colAndRow = cellName.match(/([A-Z]+)([0-9]+)/);
+                let cellsName = formula.name;
+                let colAndRow = cellsName.match(/([A-Z]+)([0-9]+)/);
                 let colNumber = col_str_2_int(colAndRow[1]);
                 let rowNumber = +colAndRow[2];
                 for (let i = 0; i < array.length; i++) {
                     const newCellNumber = rowNumber + i;
                     for (let j = 0; j < array[i].length; j++) {
-                        let destinationColumn = j + colNumber;
                         const newCellValue = array[i][j];
-                        let newCellType = getCellType(newCellValue);
-                        let destinationCellName = int_2_col_str(destinationColumn) + newCellNumber;
+                        const destinationColumn = j + colNumber;
+                        const destinationCellName = int_2_col_str(destinationColumn) + newCellNumber;
                         let cell = formula.sheet[destinationCellName];
-                        if (cell) {
-                            cell.v = newCellValue;
-                            if (newCellType) formula.cell.t = newCellType;
-                        } else {
-                            formula.sheet[destinationCellName] = {
-                                v: newCellValue,
-                                t: newCellType,
-                            }
+                        if (!cell) {
+                            cell = {};
+                            formula.sheet[destinationCellName] = cell;
                         }
+                        applyCellValue(cell, newCellValue);
                     }
                 }
             }
         }
         catch (e) {
-            var errorValues = {
-                '#NULL!': 0x00,
-                '#DIV/0!': 0x07,
-                '#VALUE!': 0x0F,
-                '#REF!': 0x17,
-                '#NAME?': 0x1D,
-                '#NUM!': 0x24,
-                '#N/A': 0x2A,
-                '#GETTING_DATA': 0x2B
-            };
-            if (errorValues[e.message] !== undefined) {
-                formula.cell.t = 'e';
-                formula.cell.w = e.message;
-                formula.cell.v = errorValues[e.message];
-            }
-            else {
+            if (!applyCellError(formula.cell, e)) {
                 throw e;
             }
         }
         finally {
             formula.status = 'done';
+        }
+    }
+
+    function applyCellError(cell, cellValueOrError) {
+        const error = cellValueOrError || {};
+        cell.t = 'e';
+        const errorValue = getErrorValueByMessage(error.message);
+        if (errorValue !== undefined) {
+            cell.w = error.message;
+            cell.v = errorValue;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function applyCellValue(cell, cellValueOrError) {
+        if (cellValueOrError instanceof Error) {
+            applyCellError(cell, cellValueOrError)
+        } else {
+            const newCellType = getCellType(cellValueOrError);
+            cell.v = cellValueOrError;
+            if (newCellType) cell.t = newCellType;
         }
     }
 
@@ -90,6 +92,9 @@ module.exports = function Exp(formula) {
         }
         else if (typeof(cellValue) === 'number') {
             return 'n';
+        }
+        else if (cellValue instanceof Error) {
+            return 'e';
         }
     }
 
