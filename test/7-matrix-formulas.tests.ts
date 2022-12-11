@@ -1,12 +1,10 @@
-"use strict";
-
-const XLSX_CALC = require("../src");
-const assert = require('assert');
+import * as assert from 'assert';
+import XLSX_CALC from "../src";
 
 describe('matrix formulas', () => {
 
     it('should filter', () => {
-        let workbook = {
+        let workbook: any = {
             Sheets: {
                 Sheet1: {
                     A3: {v: 'aa'},
@@ -42,7 +40,7 @@ describe('matrix formulas', () => {
     });
 
     it('should filter with no match', () => {
-        let workbook = {
+        let workbook: any = {
             Sheets: {
                 Sheet1: {
                     A3: {v: 'aa'},
@@ -74,7 +72,7 @@ describe('matrix formulas', () => {
     });
 
     it('should filter with all match', () => {
-        let workbook = {
+        let workbook: any = {
             Sheets: {
                 Sheet1: {
                     A3: {v: 'aa'},

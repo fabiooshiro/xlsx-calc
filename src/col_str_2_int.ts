@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function col_str_2_int(col_str) {
+export function col_str_2_int(col_str) {
     var r = 0;
     var colstr = col_str.replace(/[0-9]+$/, '');
     for (var i = colstr.length; i--;) {

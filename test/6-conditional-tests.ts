@@ -1,9 +1,9 @@
-const XLSX_CALC = require("../src");
-const assert = require("assert");
+import * as assert from 'assert';
+import XLSX_CALC from "../src";
 
 xdescribe("verifica condicionais", () => {
   it("valida ifs", () => {
-    let workbook = {
+    let workbook: any = {
       Sheets: {
         Sheet1: { A1: {} }
       }
@@ -13,7 +13,7 @@ xdescribe("verifica condicionais", () => {
     assert.equal(workbook.Sheets.Sheet1.A1.v, 123);
   });
   it("valida ifs", () => {
-    let workbook = {
+    let workbook: any = {
       Sheets: {
         Sheet1: { A1: {} }
       }

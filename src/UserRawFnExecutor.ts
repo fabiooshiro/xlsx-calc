@@ -1,6 +1,4 @@
-"use strict";
-
-module.exports = function UserRawFnExecutor(user_function, formula) {
+export function UserRawFnExecutor(user_function, _formula) {
     var self = this;
     self.name = 'UserRawFn';
     self.args = [];

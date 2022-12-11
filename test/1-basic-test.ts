@@ -1,7 +1,6 @@
-"use strict";
+import * as assert from 'assert';
+import XLSX_CALC from "../src";
 
-const XLSX_CALC = require("../src");
-const assert = require('assert');
 const errorValues = {
     '#NULL!': 0x00,
     '#DIV/0!': 0x07,
@@ -427,8 +426,8 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.A2 = { t: 'n', v: 1 };
             workbook.Sheets.Sheet1.A3 = { t: 'n', v: 2 };
             workbook.Sheets.Sheet1.B1 = { f: 'A1:A3' };
-            var exec_formula = require('../src/exec_formula.js'),
-            find_all_cells_with_formulas = require('../src/find_all_cells_with_formulas.js');
+            const { exec_formula } = require('../src/exec_formula');
+            const { find_all_cells_with_formulas } = require('../src/find_all_cells_with_formulas');
             var formula = find_all_cells_with_formulas(workbook, exec_formula)[0];
             var range = exec_formula.build_expression(formula).args[0].calc();
             var expected = [
@@ -534,7 +533,7 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.A2 = { f: 'A1 + 5' };
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.A2.t, 'n');
-            assert.equal(workbook.Sheets.Sheet1.A2.v, Date.parse(new Date('2019-01-15')));
+            assert.equal(workbook.Sheets.Sheet1.A2.v, Date.parse(new Date('2019-01-15') as any));
         });
         it('< operator should work for dates', function () {
             workbook.Sheets.Sheet1.A1 = {
@@ -662,7 +661,7 @@ describe('XLSX_CALC', function() {
             };
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.B1.t, 'n');
-            assert.equal(workbook.Sheets.Sheet1.B1.v, Date.parse(new Date('2019-02-18 08:30')));
+            assert.equal(workbook.Sheets.Sheet1.B1.v, Date.parse(new Date('2019-02-18 08:30') as any));
         });
         xit('MIN, MAX should work for dates', function () {
             workbook.Sheets.Sheet1.A1 = {

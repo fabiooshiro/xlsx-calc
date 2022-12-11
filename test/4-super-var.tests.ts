@@ -1,7 +1,5 @@
-"use strict";
-
-const XLSX_CALC = require("../src");
-const assert = require('assert');
+import * as assert from 'assert';
+import XLSX_CALC from "../src";
 
 describe('trocar variavel', () => {
     let workbook;

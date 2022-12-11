@@ -1,8 +1,6 @@
-"use strict";
+import { getSanitizedSheetName } from './getSanitizedSheetName';
 
-const getSanitizedSheetName = require('./getSanitizedSheetName.js');
-
-module.exports = function RefValue(str_expression, formula) {
+export function RefValue(str_expression, formula) {
     var self = this;
     this.name = 'RefValue';
     this.str_expression = str_expression;

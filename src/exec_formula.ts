@@ -1,20 +1,20 @@
-"use strict";
+import { expression_builder}  from './expression_builder';
+import formulas from './formulas';
+import rawFormulas from './formulas-raw';
 
-const expression_builder = require('./expression_builder.js');
-
-let xlsx_Fx = {};
+let xlsx_Fx: any = {};
 let xlsx_raw_Fx = {};
 
-import_functions(require('./formulas.js'));
-import_raw_functions(require('./formulas-raw.js'));
+import_functions(formulas);
+import_raw_functions(rawFormulas);
 
-function import_raw_functions(functions, opts) {
+function import_raw_functions(functions, _opts?) {
     for (var key in functions) {
         xlsx_raw_Fx[key] = functions[key];
     }
 }
 
-function import_functions(formulajs, opts) {
+function import_functions(formulajs, opts?) {
     opts = opts || {};
     var prefix = opts.prefix || '';
     for (var key in formulajs) {
@@ -47,7 +47,7 @@ function build_expression(formula) {
     return expression_builder(formula, {xlsx_Fx: xlsx_Fx, xlsx_raw_Fx: xlsx_raw_Fx});
 }
 
-function exec_formula(formula) {
+export function exec_formula(formula) {
     let root_exp = build_expression(formula);
     root_exp.update_cell_value();
 }
@@ -76,4 +76,3 @@ exec_formula.import_functions = import_functions;
 exec_formula.import_raw_functions = import_raw_functions;
 exec_formula.build_expression = build_expression;
 exec_formula.xlsx_Fx = xlsx_Fx;
-module.exports = exec_formula;

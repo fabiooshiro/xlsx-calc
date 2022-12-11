@@ -1,6 +1,4 @@
-"use strict";
-
-module.exports = function int_2_col_str(n) {
+export function int_2_col_str(n: number) {
     var dividend = n + 1;
     var columnName = '';
     var modulo;

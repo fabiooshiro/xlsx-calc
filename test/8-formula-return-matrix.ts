@@ -1,12 +1,11 @@
-"use strict";
+import * as assert from 'assert';
 
-const XLSX_CALC = require("../src");
-const assert = require('assert');
+import XLSX_CALC from "../src";
 
 describe('formula that returns a matrix', () => {
 
     it('should set a matrix 3x3', () => {
-        let workbook = {
+        let workbook: any = {
             Sheets: {
                 Sheet1: {
                     E3: {f:  "SET_MATRIX()"},
@@ -34,7 +33,7 @@ describe('formula that returns a matrix', () => {
     });
 
     it('should replace empty blocks', () => {
-        let workbook = {
+        let workbook: any = {
             Sheets: {
                 Sheet1: {
                     E3: {f:  "SET_MATRIX()"},

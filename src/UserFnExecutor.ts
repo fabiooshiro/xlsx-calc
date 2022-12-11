@@ -1,8 +1,6 @@
-"use strict";
+import { getErrorValueByMessage } from './errors';
 
-const { getErrorValueByMessage } = require('./errors')
-
-module.exports = function UserFnExecutor(user_function) {
+export function UserFnExecutor(user_function, _formula?: any) {
     var self = this;
     self.name = 'UserFn';
     self.args = [];

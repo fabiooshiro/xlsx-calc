@@ -1,8 +1,6 @@
-"use strict";
-
-const XLSX_CALC = require("../src");
+import * as assert from 'assert';
+import XLSX_CALC from "../src";
 var XLSX = require('xlsx');
-var assert = require('assert');
 
 describe('Bugs', function() {
     var workbook;
@@ -91,7 +89,7 @@ describe('Bugs', function() {
     });
 
     it('some bug?', () => {
-        let workbook = {
+        let workbook: any = {
             Sheets: {
                 Sample: {
                     A1: { f: 'CONCATENATE("I"," told"," you ","10"," times",".")' },
@@ -117,7 +115,7 @@ describe('Bugs', function() {
     });
 
     it('fixes null is equal 0 in excel', () => {
-        let workbook = {
+        let workbook: any = {
             Sheets: {
                 Sample: {
                     A1: {  },
@@ -131,7 +129,7 @@ describe('Bugs', function() {
     });
 
     it('fixes Excel string comparison is case insensitive', () => {
-        let workbook = {
+        let workbook: any = {
             Sheets: {
                 Sample: {
                     A1: { f: 'IF("a"="A","OK","Not Ok")' },
@@ -159,7 +157,7 @@ describe('Bugs', function() {
 
     describe('"ref is an error with new formula" error thrown when executing a formula containing a number division by a blank cell', () => {
         it('should not run that division', () => {
-            let workbook = {
+            let workbook: any = {
                 Sheets: {
                     Sample: {
                         A1: {  },
@@ -172,7 +170,7 @@ describe('Bugs', function() {
             assert.equal(sheet.A2.v, "Number cannot be divided by 0");
         });
         it('should not run that multiplication', () => {
-            let workbook = {
+            let workbook: any = {
                 Sheets: {
                     Sample: {
                         A1: {  },

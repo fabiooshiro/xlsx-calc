@@ -1,6 +1,7 @@
-var assert = require('assert');
+import * as assert from 'assert';
+import XLSX_CALC from "../src";
 var XLSX = require('xlsx');
-const XLSX_CALC = require("../src");
+
 
 describe('XLSX with XLSX_CALC', function() {
 

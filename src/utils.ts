@@ -1,6 +1,6 @@
-const error = require('./errors')
+import * as error from './errors'
 
-function parseBool(bool) {
+export function parseBool(bool) {
     if (typeof bool === 'boolean') {
         return bool
     }
@@ -25,7 +25,7 @@ function parseBool(bool) {
         }
     }
 
-    if (bool instanceof Date && !isNaN(bool)) {
+    if (bool instanceof Date && !isNaN(bool as any)) {
         return true
     }
 
@@ -33,7 +33,7 @@ function parseBool(bool) {
 }
 
 // E.g. addEmptyValuesToArray([[1]], 2, 2) => [[1, ""], ["", ""]]
-function addEmptyValuesToArray(array, requiredLength, requiredHeight) {
+export function addEmptyValuesToArray(array, requiredLength, requiredHeight) {
     if (!array || !requiredLength || !requiredHeight) {
         return array
     }
@@ -68,9 +68,4 @@ function addEmptyValuesToArray(array, requiredLength, requiredHeight) {
     }
 
     return array
-}
-
-module.exports = {
-    addEmptyValuesToArray,
-    parseBool,
 }

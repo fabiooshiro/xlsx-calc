@@ -1,11 +1,14 @@
-"use strict";
+import { RawValue } from './RawValue';
+import { str_2_val}  from './str_2_val';
+import { find_all_cells_with_formulas } from './find_all_cells_with_formulas';
 
-const RawValue = require('./RawValue.js');
-const str_2_val = require('./str_2_val.js');
-const find_all_cells_with_formulas = require('./find_all_cells_with_formulas.js');
+export class Calculator {
+    workbook: any;
+    expressions: any[];
+    exec_formula: any;
+    variables: {};
+    formulas: any;
 
-class Calculator {
-    
     constructor(workbook, exec_formula) {
         this.workbook = workbook;
         this.expressions = [];
@@ -18,7 +21,7 @@ class Calculator {
         }
         this.calcNames();
     }
-    
+
     setVar(var_name, value) {
         let variable = this.variables[var_name];
         if (variable) {
@@ -29,7 +32,7 @@ class Calculator {
             });
         }
     }
-    
+
     getVars() {
         let vars = {};
         for (let k in this.variables) {
@@ -37,7 +40,7 @@ class Calculator {
         }
         return vars;
     }
-    
+
     calcNames() {
         if (!this.workbook || !this.workbook.Workbook || !this.workbook.Workbook.Names) {
             return;
@@ -50,7 +53,7 @@ class Calculator {
             });
         });
     }
-    
+
     getRef(ref_name) {
         if (!this.formulas.length) {
             throw new Error("No formula found.");
@@ -64,8 +67,8 @@ class Calculator {
         };
         return str_2_val(ref_name, formula);
     }
-    
-    setVarOfExpression(exp, var_name, value) {
+
+    setVarOfExpression(exp, var_name, value?: any) {
         for (let i = 0; i < exp.args.length; i++) {
             let arg = exp.args[i];
             if (arg === var_name) {
@@ -75,12 +78,10 @@ class Calculator {
             }
         }
     }
-    
+
     execute() {
         this.expressions.forEach(exp => {
             exp.update_cell_value();
         });
     }
 }
-
-module.exports = Calculator;

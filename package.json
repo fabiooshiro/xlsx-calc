@@ -6,7 +6,8 @@
   "repository": "git@github.com:fabiooshiro/xlsx-calc.git",
   "author": "Sr Oshiro <fabio.oshiro@gmail.com>",
   "scripts": {
-    "test": "mocha",
+    "test": "ts-mocha -p ./tsconfig.json test/*-test.ts",
+    "test:watch": "ts-mocha test/*-test.ts -w --watch-files '**/*.ts'",
     "watch": "mocha --watch --reporter=min",
     "dev": "webpack --mode=development -w",
     "test-w": "mocha -w --check-leaks --sort",
@@ -15,9 +16,13 @@
   "dependencies": {},
   "devDependencies": {
     "@formulajs/formulajs": "^2.6.3",
+    "@types/expect": "^24.3.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.11.13",
     "mocha": "^8.3.0",
     "nyc": "^15.1.0",
     "pre-commit": "^1.2.2",
+    "ts-mocha": "^10.0.0",
     "typescript": "^4.9.4",
     "webpack": "^4.46.0",
     "webpack-cli": "^3.3.12",

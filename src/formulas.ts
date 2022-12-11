@@ -1,6 +1,5 @@
-"use strict";
+import * as error from './errors';
 const utils = require('./utils')
-const error = require('./errors')
 
 // +---------------------+
 // | FORMULAS REGISTERED |
@@ -55,6 +54,8 @@ let formulas = {
     'FILTER': throwErrors(FILTER),
 };
 
+export default formulas;
+
 function choose(option) {
     return arguments[option];
 }
@@ -63,15 +64,15 @@ function sumif(){
 
     let elementToSum = arguments[1];
     let sumResult = 0;
-
+    const originalArguments = arguments;
     [].slice.call(arguments)[0][0].forEach((elt,key) =>{
         
         if (elt!==null){
             //if the element is not a string but a number, number has no replace function, so converting to string.
             elt = elt.toString();
             if( elt.replace(/\'/g, "") === elementToSum){
-                if (!isNaN([].slice.call(arguments)[2][0][key])){
-                    sumResult += [].slice.call(arguments)[2][0][key]
+                if (!isNaN([].slice.call(originalArguments)[2][0][key])){
+                    sumResult += [].slice.call(originalArguments)[2][0][key]
                 }
             }
         }
@@ -165,7 +166,7 @@ function sumproduct() {
             for (var j = 0; j < row.length; j++) {
                 var col = row[j];
                 if (Array.isArray(col)) {
-                    for (var k = 0; k < col.length; k++) {
+                    for (let k = 0; k < col.length; k++) {
                         var cell = col[k];
                         if (cell && typeof cell === 'object' && cell.t === 'e') {
                             throw Error(cell.w);
@@ -366,7 +367,7 @@ function index(matrix, row_num, column_num) {
 
 // impl ported from https://github.com/FormulaPages/hlookup
 function hlookup(needle, table, index, exactmatch) {
-    if (typeof needle === "undefined" || (0, is_blank)(needle)) {
+    if (typeof needle === "undefined" || is_blank(needle)) {
         throw Error('#N/A');
     }
 
@@ -421,7 +422,7 @@ function covariance_p(a, b) {
 }
 
 function getArrayOfNumbers(range) {
-    var arr = [];
+    const arr: any[] = [];
     for (var i = 0; i < range.length; i++) {
         var arg = range[i];
         if (Array.isArray(arg)) {
@@ -978,9 +979,9 @@ function ceiling(number, significance) {
     }
 
     // filter
-    const result = []
+    const result: any[] = []
     for (let i = 0; i < arrayHeight; i++) {
-        const row = []
+        const row: any[] = []
         for (let j = 0; j < arrayWidth; j++) {
             const value = getMatrixValueForFilter(include, i, j) || getMatrixValueForFilter(include, 0, j) || getMatrixValueForFilter(include, i, 0)
             const bool = utils.parseBool(value)
@@ -1020,4 +1021,4 @@ function throwErrors(someFormula) {
     }
 }
 
-module.exports = formulas;
+

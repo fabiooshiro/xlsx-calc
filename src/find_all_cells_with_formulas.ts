@@ -1,8 +1,6 @@
-"use strict";
-
-module.exports = function find_all_cells_with_formulas(wb, exec_formula) {
+export function find_all_cells_with_formulas(wb, exec_formula) {
     let formula_ref = {};
-    let cells = [];
+    let cells: any[] = [];
     for (let sheet_name in wb.Sheets) {
         let sheet = wb.Sheets[sheet_name];
         for (let cell_name in sheet) {

@@ -1,19 +1,18 @@
-"use strict";
+import { RawValue } from './RawValue';
+import { Range } from './Range';
+import { str_2_val } from './str_2_val';
+import { col_str_2_int } from './col_str_2_int';
+import { int_2_col_str } from './int_2_col_str';
+import { getErrorValueByMessage } from './errors';
 
-const RawValue = require('./RawValue.js');
-const Range = require('./Range.js');
-const str_2_val = require('./str_2_val.js');
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
-const col_str_2_int = require('./col_str_2_int.js');
-const int_2_col_str = require('./int_2_col_str.js');
-const { getErrorValueByMessage } = require('./errors')
 var exp_id = 0;
 
 function isMatrix(obj) {
     return Array.isArray(obj) && (obj.length === 0 || Array.isArray(obj[0]));
 }
 
-module.exports = function Exp(formula) {
+export function Exp(formula) {
     var self = this;
     self.id = ++exp_id;
     self.args = [];
@@ -154,11 +153,12 @@ module.exports = function Exp(formula) {
                 if (i > 0 && typeof args[i - 1] !== 'string') {
                     args.splice(i, 1, '+');
                     if (b instanceof Date) {
-                        b = Date.parse(b);
+                        b = Date.parse(b as any); // todo: why this?
                         checkVariable(args[i - 1]);
                         var a = args[i - 1].calc();
                         if (a instanceof Date) {
-                            a = Date.parse(a) / MS_PER_DAY;
+                            // todo: why this?
+                            a = Date.parse(a as any) / MS_PER_DAY;
                             b = b / MS_PER_DAY;
                             args.splice(i - 1, 1, new RawValue(a));
                         }

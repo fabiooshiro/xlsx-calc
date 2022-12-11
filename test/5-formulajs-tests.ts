@@ -1,26 +1,26 @@
+import * as assert from 'assert';
+import XLSX_CALC from "../src";
 const formulajs = require('@formulajs/formulajs');
-const XLSX_CALC = require("../src");
-const assert = require('assert');
 
-describe('formulajs integration', function() {
-    describe('XLSX_CALC.import_functions()', function() {
-        it('imports the functions from formulajs', function() {
+describe('formulajs integration', function () {
+    describe('XLSX_CALC.import_functions()', function () {
+        it('imports the functions from formulajs', function () {
             XLSX_CALC.import_functions(formulajs);
-            var workbook = {};
+            var workbook: any = {};
             workbook.Sheets = {};
             workbook.Sheets.Sheet1 = {};
-            workbook.Sheets.Sheet1.A1 = {v: 2};
-            workbook.Sheets.Sheet1.A2 = {v: 4};
-            workbook.Sheets.Sheet1.A3 = {v: 8};
-            workbook.Sheets.Sheet1.A4 = {v: 16};
-            workbook.Sheets.Sheet1.A5 = {f: 'AVERAGEIF(A1:A4,">5")'};
+            workbook.Sheets.Sheet1.A1 = { v: 2 };
+            workbook.Sheets.Sheet1.A2 = { v: 4 };
+            workbook.Sheets.Sheet1.A3 = { v: 8 };
+            workbook.Sheets.Sheet1.A4 = { v: 16 };
+            workbook.Sheets.Sheet1.A5 = { f: 'AVERAGEIF(A1:A4,">5")' };
             XLSX_CALC(workbook);
             assert.strictEqual(workbook.Sheets.Sheet1.A5.v, 12);
         });
-        it('imports the functions with dot names like BETA.DIST', function() {
+        it('imports the functions with dot names like BETA.DIST', function () {
             XLSX_CALC.import_functions(formulajs);
-            var workbook = {Sheets: {Sheet1: {}}};
-            workbook.Sheets.Sheet1.A5 = {f: 'BETA.DIST(2, 8, 10, true, 1, 3)'};
+            var workbook: any = { Sheets: { Sheet1: {} } };
+            workbook.Sheets.Sheet1.A5 = { f: 'BETA.DIST(2, 8, 10, true, 1, 3)' };
             XLSX_CALC(workbook);
             assert.strictEqual(workbook.Sheets.Sheet1.A5.v.toFixed(10), (0.6854705810117458).toFixed(10));
         });

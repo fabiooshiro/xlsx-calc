@@ -1,10 +1,8 @@
-"use strict";
+import { col_str_2_int } from './col_str_2_int';
+import { int_2_col_str } from './int_2_col_str';
+import { getSanitizedSheetName } from './getSanitizedSheetName';
 
-const col_str_2_int = require('./col_str_2_int.js');
-const int_2_col_str = require('./int_2_col_str.js');
-const getSanitizedSheetName = require('./getSanitizedSheetName.js');
-
-module.exports = function Range(str_expression, formula) {
+export function Range(str_expression, formula) {
     this.calc = function() {
         var range_expression, sheet_name, sheet;
         if (str_expression.indexOf('!') != -1) {
@@ -28,9 +26,9 @@ module.exports = function Range(str_expression, formula) {
         max_row = parseInt(str_max_row == '' ? '500000' : str_max_row, 10);
         var min_col = col_str_2_int(arr[0]);
         var max_col = col_str_2_int(arr[1]);
-        var matrix = [];
+        var matrix: any[] = [];
         for (var i = min_row; i <= max_row; i++) {
-            var row = [];
+            var row: any[] = [];
             matrix.push(row);
             for (var j = min_col; j <= max_col; j++) {
                 var cell_name = int_2_col_str(j) + i;

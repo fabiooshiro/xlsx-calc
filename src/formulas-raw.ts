@@ -1,10 +1,8 @@
-"use strict";
-
-const int_2_col_str = require('./int_2_col_str.js');
-const col_str_2_int = require('./col_str_2_int.js');
-const RawValue = require('./RawValue.js');
-const Range = require('./Range.js');
-const RefValue = require('./RefValue.js');
+import { RawValue } from './RawValue';
+import { int_2_col_str } from './int_2_col_str';
+import { col_str_2_int } from './col_str_2_int';
+import { Range } from './Range';
+import { RefValue } from './RefValue';
 
 function raw_offset(cell_ref, rows, columns, height, width) {
     height = (height || new RawValue(1)).calc();
@@ -100,7 +98,7 @@ function transpose(expressionWithRange) {
     return matrix[0][0];
 }
 
-module.exports = {
+export default {
     'OFFSET': raw_offset,
     'IFERROR': iferror,
     'IF': _if,

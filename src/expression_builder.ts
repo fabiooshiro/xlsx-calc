@@ -1,7 +1,7 @@
-const Exp = require('./Exp.js');
-const RawValue = require('./RawValue.js');
-const UserFnExecutor = require('./UserFnExecutor.js');
-const UserRawFnExecutor = require('./UserRawFnExecutor.js');
+import { RawValue } from './RawValue';
+import { Exp } from './Exp';
+import { UserFnExecutor } from './UserFnExecutor';
+import { UserRawFnExecutor } from './UserRawFnExecutor';
 const common_operations = {
     '*': 'multiply',
     '+': 'plus',
@@ -14,7 +14,7 @@ const common_operations = {
     '=': 'eq'
 };
 
-module.exports = function expression_builder(formula, opts) {
+export function expression_builder(formula, opts) {
     formula.status = 'working';
 
     var xlsx_Fx = opts.xlsx_Fx || {};
@@ -28,7 +28,7 @@ module.exports = function expression_builder(formula, opts) {
     var exp_obj = root_exp = new Exp(formula);
     var buffer = '',
         was_string = false;
-    var fn_stack = [{
+    var fn_stack: any[] = [{
         exp: exp_obj
     }];
 
@@ -124,7 +124,7 @@ module.exports = function expression_builder(formula, opts) {
             buffer += char;
         }
     }
-    
+
     var state = start;
 
     for (var i = 0; i < str_formula.length; i++) {
