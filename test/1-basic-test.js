@@ -1584,6 +1584,20 @@ describe('XLSX_CALC', function() {
             XLSX_CALC(workbook);
             assert.equal(workbook.Sheets.Sheet1.C1.v, 54);
         });
+        it('should handle no values for the given arrays', function () {
+            workbook.Sheets.Sheet1 = {
+                A1: { v: 'Array 1' },
+                A2: { v: 3 },
+                A4: { v: 8 },
+                D1: { v: 'Array 2' },
+                D2: { v: 2 },
+                D4: { v: 6 },
+                C1: { f: "SUMPRODUCT(,)" }
+            };
+
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.C1.w, '#VALUE!');
+        });
         it('shows "#VALUE!" error value if the array arguments dont have the same dimensions', function () {
             workbook.Sheets.Sheet1 = {
                 A1: { v: 'Array 1' },

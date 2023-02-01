@@ -133,11 +133,11 @@ function sumproduct() {
         return 0;
     },
     consistentSizeRanges = function (matrixArray) {
-        var getRowCount = function(matrix) {
+        var getRowCount = function(matrix = []) {
                 return matrix.length;
             },
-            getColCount = function(matrix) {
-                return matrix[0].length;
+            getColCount = function(matrix = []) {
+                return matrix[0] && matrix[0].length;
             },
             rowCount = getRowCount(matrixArray[0]),
             colCount = getColCount(matrixArray[0]);
@@ -151,7 +151,8 @@ function sumproduct() {
         return true;
     };
 
-    if (!arguments || arguments.length === 0) {
+    if (!arguments || arguments.length === 0 || !arguments[0]) {
+
         throw Error('#VALUE!');
     }
     if (!consistentSizeRanges(arguments)) {
