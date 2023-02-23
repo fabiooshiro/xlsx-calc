@@ -43,9 +43,24 @@ function iferror(cell_ref, onerrorvalue) {
 }
 
 function _if(condition, _then, _else) {
-    var condition_results = condition.calc();
-    var then_results = _then.calc();
-    var else_results = typeof _else === 'undefined' ? false : _else.calc();
+    var condition_results;
+    var then_results;
+    var else_results;
+    try {
+        condition_results = condition.calc();
+    } catch (e) {
+        condition_results = e;
+    }
+    try {
+        then_results = _then.calc();
+    } catch (e) {
+        then_results = e;
+    }
+    try {
+        else_results = typeof _else === 'undefined' ? false : _else.calc();
+    } catch (e) {
+        else_results = e;
+    }
     return dynamic_array_compatible(function (condition_result, then_result, else_result) {
         if (condition_result instanceof Error) {
             return condition_result;
