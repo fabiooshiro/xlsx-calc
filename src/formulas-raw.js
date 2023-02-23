@@ -2,6 +2,7 @@
 
 const int_2_col_str = require('./int_2_col_str.js');
 const col_str_2_int = require('./col_str_2_int.js');
+const dynamic_array_compatible = require('./dynamic_array_compatible.js');
 const RawValue = require('./RawValue.js');
 const Range = require('./Range.js');
 const RefValue = require('./RefValue.js');
@@ -42,21 +43,30 @@ function iferror(cell_ref, onerrorvalue) {
 }
 
 function _if(condition, _then, _else) {
-    if (condition.calc()) {
-        // console.log(condition.formula.name)
-        // if (condition.formula.name === 'P40') {
-        //     console.log('P40 =', _then.calc());
-        //     console.log(' -->', _then.args[1].calc());
-        // }
-        return _then.calc();
+    var condition_results;
+    var then_results;
+    var else_results;
+    try {
+        condition_results = condition.calc();
+    } catch (e) {
+        condition_results = e;
     }
-    else {
-        if (typeof _else === 'undefined') {
-            return false;
-        } else {
-            return _else.calc();
+    try {
+        then_results = _then.calc();
+    } catch (e) {
+        then_results = e;
+    }
+    try {
+        else_results = typeof _else === 'undefined' ? false : _else.calc();
+    } catch (e) {
+        else_results = e;
+    }
+    return dynamic_array_compatible(function (condition_result, then_result, else_result) {
+        if (condition_result instanceof Error) {
+            return condition_result;
         }
-    }
+        return condition_result ? then_result : else_result;
+    })(condition_results, then_results, else_results);
 }
 
 function and() {

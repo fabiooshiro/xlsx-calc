@@ -6,6 +6,7 @@ const str_2_val = require('./str_2_val.js');
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const col_str_2_int = require('./col_str_2_int.js');
 const int_2_col_str = require('./int_2_col_str.js');
+const dynamic_array_compatible = require('./dynamic_array_compatible.js');
 const { getErrorValueByMessage } = require('./errors')
 var exp_id = 0;
 
@@ -23,11 +24,6 @@ module.exports = function Exp(formula) {
     
     function update_cell_value() {
         try {
-            if (Array.isArray(self.args) 
-                    && self.args.length === 1
-                    && self.args[0] instanceof Range) {
-                throw new Error('#VALUE!');
-            }
             formula.cell.v = self.calc();
             formula.cell.t = getCellType(formula.cell.v);
             if (isMatrix(formula.cell.v)) {
@@ -107,10 +103,6 @@ module.exports = function Exp(formula) {
             throw new Error('Undefined ' + obj);
         }
     }
-
-    function getCurrentCellIndex() {
-        return +self.formula.name.replace(/[^0-9]/g, '');
-    }
     
     function exec(op, args, fn) {
         for (var i = 0; i < args.length; i++) {
@@ -126,11 +118,11 @@ module.exports = function Exp(formula) {
 
                         let a = args[i - 1].calc();
                         let b = args[i + 1].calc();
-                        if (Array.isArray(a)) {
-                            a = a[getCurrentCellIndex() - 1][0];
+                        if (a instanceof Error) {
+                            throw a;
                         }
-                        if (Array.isArray(b)) {
-                            b = b[getCurrentCellIndex() - 1][0];
+                        if (b instanceof Error) {
+                            throw b;
                         }
 
                         let r = fn(a, b);
@@ -144,6 +136,10 @@ module.exports = function Exp(formula) {
                 }
             }
         }
+    }
+
+    function toNegative(value) {
+        return Array.isArray(value) ? value.map(toNegative) : -value;
     }
 
     function exec_minus(args) {
@@ -163,13 +159,13 @@ module.exports = function Exp(formula) {
                             args.splice(i - 1, 1, new RawValue(a));
                         }
                     }
-                    args.splice(i + 1, 1, new RawValue(-b));
+                    args.splice(i + 1, 1, new RawValue(toNegative(b)));
                 }
                 else {
                     if (typeof b === 'string') {
                         throw new Error('#VALUE!');
                     }
-                    args.splice(i, 2, new RawValue(-b));
+                    args.splice(i, 2, new RawValue(toNegative(b)));
                 }
             }
         }
@@ -177,41 +173,48 @@ module.exports = function Exp(formula) {
 
     self.calc = function() {
         let args = self.args.concat();
-        exec('^', args, function(a, b) {
+        exec('^', args, dynamic_array_compatible(function(a, b) {
             return Math.pow(+a, +b);
-        });
+        }));
         exec_minus(args);
-        exec('/', args, function(a, b) {
+        exec('/', args, dynamic_array_compatible(function(a, b) {
             if (b == 0) {
                 throw Error('#DIV/0!');
             }
             return (+a) / (+b);
-        });
-        exec('*', args, function(a, b) {
+        }));
+        exec('*', args, dynamic_array_compatible(function(a, b) {
             return (+a) * (+b);
-        });
-        exec('+', args, function(a, b) {
+        }));
+        exec('+', args, dynamic_array_compatible(function(a, b) {
             if (a instanceof Date && typeof b === 'number') {
                 b = b * MS_PER_DAY;
             }
             return (+a) + (+b);
-        });
-        exec('&', args, function(a, b) {
-            return '' + a + b;
-        });
-        exec('<', args, function(a, b) {
+        }));
+        exec('&', args, dynamic_array_compatible(function(a, b) {
+            var string = '';
+            if (a !== null) {
+                string += a;
+            }
+            if (b !== null) {
+                string += b;
+            }
+            return string;
+        }));
+        exec('<', args, dynamic_array_compatible(function(a, b) {
             return a < b;
-        });
-        exec('>', args, function(a, b) {
+        }));
+        exec('>', args, dynamic_array_compatible(function(a, b) {
             return a > b;
-        });
-        exec('>=', args, function(a, b) {
+        }));
+        exec('>=', args, dynamic_array_compatible(function(a, b) {
             return a >= b;
-        });
-        exec('<=', args, function(a, b) {
+        }));
+        exec('<=', args, dynamic_array_compatible(function(a, b) {
             return a <= b;
-        });
-        exec('<>', args, function(a, b) {
+        }));
+        exec('<>', args, dynamic_array_compatible(function(a, b) {
             if (a instanceof Date && b instanceof Date) {
                 return a.getTime() !== b.getTime();
             }
@@ -219,8 +222,8 @@ module.exports = function Exp(formula) {
                 return false;
             }
             return a !== b;
-        });
-        exec('=', args, function(a, b) {
+        }));
+        exec('=', args, dynamic_array_compatible(function(a, b) {
             if (a instanceof Date && b instanceof Date) {
                 return a.getTime() === b.getTime();
             }
@@ -234,7 +237,7 @@ module.exports = function Exp(formula) {
                 return true;
             }
             return a === b;
-        });
+        }));
         if (args.length == 1) {
             if (typeof(args[0].calc) !== 'function') {
                 return args[0];

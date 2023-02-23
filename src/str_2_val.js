@@ -39,6 +39,9 @@ module.exports = function str_2_val(buffer, formula) {
     if (buffer === 'TRUE') {
         return new RawValue(1);
     }
+    if (buffer === 'FALSE') {
+        return new RawValue(0);
+    }
     if (typeof buffer !== 'string') {
         return buffer;
     }
