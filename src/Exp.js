@@ -1,12 +1,12 @@
 "use strict";
 
-const RawValue = require('./RawValue.js');
-const Range = require('./Range.js');
-const str_2_val = require('./str_2_val.js');
+const RawValue = require("./RawValue.js");
+const Range = require("./Range.js");
+const str_2_val = require("./str_2_val.js");
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
-const col_str_2_int = require('./col_str_2_int.js');
-const int_2_col_str = require('./int_2_col_str.js');
-const { getErrorValueByMessage } = require('./errors')
+const col_str_2_int = require("./col_str_2_int.js");
+const int_2_col_str = require("./int_2_col_str.js");
+const { getErrorValueByMessage } = require("./errors");
 var exp_id = 0;
 
 function isMatrix(obj) {
@@ -20,10 +20,10 @@ module.exports = function Exp(formula) {
     self.name = 'Expression';
     self.update_cell_value = update_cell_value;
     self.formula = formula;
-    
+
     function update_cell_value() {
         try {
-            if (Array.isArray(self.args) 
+            if (Array.isArray(self.args)
                     && self.args.length === 1
                     && self.args[0] instanceof Range) {
                 throw new Error('#VALUE!');
@@ -101,7 +101,7 @@ module.exports = function Exp(formula) {
     function isEmpty(value) {
         return value === undefined || value === null || value === "";
     }
-    
+
     function checkVariable(obj) {
         if (typeof obj.calc !== 'function') {
             throw new Error('Undefined ' + obj);
@@ -111,7 +111,7 @@ module.exports = function Exp(formula) {
     function getCurrentCellIndex() {
         return +self.formula.name.replace(/[^0-9]/g, '');
     }
-    
+
     function exec(op, args, fn) {
         for (var i = 0; i < args.length; i++) {
             if (args[i] === op) {
@@ -146,6 +146,22 @@ module.exports = function Exp(formula) {
         }
     }
 
+    function verify(a, t) {
+        if (t === "string") {
+            if (a === undefined || a === null) return "";
+            else return String(a);
+        } else if (t === "number") {
+            if (a === undefined || a === null) return 0;
+            if (!isNaN(a)) return Number(a);
+            else return 0;
+        } else return a;
+    }
+
+    function verifyValues(a, b, type) {
+        let t = type ?? (a && typeof a) ?? (b && typeof b);
+        return [verify(a, t), verify(b, t)];
+    }
+
     function exec_minus(args) {
         for (var i = args.length; i--;) {
             if (args[i] === '-') {
@@ -163,12 +179,14 @@ module.exports = function Exp(formula) {
                             args.splice(i - 1, 1, new RawValue(a));
                         }
                     }
+                    b = verify(b, "number");
                     args.splice(i + 1, 1, new RawValue(-b));
                 }
                 else {
                     if (typeof b === 'string') {
                         throw new Error('#VALUE!');
                     }
+                    b = verify(b, "number");
                     args.splice(i, 2, new RawValue(-b));
                 }
             }
@@ -178,37 +196,46 @@ module.exports = function Exp(formula) {
     self.calc = function() {
         let args = self.args.concat();
         exec('^', args, function(a, b) {
+            [a, b] = verifyValues(a, b, "number");
             return Math.pow(+a, +b);
         });
         exec_minus(args);
         exec('/', args, function(a, b) {
+            [a, b] = verifyValues(a, b, "number");
             if (b == 0) {
                 throw Error('#DIV/0!');
             }
             return (+a) / (+b);
         });
         exec('*', args, function(a, b) {
+            [a, b] = verifyValues(a, b, "number");
             return (+a) * (+b);
         });
         exec('+', args, function(a, b) {
             if (a instanceof Date && typeof b === 'number') {
+            [a, b] = verifyValues(a, b);
                 b = b * MS_PER_DAY;
             }
             return (+a) + (+b);
         });
         exec('&', args, function(a, b) {
+            [a, b] = verifyValues(a, b);
             return '' + a + b;
         });
         exec('<', args, function(a, b) {
+            [a, b] = verifyValues(a, b);
             return a < b;
         });
         exec('>', args, function(a, b) {
+            [a, b] = verifyValues(a, b);
             return a > b;
         });
         exec('>=', args, function(a, b) {
+            [a, b] = verifyValues(a, b);
             return a >= b;
         });
         exec('<=', args, function(a, b) {
+            [a, b] = verifyValues(a, b);
             return a <= b;
         });
         exec('<>', args, function(a, b) {
@@ -218,6 +245,7 @@ module.exports = function Exp(formula) {
             if (isEmpty(a) && isEmpty(b)) {
                 return false;
             }
+            [a, b] = verifyValues(a, b);
             return a !== b;
         });
         exec('=', args, function(a, b) {
@@ -233,6 +261,7 @@ module.exports = function Exp(formula) {
             if (typeof a === 'string' && typeof b === 'string' && a.toLowerCase() === b.toLowerCase()) {
                 return true;
             }
+            [a, b] = verifyValues(a, b);
             return a === b;
         });
         if (args.length == 1) {
