@@ -1,12 +1,12 @@
 "use strict";
 
-const RawValue = require("./RawValue.js");
-const Range = require("./Range.js");
-const str_2_val = require("./str_2_val.js");
+const RawValue = require('./RawValue.js');
+const Range = require('./Range.js');
+const str_2_val = require('./str_2_val.js');
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
-const col_str_2_int = require("./col_str_2_int.js");
-const int_2_col_str = require("./int_2_col_str.js");
-const { getErrorValueByMessage } = require("./errors");
+const col_str_2_int = require('./col_str_2_int.js');
+const int_2_col_str = require('./int_2_col_str.js');
+const { getErrorValueByMessage } = require('./errors')
 var exp_id = 0;
 
 function isMatrix(obj) {
@@ -20,10 +20,10 @@ module.exports = function Exp(formula) {
     self.name = 'Expression';
     self.update_cell_value = update_cell_value;
     self.formula = formula;
-
+    
     function update_cell_value() {
         try {
-            if (Array.isArray(self.args)
+            if (Array.isArray(self.args) 
                     && self.args.length === 1
                     && self.args[0] instanceof Range) {
                 throw new Error('#VALUE!');
@@ -101,7 +101,7 @@ module.exports = function Exp(formula) {
     function isEmpty(value) {
         return value === undefined || value === null || value === "";
     }
-
+    
     function checkVariable(obj) {
         if (typeof obj.calc !== 'function') {
             throw new Error('Undefined ' + obj);
@@ -111,7 +111,7 @@ module.exports = function Exp(formula) {
     function getCurrentCellIndex() {
         return +self.formula.name.replace(/[^0-9]/g, '');
     }
-
+    
     function exec(op, args, fn) {
         for (var i = 0; i < args.length; i++) {
             if (args[i] === op) {
