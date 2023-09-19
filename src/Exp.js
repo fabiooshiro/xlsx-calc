@@ -175,8 +175,39 @@ module.exports = function Exp(formula) {
         }
     }
 
+	function execNegativePow(args, fn) {
+        for (var i = 0; i < args.length - 2; i++) {
+            if ('^' === args[i] && '-' === args[i+1]) {
+                try {
+					checkVariable(args[i - 1]);
+					checkVariable(args[i + 2]);
+
+					let a = args[i - 1].calc();
+					let b = args[i + 2].calc();
+					if (Array.isArray(a)) {
+						a = a[getCurrentCellIndex() - 1][0];
+					}
+					if (Array.isArray(b)) {
+						b = b[getCurrentCellIndex() - 1][0];
+					}
+
+					let r = fn(a, b);
+					args.splice(i - 1, 4, new RawValue(r));
+					i--;
+                }
+                catch (e) {
+                    // console.log('[Exp.js] - ' + formula.name + ': evaluating ' + formula.cell.f + '\n' + e.message);
+                    throw e;
+                }
+            }
+        }
+    }
+
     self.calc = function() {
         let args = self.args.concat();
+        execNegativePow(args, function(a, b) {
+            return Math.pow(+a, 0-b);
+        });
         exec('^', args, function(a, b) {
             return Math.pow(+a, +b);
         });
