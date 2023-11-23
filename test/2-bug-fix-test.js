@@ -187,4 +187,21 @@ describe('Bugs', function() {
 
     });
 
+    it('fixes negative powers', () => {
+        let workbook = {
+            Sheets: {
+                Sample: {
+                    A1: {v: 2},
+                    A2: { f: '6^2-A1^2' },
+                    A3: { f: 'A1^-2' },
+                    A4: { f: '6^2-A1^2+A1^-2' },
+                }
+            }
+        };
+        XLSX_CALC(workbook);
+        let sheet = workbook.Sheets.Sample;
+        assert.equal(sheet.A2.v, 32);
+        assert.equal(sheet.A3.v, 0.25);
+        assert.equal(sheet.A4.v, 32.25);
+    });
 });
