@@ -1205,6 +1205,42 @@ describe('XLSX_CALC', function() {
         });
     });
 
+    describe('ROW', function () {
+       it('returns row in which the formula appears', function () {
+           workbook.Sheets.Sheet1.A1.f = 'ROW()';
+           XLSX_CALC(workbook);
+           assert.equal(workbook.Sheets.Sheet1.A1.v, 1);
+       });
+        it('returns row of the reference', function () {
+            workbook.Sheets.Sheet1.A1.f = 'ROW(A2)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 2);
+        });
+        it('returns row as an array if the reference is an array', function () {
+            workbook.Sheets.Sheet1.A1.f = 'ROW(A1:A3)';
+            XLSX_CALC(workbook);
+            assert.deepEqual(workbook.Sheets.Sheet1.A1.v, [1, 2, 3]);
+        });
+    });
+
+    describe('COLUMN', function () {
+        it('returns column in which the formula appears', function () {
+            workbook.Sheets.Sheet1.A1.f = 'COLUMN()';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 1);
+        });
+        it('returns column of the reference', function () {
+            workbook.Sheets.Sheet1.A1.f = 'COLUMN(B1)';
+            XLSX_CALC(workbook);
+            assert.equal(workbook.Sheets.Sheet1.A1.v, 2);
+        });
+        it('returns column as an array if the reference is an array', function () {
+            workbook.Sheets.Sheet1.A1.f = 'COLUMN(A1:C1)';
+            XLSX_CALC(workbook);
+            assert.deepEqual(workbook.Sheets.Sheet1.A1.v, [1, 2, 3]);
+        });
+    });
+
     describe('ISERROR', function () {
         it('returns true if in error', function () {
             workbook.Sheets.Sheet1.A1 = { f: "0/0" };

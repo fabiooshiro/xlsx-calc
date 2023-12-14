@@ -5,7 +5,7 @@ const int_2_col_str = require('./int_2_col_str.js');
 const getSanitizedSheetName = require('./getSanitizedSheetName.js');
 
 module.exports = function Range(str_expression, formula) {
-    this.calc = function() {
+    this.parse = function() {
         var range_expression, sheet_name, sheet;
         if (str_expression.indexOf('!') != -1) {
             var aux = str_expression.split('!');
@@ -22,12 +22,29 @@ module.exports = function Range(str_expression, formula) {
         var str_max_row = arr[1].replace(/^[A-Z]+/, '');
         var max_row;
         if (str_max_row === '' && sheet['!ref']) {
-            str_max_row = sheet['!ref'].split(':')[1].replace(/^[A-Z]+/, '');
+            str_max_row = (sheet['!ref'].includes(':') ? sheet['!ref'].split(':')[1] : sheet['!ref']).replace(/^[A-Z]+/, '');
         }
         // the max is 1048576, but TLE
         max_row = parseInt(str_max_row == '' ? '500000' : str_max_row, 10);
         var min_col = col_str_2_int(arr[0]);
         var max_col = col_str_2_int(arr[1]);
+        return {
+            sheet_name: sheet_name,
+            sheet: sheet,
+            min_row: min_row,
+            min_col: min_col,
+            max_row: max_row,
+            max_col: max_col,
+        };
+    };
+    this.calc = function() {
+        var results = this.parse();
+        var sheet_name = results.sheet_name;
+        var sheet = results.sheet;
+        var min_row = results.min_row;
+        var min_col = results.min_col;
+        var max_row = results.max_row;
+        var max_col = results.max_col;
         var matrix = [];
         for (var i = min_row; i <= max_row; i++) {
             var row = [];
