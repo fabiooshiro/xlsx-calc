@@ -30,6 +30,48 @@ function raw_offset(cell_ref, rows, columns, height, width) {
     }
 }
 
+function row(cell_ref) {
+    if (cell_ref.args.length === 0) {
+        var row = +cell_ref.formula.name.replace(/^[A-Z]+/g, '');
+        return row;
+    } else if (cell_ref.args.length === 1 && cell_ref.args[0].name === 'RefValue') {
+        var ref_value = cell_ref.args[0];
+        var parsed_ref = ref_value.parseRef();
+        var row = +parsed_ref.cell_name.replace(/^[A-Z]+/g, '');
+        return row;
+    } else if (cell_ref.args.length === 1 && cell_ref.args[0] instanceof Range) {
+        var results = cell_ref.args[0].parse();
+        var min_row = results.min_row;
+        var max_row = results.max_row;
+        var rows = [];
+        for (var i = min_row; i <= max_row; i++) {
+            rows.push(i);
+        }
+        return rows;
+    }
+}
+
+function column(cell_ref) {
+    if (cell_ref.args.length === 0) {
+        var col = col_str_2_int(cell_ref.formula.name);
+        return col + 1;
+    } else if (cell_ref.args.length === 1 && cell_ref.args[0].name === 'RefValue') {
+        var ref_value = cell_ref.args[0];
+        var parsed_ref = ref_value.parseRef();
+        var col = col_str_2_int(parsed_ref.cell_name);
+        return col + 1;
+    }  else if (cell_ref.args.length === 1 && cell_ref.args[0] instanceof Range) {
+        var results = cell_ref.args[0].parse();
+        var min_col = results.min_col;
+        var max_col = results.max_col;
+        var cols = [];
+        for (var i = min_col; i <= max_col; i++) {
+            cols.push(i + 1);
+        }
+        return cols;
+    }
+}
+
 function iferror(cell_ref, onerrorvalue) {
     try {
         var value = cell_ref.calc();
@@ -112,6 +154,8 @@ function transpose(expressionWithRange) {
 
 module.exports = {
     'OFFSET': raw_offset,
+    'ROW': row,
+    'COLUMN': column,
     'IFERROR': iferror,
     'IF': _if,
     'AND': and,
