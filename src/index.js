@@ -10,6 +10,10 @@ var mymodule = function(workbook, options) {
     var formulas = find_all_cells_with_formulas(workbook, exec_formula);
     for (var i = formulas.length - 1; i >= 0; i--) {
       try {
+        // https://github.com/fabiooshiro/xlsx-calc/issues/119
+        if (formulas[i].status === 'done') {
+          continue;
+        }
         exec_formula(formulas[i]);
       } catch (error) {
         if (!options || !options.continue_after_error) {
