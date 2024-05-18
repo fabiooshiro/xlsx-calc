@@ -10,6 +10,9 @@ module.exports = function UserFnExecutor(user_function) {
         var result;
         try {
             result = user_function.apply(self, self.args.map(f => f.calc()));
+            if (result instanceof Error) {
+                throw result;
+            }
         } catch (e) {
             const errorValue = getErrorValueByMessage(e.message)
             if (user_function.name === 'is_blank'
