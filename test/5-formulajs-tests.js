@@ -32,4 +32,15 @@ describe('formulajs integration', function() {
             assert.strictEqual(XLSX_CALC.xlsx_Fx.TRUNC === formulajs.TRUNC, true);
         });
     });
+    describe('UserFnExecutor()', function() {
+        it('handles error that is returned instead of thrown', function() {
+            XLSX_CALC.import_functions(formulajs);
+            var workbook = {};
+            workbook.Sheets = {};
+            workbook.Sheets.Sheet1 = {};
+            workbook.Sheets.Sheet1.A2 = {f: 'AVERAGE(A1)'};
+            XLSX_CALC(workbook);
+            assert.strictEqual(workbook.Sheets.Sheet1.A2.w, '#DIV/0!');
+        });
+    })
 });
