@@ -8,8 +8,8 @@ jobs:
     env:
       NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
       - run: yarn
@@ -21,7 +21,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
 
   publish-npm:
     needs: release
@@ -30,8 +30,8 @@ jobs:
     env:
       NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
