@@ -777,7 +777,7 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.B3.t, 'n');
             assert.equal(workbook.Sheets.Sheet1.B3.v, 2);
         });
-        it('should preserve error state when a cell is in error', function () {
+        it('should contain error when a cell is in error', function () {
             workbook.Sheets.Sheet1.A1 = { t: "e", v: 42, w: "#N/A" };
             workbook.Sheets.Sheet1.A2 = { t: 'n', v: 1 };
             workbook.Sheets.Sheet1.A3 = { t: 'n', v: 2 };
@@ -787,7 +787,7 @@ describe('XLSX_CALC', function() {
             var formula = find_all_cells_with_formulas(workbook, exec_formula)[0];
             var range = exec_formula.build_expression(formula).args[0].calc();
             var expected = [
-                [{ t: "e", v: 42, w: "#N/A" }],
+                [new Error('#N/A')],
                 [1],
                 [2]
             ];
