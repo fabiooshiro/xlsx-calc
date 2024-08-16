@@ -63,7 +63,7 @@ module.exports = function Range(str_expression, formula) {
                         formula.exec_formula(formula_ref);
                     }
                     if (sheet[cell_name].t === 'e') {
-                        row.push(sheet[cell_name]);
+                        row.push(new Error(sheet[cell_name].w));
                     }
                     else {
                         row.push(sheet[cell_name].v);
@@ -71,7 +71,7 @@ module.exports = function Range(str_expression, formula) {
                 }
                 else if (sheet[cell_name]) {
                     if (sheet[cell_name].t === 'e') {
-                        row.push(sheet[cell_name]);
+                        row.push(new Error(sheet[cell_name].w));
                     }
                     else {
                         row.push(sheet[cell_name].v);

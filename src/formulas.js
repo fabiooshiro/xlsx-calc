@@ -170,23 +170,23 @@ function sumproduct() {
                 if (Array.isArray(col)) {
                     for (var k = 0; k < col.length; k++) {
                         var cell = col[k];
-                        if (cell && typeof cell === 'object' && cell.t === 'e') {
-                            throw Error(cell.w);
+                        if (cell instanceof Error) {
+                            throw cell;
                         }
                     }
                 }
                 else {
                     var cell = col;
-                    if (cell && typeof cell === 'object' && cell.t === 'e') {
-                        throw Error(cell.w);
+                    if (cell instanceof Error) {
+                        throw cell;
                     }
                 }
             }
         }
         else {
             var cell = row;
-            if (cell && typeof cell === 'object' && cell.t === 'e') {
-                throw Error(cell.w);
+            if (cell instanceof Error) {
+                throw cell;
             }
         }
     }
