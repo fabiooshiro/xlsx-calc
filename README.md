@@ -155,6 +155,16 @@ Thx!
 
 Made with [contributors-img](https://contributors-img.firebaseapp.com).
 
+## Star History
+
+<a href="https://star-history.com/#fabiooshiro/xlsx-calc&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=fabiooshiro/xlsx-calc&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=fabiooshiro/xlsx-calc&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=fabiooshiro/xlsx-calc&type=Date" />
+ </picture>
+</a>
+
 # MIT LICENSE
 
 Copyright 2017, fabiooshiro
