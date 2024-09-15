@@ -8,8 +8,6 @@ const Calculator = require('./Calculator.js');
 const { cache: RangeCache } = require('./Range.js');
 
 var mymodule = function(workbook, options) {
-    RangeCache.clear();
-
     var formulas = find_all_cells_with_formulas(workbook, exec_formula);
     for (var i = formulas.length - 1; i >= 0; i--) {
       try {
@@ -27,6 +25,9 @@ var mymodule = function(workbook, options) {
         }
       }
     }
+
+    // Clear out cache for next calculation
+    RangeCache.clear();
 };
 
 mymodule.calculator = function calculator(workbook) {
