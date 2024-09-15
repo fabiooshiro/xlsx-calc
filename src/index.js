@@ -5,6 +5,7 @@ const col_str_2_int = require('./col_str_2_int.js');
 const exec_formula = require('./exec_formula.js');
 const find_all_cells_with_formulas = require('./find_all_cells_with_formulas.js');
 const Calculator = require('./Calculator.js');
+const { cache: RangeCache } = require('./Range.js');
 
 var mymodule = function(workbook, options) {
     var formulas = find_all_cells_with_formulas(workbook, exec_formula);
@@ -24,6 +25,9 @@ var mymodule = function(workbook, options) {
         }
       }
     }
+
+    // Clear out cache for next calculation
+    RangeCache.clear();
 };
 
 mymodule.calculator = function calculator(workbook) {
