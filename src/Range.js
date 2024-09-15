@@ -1,10 +1,13 @@
 "use strict";
 
+const LRUCache = require('./LRUCache.js');
 const col_str_2_int = require('./col_str_2_int.js');
 const int_2_col_str = require('./int_2_col_str.js');
 const getSanitizedSheetName = require('./getSanitizedSheetName.js');
 
-module.exports = function Range(str_expression, formula) {
+const Cache = new LRUCache()
+
+function Range(str_expression, formula) {
     this.parse = function() {
         var range_expression, sheet_name, sheet;
         if (str_expression.indexOf('!') != -1) {
@@ -37,7 +40,8 @@ module.exports = function Range(str_expression, formula) {
             max_col: max_col,
         };
     };
-    this.calc = function() {
+
+    this._calc = function() {
         var results = this.parse();
         var sheet_name = results.sheet_name;
         var sheet = results.sheet;
@@ -84,4 +88,20 @@ module.exports = function Range(str_expression, formula) {
         }
         return matrix;
     };
+
+    this.calc = function() {
+        const cached = Cache.get(str_expression);
+        if(cached) {
+            return cached;
+        }
+        else {
+            const result =  this._calc();
+            Cache.set(str_expression, result);
+            return result;
+        }
+    }
 };
+
+Range.cache = Cache
+
+module.exports = Range;

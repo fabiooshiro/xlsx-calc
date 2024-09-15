@@ -783,7 +783,10 @@ describe('XLSX_CALC', function() {
             workbook.Sheets.Sheet1.A3 = { t: 'n', v: 2 };
             workbook.Sheets.Sheet1.B1 = { f: 'A1:A3' };
             var exec_formula = require('../src/exec_formula.js'),
-            find_all_cells_with_formulas = require('../src/find_all_cells_with_formulas.js');
+            find_all_cells_with_formulas = require('../src/find_all_cells_with_formulas.js'),
+            cache = require('../src/Range.js').cache;
+            cache.clear();
+
             var formula = find_all_cells_with_formulas(workbook, exec_formula)[0];
             var range = exec_formula.build_expression(formula).args[0].calc();
             var expected = [
@@ -2252,7 +2255,7 @@ describe('XLSX_CALC', function() {
             assert.equal(workbook.Sheets.Sheet1.B8.v, 6)
         })
     })
-    
+
     describe('INDEX', function () {
         it('returns the value of an element in a matrix, selected by the row and column number indexes', function () {
             workbook.Sheets.Sheet1.A1 = { v: 'Data' };
