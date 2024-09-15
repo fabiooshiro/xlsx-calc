@@ -18,4 +18,4 @@ for (let i = 0; i < n; i++) {
 }
 
 const average = (times.reduce((sum, t) => sum + t, 0)) / n;
-console.log(`Average time for ${n} executions: ${average}`)
+console.log(`Average time for ${n} executions: ${average.toFixed(2)} ms`)
