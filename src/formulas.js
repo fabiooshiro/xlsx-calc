@@ -1101,36 +1101,30 @@ function XLOOKUP(
   match_mode = 0,
   search_mode = 1,
 ) {
-  const ctx = this; // Evaluation context from xlsx-calc
+  const ctx = this;
   const workbook = ctx.wb;
   const sheet_name = ctx.sheet_name;
 
-  // Evaluate lookup_value
   lookup_value = anytype2value(lookup_value);
 
-  // Get lookup array values
   let lookup_array = getRangeValues(lookup_array_ref, ctx);
 
-  // Get return array values
   let return_array = getRangeValues(return_array_ref, ctx);
 
-  // Flatten the arrays
   lookup_array = flattenArray(lookup_array);
   return_array = flattenArray(return_array);
 
-  // Ensure the arrays have the same length
   if (lookup_array.length !== return_array.length) {
     throw error.na;
   }
 
-  // Search the lookup array
   let index = -1;
   if (search_mode === 1) {
     index = searchLookupArray(lookup_value, lookup_array, match_mode);
   } else if (search_mode === -1) {
     index = searchLookupArrayReverse(lookup_value, lookup_array, match_mode);
   } else {
-    throw error.value; // Invalid search_mode
+    throw error.value;
   }
 
   if (index !== -1) {
@@ -1138,7 +1132,6 @@ function XLOOKUP(
     result = anytype2value(result);
     return result;
   } else {
-    // Not found
     if (if_not_found !== undefined) {
       return if_not_found;
     } else {
@@ -1147,44 +1140,35 @@ function XLOOKUP(
   }
 }
 
-// Helper function to get values from a range reference
 function getRangeValues(range_ref, ctx) {
   const workbook = ctx.wb;
   const sheet_name = ctx.sheet_name;
 
-  // If the range_ref is a range reference string, parse it
   if (typeof range_ref === 'string') {
-    // Parse the reference
     const { sheetName, range } = parseRangeReference(range_ref, sheet_name);
 
-    // Get the sheet
     const sheet = workbook.Sheets[sheetName];
     if (!sheet) {
       throw error.ref;
     }
 
-    // Get the range of cells
     const cells = getCellsInRange(sheet, range);
     const values = cells.map(cell => (cell.v !== undefined ? cell.v : null));
     return values;
   } else {
-    // If it's already an array or value, return as is
     return range_ref;
   }
 }
 
-// Helper function to parse range references like 'Sheet'!A:A
 function parseRangeReference(range_ref, current_sheet_name) {
-  // Split by '!' to separate sheet name and cell range
   const parts = range_ref.split('!');
   let sheetName = '';
   let range = '';
 
   if (parts.length === 2) {
-    sheetName = parts[0].replace(/^'|'$/g, ''); // Remove leading/trailing single quotes
+    sheetName = parts[0].replace(/^'|'$/g, '');
     range = parts[1];
   } else {
-    // No sheet specified, use current sheet
     sheetName = current_sheet_name;
     range = range_ref;
   }
@@ -1192,12 +1176,10 @@ function parseRangeReference(range_ref, current_sheet_name) {
   return { sheetName, range };
 }
 
-// Helper function to get all cells in a specified range
 function getCellsInRange(sheet, range) {
   let rangeRef;
 
   if (/^[A-Za-z]+:[A-Za-z]+$/.test(range)) {
-    // Full column range, e.g., 'A:A'
     const colStart = range.split(':')[0];
     const colEnd = range.split(':')[1];
     const maxRow = getMaxRow(sheet);
@@ -1206,7 +1188,6 @@ function getCellsInRange(sheet, range) {
       e: { c: XLSX.utils.decode_col(colEnd), r: maxRow },
     };
   } else if (/^\d+:\d+$/.test(range)) {
-    // Full row range, e.g., '1:1'
     const rowStart = parseInt(range.split(':')[0], 10) - 1;
     const rowEnd = parseInt(range.split(':')[1], 10) - 1;
     const maxCol = getMaxCol(sheet);
@@ -1215,7 +1196,6 @@ function getCellsInRange(sheet, range) {
       e: { c: maxCol, r: rowEnd },
     };
   } else {
-    // Regular range
     rangeRef = XLSX.utils.decode_range(range);
   }
 
@@ -1232,11 +1212,10 @@ function getCellsInRange(sheet, range) {
   return cells;
 }
 
-// Helper function to get the maximum row number in a sheet
 function getMaxRow(sheet) {
   let maxRow = 0;
   for (const cellRef in sheet) {
-    if (cellRef[0] === '!') continue; // Skip special properties
+    if (cellRef[0] === '!') continue;
     const cellAddress = XLSX.utils.decode_cell(cellRef);
     if (cellAddress.r > maxRow) {
       maxRow = cellAddress.r;
@@ -1245,11 +1224,10 @@ function getMaxRow(sheet) {
   return maxRow;
 }
 
-// Helper function to get the maximum column number in a sheet
 function getMaxCol(sheet) {
   let maxCol = 0;
   for (const cellRef in sheet) {
-    if (cellRef[0] === '!') continue; // Skip special properties
+    if (cellRef[0] === '!') continue;
     const cellAddress = XLSX.utils.decode_cell(cellRef);
     if (cellAddress.c > maxCol) {
       maxCol = cellAddress.c;
@@ -1258,7 +1236,6 @@ function getMaxCol(sheet) {
   return maxCol;
 }
 
-// Helper function to flatten nested arrays
 function flattenArray(array) {
   const result = [];
   (function flatten(arr) {
@@ -1273,7 +1250,6 @@ function flattenArray(array) {
   return result;
 }
 
-// Helper function to convert any type to a value
 function anytype2value(val) {
   if (val && val.v !== undefined) {
     return val.v;
@@ -1281,7 +1257,6 @@ function anytype2value(val) {
   return val;
 }
 
-// Helper function to search the lookup array
 function searchLookupArray(lookup_value, lookup_array, match_mode) {
   for (let i = 0; i < lookup_array.length; i++) {
     const lookup_item = anytype2value(lookup_array[i]);
@@ -1292,7 +1267,6 @@ function searchLookupArray(lookup_value, lookup_array, match_mode) {
   return -1;
 }
 
-// Helper function to search the lookup array in reverse
 function searchLookupArrayReverse(lookup_value, lookup_array, match_mode) {
   for (let i = lookup_array.length - 1; i >= 0; i--) {
     const lookup_item = anytype2value(lookup_array[i]);
@@ -1303,31 +1277,30 @@ function searchLookupArrayReverse(lookup_value, lookup_array, match_mode) {
   return -1;
 }
 
-// Helper function to match values based on match_mode
 function matchValues(lookup_value, current_value, match_mode) {
   switch (match_mode) {
-    case 0: // Exact match
+    case 0:
       return lookup_value === current_value;
-    case -1: // Exact match or next smaller item
+    case -1:
       if (lookup_value === current_value) return true;
       if (typeof lookup_value === 'number' && typeof current_value === 'number') {
         return lookup_value > current_value;
       }
       return false;
-    case 1: // Exact match or next larger item
+    case 1:
       if (lookup_value === current_value) return true;
       if (typeof lookup_value === 'number' && typeof current_value === 'number') {
         return lookup_value < current_value;
       }
       return false;
-    case 2: // Wildcard match (simplified)
+    case 2:
       const regex = new RegExp(
         '^' + lookup_value.replace(/\*/g, '.*').replace(/\?/g, '.') + '$',
         'i',
       );
       return regex.test(current_value);
     default:
-      throw error.value; // Invalid match_mode
+      throw error.value;
   }
 }
 
