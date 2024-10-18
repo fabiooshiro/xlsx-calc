@@ -55,6 +55,7 @@ let formulas = {
     'FILTER': throwErrors(FILTER),
     'DATEDIF': datediff,
     'EOMONTH': eomonth,
+    'XLOOKUP': XLOOKUP,
 };
 
 function choose(option) {
@@ -1054,6 +1055,217 @@ function throwErrors(someFormula) {
             throw result;
         }
         return result;
+    }
+}
+
+function XLOOKUP(
+    lookup_value,
+    lookup_array_ref,
+    return_array_ref,
+    if_not_found,
+    match_mode = 0,
+    search_mode = 1,
+) {
+    const ctx = this;
+    const workbook = ctx.wb;
+    const sheet_name = ctx.sheet_name;
+
+    lookup_value = anytype2value(lookup_value);
+
+    let lookup_array = getRangeValues(lookup_array_ref, ctx);
+
+    let return_array = getRangeValues(return_array_ref, ctx);
+
+    lookup_array = flattenArray(lookup_array);
+    return_array = flattenArray(return_array);
+
+    if (lookup_array.length !== return_array.length) {
+        throw error.na;
+    }
+
+    let index = -1;
+    if (search_mode === 1) {
+        index = searchLookupArray(lookup_value, lookup_array, match_mode);
+    } else if (search_mode === -1) {
+        index = searchLookupArrayReverse(lookup_value, lookup_array, match_mode);
+    } else {
+        throw error.value;
+    }
+
+    if (index !== -1) {
+        let result = return_array[index];
+        result = anytype2value(result);
+        return result;
+    } else {
+        if (if_not_found !== undefined) {
+            return if_not_found;
+        } else {
+            throw error.na;
+        }
+    }
+}
+
+function getRangeValues(range_ref, ctx) {
+    const workbook = ctx.wb;
+    const sheet_name = ctx.sheet_name;
+
+    if (typeof range_ref === 'string') {
+        const { sheetName, range } = parseRangeReference(range_ref, sheet_name);
+
+        const sheet = workbook.Sheets[sheetName];
+        if (!sheet) {
+            throw error.ref;
+        }
+
+        const cells = getCellsInRange(sheet, range);
+        const values = cells.map(cell => (cell.v !== undefined ? cell.v : null));
+        return values;
+    } else {
+        return range_ref;
+    }
+}
+
+function parseRangeReference(range_ref, current_sheet_name) {
+    const parts = range_ref.split('!');
+    let sheetName = '';
+    let range = '';
+
+    if (parts.length === 2) {
+        sheetName = parts[0].replace(/^'|'$/g, '');
+        range = parts[1];
+    } else {
+        sheetName = current_sheet_name;
+        range = range_ref;
+    }
+
+    return { sheetName, range };
+}
+
+function getCellsInRange(sheet, range) {
+    let rangeRef;
+
+    if (/^[A-Za-z]+:[A-Za-z]+$/.test(range)) {
+        const colStart = range.split(':')[0];
+        const colEnd = range.split(':')[1];
+        const maxRow = getMaxRow(sheet);
+        rangeRef = {
+            s: { c: XLSX.utils.decode_col(colStart), r: 0 },
+            e: { c: XLSX.utils.decode_col(colEnd), r: maxRow },
+        };
+    } else if (/^\d+:\d+$/.test(range)) {
+        const rowStart = parseInt(range.split(':')[0], 10) - 1;
+        const rowEnd = parseInt(range.split(':')[1], 10) - 1;
+        const maxCol = getMaxCol(sheet);
+        rangeRef = {
+            s: { c: 0, r: rowStart },
+            e: { c: maxCol, r: rowEnd },
+        };
+    } else {
+        rangeRef = XLSX.utils.decode_range(range);
+    }
+
+    const cells = [];
+    for (let R = rangeRef.s.r; R <= rangeRef.e.r; ++R) {
+        for (let C = rangeRef.s.c; C <= rangeRef.e.c; ++C) {
+            const cell_address = { c: C, r: R };
+            const cell_ref = XLSX.utils.encode_cell(cell_address);
+            const cell = sheet[cell_ref] || {};
+            cells.push(cell);
+        }
+    }
+
+    return cells;
+}
+
+function getMaxRow(sheet) {
+    let maxRow = 0;
+    for (const cellRef in sheet) {
+        if (cellRef[0] === '!') continue;
+        const cellAddress = XLSX.utils.decode_cell(cellRef);
+        if (cellAddress.r > maxRow) {
+            maxRow = cellAddress.r;
+        }
+    }
+    return maxRow;
+}
+
+function getMaxCol(sheet) {
+    let maxCol = 0;
+    for (const cellRef in sheet) {
+        if (cellRef[0] === '!') continue;
+        const cellAddress = XLSX.utils.decode_cell(cellRef);
+        if (cellAddress.c > maxCol) {
+            maxCol = cellAddress.c;
+        }
+    }
+    return maxCol;
+}
+
+function flattenArray(array) {
+    const result = [];
+    (function flatten(arr) {
+        arr.forEach(el => {
+            if (Array.isArray(el)) {
+                flatten(el);
+            } else {
+                result.push(el);
+            }
+        });
+    })(array);
+    return result;
+}
+
+function anytype2value(val) {
+    if (val && val.v !== undefined) {
+        return val.v;
+    }
+    return val;
+}
+
+function searchLookupArray(lookup_value, lookup_array, match_mode) {
+    for (let i = 0; i < lookup_array.length; i++) {
+        const lookup_item = anytype2value(lookup_array[i]);
+        if (matchValues(lookup_value, lookup_item, match_mode)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+function searchLookupArrayReverse(lookup_value, lookup_array, match_mode) {
+    for (let i = lookup_array.length - 1; i >= 0; i--) {
+        const lookup_item = anytype2value(lookup_array[i]);
+        if (matchValues(lookup_value, lookup_item, match_mode)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+function matchValues(lookup_value, current_value, match_mode) {
+    switch (match_mode) {
+        case 0:
+            return lookup_value === current_value;
+        case -1:
+            if (lookup_value === current_value) return true;
+            if (typeof lookup_value === 'number' && typeof current_value === 'number') {
+                return lookup_value > current_value;
+            }
+            return false;
+        case 1:
+            if (lookup_value === current_value) return true;
+            if (typeof lookup_value === 'number' && typeof current_value === 'number') {
+                return lookup_value < current_value;
+            }
+            return false;
+        case 2:
+            const regex = new RegExp(
+                '^' + lookup_value.replace(/\*/g, '.*').replace(/\?/g, '.') + '$',
+                'i',
+            );
+            return regex.test(current_value);
+        default:
+            throw error.value;
     }
 }
 
