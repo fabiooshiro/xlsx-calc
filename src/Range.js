@@ -19,13 +19,14 @@ module.exports = function Range(str_expression, formula) {
         sheet = formula.wb.Sheets[sheet_name];
         var arr = range_expression.split(':');
         var min_row = parseInt(arr[0].replace(/^[A-Z]+/, ''), 10) || 0;
-        var str_max_row = arr[1].replace(/^[A-Z]+/, '');
-        var max_row;
-        if (str_max_row === '' && sheet['!ref']) {
-            str_max_row = (sheet['!ref'].includes(':') ? sheet['!ref'].split(':')[1] : sheet['!ref']).replace(/^[A-Z]+/, '');
-        }
         // the max is 1048576, but TLE
-        max_row = parseInt(str_max_row == '' ? '500000' : str_max_row, 10);
+        var range_max_row = parseInt(arr[1].replace(/^[A-Z]+/, ''), 10) || 500000;
+        var sheet_max_row = sheet['!ref'] && parseInt(
+          (sheet['!ref'].includes(':') ? sheet['!ref'].split(':')[1] : sheet['!ref'])
+            .replace(/^[A-Z]+/, ''),
+        10
+        ) || 500000;
+        var max_row = range_max_row < sheet_max_row ? range_max_row : sheet_max_row;
         var min_col = col_str_2_int(arr[0]);
         var max_col = col_str_2_int(arr[1]);
         return {
