@@ -53,6 +53,7 @@ let formulas = {
     'SUBSTITUTE': substitute,
     'CEILING': ceiling,
     'FILTER': throwErrors(FILTER),
+    '_xlws.FILTER': throwErrors(FILTER),
     'DATEDIF': datediff,
     'EOMONTH': eomonth,
 };
